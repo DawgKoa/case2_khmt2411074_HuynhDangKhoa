@@ -328,6 +328,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           'TASK MANAGER // OS',
           style: GoogleFonts.spaceGrotesk(
