@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/task_stats.dart';
 import '../../services/stats_service.dart';
@@ -56,6 +58,120 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         });
       }
     }
+  }
+
+  void _exportReport() {
+    if (_stats == null) return;
+    final now = DateTime.now();
+    final timeStr = DateFormat('HH:mm - dd/MM/yyyy').format(now);
+
+    final buffer = StringBuffer();
+    buffer.writeln('====================================================');
+    buffer.writeln('TASK MANAGER // BÁO CÁO TIẾN ĐỘ & HIỆU SUẤT CÔNG VIỆC');
+    buffer.writeln('Thời gian lập báo cáo: $timeStr');
+    buffer.writeln('Khoảng thời gian: ${_selectedTimeRange.toUpperCase()}');
+    buffer.writeln('Phạm vi: ${_selectedScope.toUpperCase()}');
+    buffer.writeln('----------------------------------------------------');
+    buffer.writeln('📊 TỔNG QUAN CHỈ SỐ KPI:');
+    buffer.writeln('- Tổng số công việc: ${_stats!.summary.totalTasks}');
+    buffer.writeln('- Đã hoàn thành: ${_stats!.byStatus.completed.count} (${_stats!.summary.completionRate}%)');
+    buffer.writeln('- Đang thực hiện: ${_stats!.byStatus.inProgress.count} (${_stats!.byStatus.inProgress.percentage}%)');
+    buffer.writeln('- Chờ xử lý: ${_stats!.byStatus.todo.count} (${_stats!.byStatus.todo.percentage}%)');
+    buffer.writeln('- Đã hủy: ${_stats!.byStatus.cancelled.count}');
+    buffer.writeln('- Tỷ lệ hoàn thành đúng hạn: ${_stats!.summary.completedOnTimeRate}%');
+    buffer.writeln('----------------------------------------------------');
+    buffer.writeln('⚠️ GIÁM SÁT HẠN CHÓT (DEADLINES):');
+    buffer.writeln('- Quá hạn: ${_stats!.deadlines.overdue}');
+    buffer.writeln('- Sắp tới hạn (trong 24h): ${_stats!.deadlines.dueSoon}');
+    buffer.writeln('- Đã xong đúng hạn: ${_stats!.deadlines.completedOnTime}');
+    buffer.writeln('----------------------------------------------------');
+    buffer.writeln('👥 KHỐI LƯỢNG CÔNG VIỆC THÀNH VIÊN:');
+    for (int i = 0; i < _stats!.memberWorkloads.length; i++) {
+      final m = _stats!.memberWorkloads[i];
+      buffer.writeln('${i + 1}. ${m.user.fullName} (${m.user.email}) - Xong: ${m.completedCount}/${m.taskCount} (${m.completionRate}%)');
+    }
+    buffer.writeln('====================================================');
+    buffer.writeln('Hệ thống Quản lý công việc nhóm - Case Study 2');
+
+    final reportText = buffer.toString();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(color: AppColors.primaryInk, width: 2.0),
+        ),
+        title: Text(
+          'XUẤT BÁO CÁO TỔNG HỢP',
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+            color: AppColors.primaryInk,
+          ),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.scaffoldBackground,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: AppColors.primaryInk, width: 1.5),
+              ),
+              child: Text(
+                reportText,
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primaryInk,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'ĐÓNG',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: AppColors.secondaryText,
+              ),
+            ),
+          ),
+          BrutalistButton(
+            text: 'SAO CHÉP BÁO CÁO',
+            icon: Icons.copy,
+            height: 42,
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              final nav = Navigator.of(ctx);
+              await Clipboard.setData(ClipboardData(text: reportText));
+              nav.pop();
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Đã sao chép báo cáo tóm tắt vào bộ nhớ tạm!',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  backgroundColor: AppColors.primaryInk,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _onTimeRangeChanged(String range) {
@@ -511,6 +627,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.share_outlined, color: AppColors.primaryInk),
+            tooltip: 'Xuất báo cáo tóm tắt',
+            onPressed: _exportReport,
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.primaryInk),
             tooltip: 'Làm mới số liệu',
