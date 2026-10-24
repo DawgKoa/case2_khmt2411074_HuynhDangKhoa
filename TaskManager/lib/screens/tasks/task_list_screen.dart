@@ -7,6 +7,7 @@ import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../auth/login_screen.dart';
+import '../profile/profile_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
@@ -32,6 +33,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
       _currentUser = user;
       _isLoading = false;
     });
+
+    // Cố gắng cập nhật thông tin mới nhất từ API ngầm
+    try {
+      final latestUser = await _authService.getProfile();
+      if (mounted) {
+        setState(() {
+          _currentUser = latestUser;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _handleLogout() async {
@@ -41,6 +52,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
       context,
       MaterialPageRoute(builder: (_) => const LoginScreen()),
     );
+  }
+
+  Future<void> _openProfile() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+    );
+    _loadUser();
   }
 
   @override
@@ -58,6 +77,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: AppColors.primaryInk),
+            tooltip: 'Hồ sơ cá nhân',
+            onPressed: _openProfile,
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: AppColors.primaryInk),
             tooltip: 'Đăng xuất',
@@ -95,7 +119,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         icon: Icons.check_circle_outline,
                       ),
                       BrutalistBadge(
-                        text: 'MODULE A2 OK',
+                        text: 'MODULE A3 OK',
                         backgroundColor: AppColors.primaryAccent,
                         textColor: AppColors.primaryInk,
                       ),
@@ -103,21 +127,28 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // User Info Hero Card
+                  // User Info Hero Card (Clickable to edit profile)
                   BrutalistCard(
                     padding: const EdgeInsets.all(20.0),
                     backgroundColor: AppColors.cardWhite,
+                    onTap: _openProfile,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'TÀI KHOẢN ĐANG ĐĂNG NHẬP',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.0,
-                            color: AppColors.secondaryText,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'TÀI KHOẢN ĐANG ĐĂNG NHẬP',
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.0,
+                                color: AppColors.secondaryText,
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primaryInk),
+                          ],
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -140,6 +171,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.secondaryText,
                               ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            BrutalistBadge(
+                              text: 'CHỈNH SỬA HỒ SƠ ➔',
+                              backgroundColor: AppColors.primaryAccent,
+                              textColor: AppColors.primaryInk,
                             ),
                           ],
                         ),
@@ -171,7 +212,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Xác thực token JWT đã lưu thành công vào bộ nhớ máy (SharedPreferences). Chức năng Quản lý công việc (CRUD) sẽ được kết nối ở Module B.',
+                          'Hồ sơ người dùng & Token xác thực đã đồng bộ hoàn tất (Module A3). Các chức năng Quản lý công việc (CRUD) sẽ được kết nối ở Module B.',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,

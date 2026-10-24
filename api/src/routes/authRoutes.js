@@ -2,11 +2,16 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const { validateRegister, validateLogin } = require('../validators/authValidator');
+const { protect } = require('../middleware/authMiddleware');
 
 // Chức năng A1: Đăng ký tài khoản
 router.post('/register', validateRegister, authController.register);
 
 // Chức năng A2: Đăng nhập tài khoản
 router.post('/login', validateLogin, authController.login);
+
+// Chức năng A3: Xem và cập nhật thông tin cá nhân
+router.get('/me', protect, authController.getMe);
+router.put('/me', protect, authController.updateMe);
 
 module.exports = router;

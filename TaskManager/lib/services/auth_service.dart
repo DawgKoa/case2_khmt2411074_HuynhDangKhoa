@@ -53,6 +53,47 @@ class AuthService {
     return user;
   }
 
+  /// Lấy thông tin hồ sơ người dùng từ máy chủ (A3)
+  Future<User> getProfile() async {
+    final response = await _client.get('/auth/me');
+    final userData = response['data']?['user'];
+    if (userData == null) {
+      throw ApiException('Không thể tải thông tin hồ sơ');
+    }
+
+    final user = User.fromJson(userData);
+
+    // Cập nhật lại bộ nhớ đệm
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppConstants.keyUserData, jsonEncode(user.toJson()));
+
+    return user;
+  }
+
+  /// Cập nhật thông tin cá nhân (A3)
+  Future<User> updateProfile({
+    required String fullName,
+    String? avatarUrl,
+  }) async {
+    final response = await _client.put('/auth/me', {
+      'fullName': fullName.trim(),
+      'avatarUrl': avatarUrl?.trim() ?? '',
+    });
+
+    final userData = response['data']?['user'];
+    if (userData == null) {
+      throw ApiException('Không thể cập nhật hồ sơ');
+    }
+
+    final user = User.fromJson(userData);
+
+    // Cập nhật lại bộ nhớ đệm
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppConstants.keyUserData, jsonEncode(user.toJson()));
+
+    return user;
+  }
+
   /// Kiểm tra trạng thái đã đăng nhập hay chưa
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();

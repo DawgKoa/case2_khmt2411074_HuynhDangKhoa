@@ -116,7 +116,81 @@ const login = async (req, res) => {
   }
 };
 
+/**
+ * Lấy thông tin tài khoản người dùng hiện tại (A3)
+ * GET /api/auth/me
+ */
+const getMe = async (req, res) => {
+  return res.status(200).json({
+    status: 'success',
+    data: {
+      user: {
+        id: req.user._id,
+        fullName: req.user.fullName,
+        email: req.user.email,
+        avatarUrl: req.user.avatarUrl,
+        createdAt: req.user.createdAt,
+        updatedAt: req.user.updatedAt,
+      },
+    },
+  });
+};
+
+/**
+ * Cập nhật thông tin cá nhân (A3)
+ * PUT /api/auth/me
+ */
+const updateMe = async (req, res) => {
+  try {
+    const { fullName, avatarUrl } = req.body;
+    const updates = {};
+
+    if (fullName !== undefined) {
+      if (typeof fullName !== 'string' || fullName.trim().length === 0) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Họ và tên không được để trống',
+        });
+      }
+      updates.fullName = fullName.trim();
+    }
+
+    if (avatarUrl !== undefined) {
+      updates.avatarUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      updates,
+      { new: true, runValidators: true }
+    ).select('-passwordHash');
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Cập nhật thông tin cá nhân thành công',
+      data: {
+        user: {
+          id: updatedUser._id,
+          fullName: updatedUser.fullName,
+          email: updatedUser.email,
+          avatarUrl: updatedUser.avatarUrl,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('[AuthController.updateMe] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi cập nhật thông tin cá nhân.',
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
+  getMe,
+  updateMe,
 };
