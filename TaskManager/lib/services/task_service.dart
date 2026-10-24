@@ -102,6 +102,11 @@ class TaskService {
     return Task.fromJson(taskData);
   }
 
+  /// Xóa công việc (B5 - chỉ người tạo mới có quyền)
+  Future<void> deleteTask(String taskId) async {
+    await _client.delete('/tasks/$taskId');
+  }
+
   /// Tạo công việc mới (B1)
   Future<Task> createTask({
     required String title,

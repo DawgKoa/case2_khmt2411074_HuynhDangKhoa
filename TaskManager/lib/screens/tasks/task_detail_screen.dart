@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../models/task.dart';
 import '../../models/user.dart';
+import '../../services/auth_service.dart';
 import '../../services/task_service.dart';
 import '../../utils/app_colors.dart';
 import '../../widgets/brutalist_badge.dart';
@@ -27,8 +28,10 @@ class TaskDetailScreen extends StatefulWidget {
 
 class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final _taskService = TaskService();
+  final _authService = AuthService();
 
   Task? _task;
+  User? _currentUser;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -46,10 +49,15 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     });
 
     try {
-      final fetched = await _taskService.getTaskById(widget.taskId);
+      final results = await Future.wait([
+        _taskService.getTaskById(widget.taskId),
+        _authService.getCurrentUser(),
+      ]);
+
       if (mounted) {
         setState(() {
-          _task = fetched;
+          _task = results[0] as Task;
+          _currentUser = results[1] as User?;
           _isLoading = false;
         });
       }
@@ -61,6 +69,112 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         });
       }
     }
+  }
+
+  bool get _isCreator {
+    if (_task == null || _currentUser == null) return false;
+    return _task!.createdBy?.id == _currentUser!.id;
+  }
+
+  void _showDeleteConfirmDialog() {
+    if (_task == null) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: AppColors.primaryInk, width: 2),
+        ),
+        title: Text(
+          'XÁC NHẬN XÓA CÔNG VIỆC',
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: AppColors.danger,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'CẢNH BÁO: Hành động này không thể hoàn tác.',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: AppColors.danger,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Công việc "${_task!.title}" sẽ bị xóa vĩnh viễn khỏi cơ sở dữ liệu hệ thống.',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppColors.secondaryText,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'HỦY BỎ',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: AppColors.secondaryText,
+              ),
+            ),
+          ),
+          BrutalistButton(
+            text: 'XÓA VĨNH VIỄN',
+            icon: Icons.delete_forever,
+            backgroundColor: AppColors.danger,
+            textColor: Colors.white,
+            height: 42,
+            onPressed: () async {
+              Navigator.of(ctx).pop(); // Đóng dialog
+
+              try {
+                await _taskService.deleteTask(_task!.id);
+                if (!mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'ĐÃ XÓA CÔNG VIỆC THÀNH CÔNG',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    backgroundColor: AppColors.primaryInk,
+                  ),
+                );
+
+                Navigator.of(context).pop(true); // Trở về danh sách và báo refresh
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'LỖI XÓA CÔNG VIỆC: ${e.toString().replaceAll('Exception: ', '')}',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                    ),
+                    backgroundColor: AppColors.danger,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _openQuickStatus() {
@@ -108,6 +222,12 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         ),
         actions: [
+          if (_isCreator)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+              tooltip: 'Xóa công việc',
+              onPressed: _showDeleteConfirmDialog,
+            ),
           IconButton(
             icon: const Icon(Icons.edit, color: AppColors.primaryInk),
             tooltip: 'Chỉnh sửa',
@@ -317,6 +437,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               textColor: AppColors.primaryInk,
                               onPressed: _openEditTask,
                             ),
+                            if (_isCreator) ...[
+                              const SizedBox(height: 12),
+                              BrutalistButton(
+                                text: 'XÓA CÔNG VIỆC (B5)',
+                                icon: Icons.delete_forever,
+                                backgroundColor: AppColors.danger,
+                                textColor: Colors.white,
+                                onPressed: _showDeleteConfirmDialog,
+                              ),
+                            ],
                             const SizedBox(height: 24),
                           ],
                         ),

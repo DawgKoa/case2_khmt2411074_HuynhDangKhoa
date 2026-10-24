@@ -355,10 +355,53 @@ const updateTaskStatus = async (req, res) => {
   }
 };
 
+/**
+ * Xóa công việc (B5)
+ * DELETE /api/tasks/:id
+ * Chỉ người tạo (createdBy) mới có quyền xóa
+ */
+const deleteTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id.toString();
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    // Chỉ người tạo công việc mới có quyền xóa
+    if (task.createdBy.toString() !== userId) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Chỉ người tạo công việc mới có quyền xóa công việc này.',
+      });
+    }
+
+    await Task.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Xóa công việc thành công.',
+    });
+  } catch (error) {
+    console.error('[TaskController.deleteTask] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi xóa công việc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getTasks,
   getTaskById,
   createTask,
   updateTask,
   updateTaskStatus,
+  deleteTask,
 };

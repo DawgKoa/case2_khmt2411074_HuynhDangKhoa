@@ -19,6 +19,9 @@ router.put('/:id', taskController.updateTask);
 // Chức năng B4: Đổi trạng thái nhanh công việc
 router.patch('/:id/status', taskController.updateTaskStatus);
 
+// Chức năng B5: Xóa công việc (Chỉ người tạo có quyền)
+router.delete('/:id', taskController.deleteTask);
+
 // Chức năng B1: Tạo mới công việc
 router.post('/', validateCreateTask, taskController.createTask);
 
