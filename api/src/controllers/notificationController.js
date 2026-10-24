@@ -1,4 +1,5 @@
 const Notification = require('../models/Notification');
+const { checkAndSendDeadlineReminders } = require('../services/reminderService');
 
 /**
  * Lấy danh sách thông báo của người dùng (D1)
@@ -144,9 +145,32 @@ const deleteNotification = async (req, res) => {
   }
 };
 
+/**
+ * Kích hoạt quét và gửi nhắc nhở hạn chót thủ công (D4)
+ * POST /api/notifications/reminders/trigger
+ */
+const triggerDeadlineReminders = async (req, res) => {
+  try {
+    const result = await checkAndSendDeadlineReminders();
+    return res.status(200).json({
+      status: 'success',
+      message: `Đã hoàn tất quét ${result.scannedTasks} công việc và gửi ${result.remindersSent} thông báo nhắc nhở.`,
+      data: result,
+    });
+  } catch (error) {
+    console.error('[NotificationController.triggerDeadlineReminders] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi quét hạn chót công việc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getNotifications,
   markAsRead,
   markAllAsRead,
   deleteNotification,
+  triggerDeadlineReminders,
 };

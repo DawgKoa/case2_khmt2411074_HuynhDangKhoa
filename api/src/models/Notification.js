@@ -26,6 +26,7 @@ const notificationSchema = new mongoose.Schema(
         'task_status_changed',
         'task_shared',
         'deadline_reminder',
+        'task_reminder',
         'general',
       ],
       default: 'general',
@@ -50,7 +51,5 @@ const notificationSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-notificationSchema.index({ userId: 1, isRead: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Notification', notificationSchema);
