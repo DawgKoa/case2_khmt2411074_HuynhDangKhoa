@@ -46,7 +46,7 @@ class _BrutalistTextFieldState extends State<BrutalistTextField> {
         // Label
         Text(
           widget.label.toUpperCase(),
-          style: GoogleFonts.jetbrainsMono(
+          style: GoogleFonts.jetBrainsMono(
             fontSize: 12,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.0,
@@ -57,7 +57,7 @@ class _BrutalistTextFieldState extends State<BrutalistTextField> {
         // Input Box with Hard Shadow
         Container(
           decoration: BoxDecoration(
-            color: widget.enabled ? AppColors.cardWhite : AppColors.secondarySurface.withOpacity(0.3),
+            color: widget.enabled ? AppColors.cardWhite : AppColors.secondarySurface.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8.0),
             border: Border.all(
               color: _errorText != null ? AppColors.danger : AppColors.primaryInk,
@@ -105,7 +105,7 @@ class _BrutalistTextFieldState extends State<BrutalistTextField> {
               hintStyle: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: AppColors.secondaryText.withOpacity(0.7),
+                color: AppColors.secondaryText.withValues(alpha: 0.7),
               ),
               prefixIcon: widget.prefixIcon,
               suffixIcon: widget.suffixIcon,

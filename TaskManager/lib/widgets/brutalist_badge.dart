@@ -93,7 +93,7 @@ class BrutalistBadge extends StatelessWidget {
           ],
           Text(
             text.toUpperCase(),
-            style: GoogleFonts.jetbrainsMono(
+            style: GoogleFonts.jetBrainsMono(
               fontSize: fontSize,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.8,

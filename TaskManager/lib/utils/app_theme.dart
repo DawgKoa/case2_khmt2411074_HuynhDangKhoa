@@ -7,8 +7,6 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get theme {
-    final baseTextTheme = Typography.material2021().black;
-
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.scaffoldBackground,
@@ -69,19 +67,19 @@ class AppTheme {
           color: AppColors.primaryInk,
         ),
         // Nhãn, Deadline, Trạng thái (JetBrains Mono UPPERCASE)
-        labelLarge: GoogleFonts.jetbrainsMono(
+        labelLarge: GoogleFonts.jetBrainsMono(
           fontSize: 13,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
           color: AppColors.primaryInk,
         ),
-        labelMedium: GoogleFonts.jetbrainsMono(
+        labelMedium: GoogleFonts.jetBrainsMono(
           fontSize: 11,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
           color: AppColors.primaryInk,
         ),
-        labelSmall: GoogleFonts.jetbrainsMono(
+        labelSmall: GoogleFonts.jetBrainsMono(
           fontSize: 9,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.8,

@@ -17,6 +17,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+
 // Root welcome route
 app.get('/', (req, res) => {
   res.send('Task Manager API - Case Study 2');
