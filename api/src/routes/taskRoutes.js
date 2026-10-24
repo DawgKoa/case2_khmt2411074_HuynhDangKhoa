@@ -10,6 +10,9 @@ router.use(protect);
 // Chức năng B2: Lấy danh sách công việc
 router.get('/', taskController.getTasks);
 
+// Chức năng E1: Thống kê công việc và hiệu suất (Đặt trước /:id)
+router.get('/stats/summary', taskController.getTaskStats);
+
 // Chức năng B3: Xem chi tiết công việc
 router.get('/:id', taskController.getTaskById);
 
