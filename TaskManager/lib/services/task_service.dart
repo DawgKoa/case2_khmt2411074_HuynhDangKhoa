@@ -4,6 +4,41 @@ import 'api_client.dart';
 class TaskService {
   final ApiClient _client = ApiClient.instance;
 
+  /// Lấy danh sách công việc của người dùng hiện tại (B2)
+  Future<List<Task>> getTasks({
+    String? status,
+    String? priority,
+    String? search,
+    String? sortBy,
+    String? order,
+  }) async {
+    final Map<String, String> queryParams = {};
+    if (status != null && status.isNotEmpty && status != 'all') {
+      queryParams['status'] = status;
+    }
+    if (priority != null && priority.isNotEmpty && priority != 'all') {
+      queryParams['priority'] = priority;
+    }
+    if (search != null && search.trim().isNotEmpty) {
+      queryParams['q'] = search.trim();
+    }
+    if (sortBy != null && sortBy.isNotEmpty) {
+      queryParams['sortBy'] = sortBy;
+    }
+    if (order != null && order.isNotEmpty) {
+      queryParams['order'] = order;
+    }
+
+    final response = await _client.get('/tasks', queryParameters: queryParams);
+
+    final rawTasks = response['data']?['tasks'];
+    if (rawTasks is! List) {
+      return [];
+    }
+
+    return rawTasks.map((t) => Task.fromJson(t as Map<String, dynamic>)).toList();
+  }
+
   /// Tạo công việc mới (B1)
   Future<Task> createTask({
     required String title,

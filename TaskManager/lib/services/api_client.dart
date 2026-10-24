@@ -54,10 +54,13 @@ class ApiClient {
     throw ApiException(message, response.statusCode);
   }
 
-  Future<dynamic> get(String endpoint) async {
+  Future<dynamic> get(String endpoint, {Map<String, dynamic>? queryParameters}) async {
     try {
       final headers = await _getHeaders();
-      final uri = Uri.parse('$_baseUrl$endpoint');
+      Uri uri = Uri.parse('$_baseUrl$endpoint');
+      if (queryParameters != null && queryParameters.isNotEmpty) {
+        uri = uri.replace(queryParameters: queryParameters);
+      }
       final response = await http.get(uri, headers: headers);
       return _handleResponse(response);
     } catch (e) {

@@ -7,6 +7,9 @@ const { protect } = require('../middleware/authMiddleware');
 // Tất cả route tasks đều yêu cầu đăng nhập
 router.use(protect);
 
+// Chức năng B2: Lấy danh sách công việc
+router.get('/', taskController.getTasks);
+
 // Chức năng B1: Tạo mới công việc
 router.post('/', validateCreateTask, taskController.createTask);
 
