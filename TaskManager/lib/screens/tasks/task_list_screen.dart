@@ -12,6 +12,7 @@ import '../../widgets/brutalist_task_card.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
 import 'task_create_screen.dart';
+import 'task_detail_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
@@ -170,6 +171,21 @@ class _TaskListScreenState extends State<TaskListScreen> {
       MaterialPageRoute(builder: (_) => const TaskCreateScreen()),
     );
     if (result == true) {
+      _fetchTasks();
+    }
+  }
+
+  Future<void> _openTaskDetail(Task task) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TaskDetailScreen(
+          taskId: task.id,
+          initialTask: task,
+        ),
+      ),
+    );
+    if (result == true || mounted) {
       _fetchTasks();
     }
   }
@@ -468,19 +484,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       final task = _tasks[index];
                       return BrutalistTaskCard(
                         task: task,
-                        onTap: () {
-                          // Xem chi tiết công việc (B3 sẽ điều hướng tới TaskDetailScreen)
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Công việc: ${task.title}',
-                                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                              ),
-                              backgroundColor: AppColors.primaryInk,
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                        },
+                        onTap: () => _openTaskDetail(task),
                       );
                     },
                     childCount: _tasks.length,

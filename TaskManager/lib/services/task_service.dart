@@ -39,6 +39,18 @@ class TaskService {
     return rawTasks.map((t) => Task.fromJson(t as Map<String, dynamic>)).toList();
   }
 
+  /// Lấy chi tiết công việc theo ID (B3)
+  Future<Task> getTaskById(String taskId) async {
+    final response = await _client.get('/tasks/$taskId');
+
+    final taskData = response['data']?['task'];
+    if (taskData == null) {
+      throw ApiException('Không tìm thấy dữ liệu công việc');
+    }
+
+    return Task.fromJson(taskData);
+  }
+
   /// Tạo công việc mới (B1)
   Future<Task> createTask({
     required String title,

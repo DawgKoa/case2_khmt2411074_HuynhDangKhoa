@@ -10,6 +10,9 @@ router.use(protect);
 // Chức năng B2: Lấy danh sách công việc
 router.get('/', taskController.getTasks);
 
+// Chức năng B3: Xem chi tiết công việc
+router.get('/:id', taskController.getTaskById);
+
 // Chức năng B1: Tạo mới công việc
 router.post('/', validateCreateTask, taskController.createTask);
 
