@@ -1,16 +1,17 @@
-﻿import '../models/task.dart';
+import '../models/task.dart';
 import 'api_client.dart';
 
 class TaskService {
   final ApiClient _client = ApiClient.instance;
 
-  /// Lấy danh sách công việc của người dùng hiện tại (B2 & B6)
+  /// Lấy danh sách công việc của người dùng hiện tại (B2, B6 & C5)
   Future<List<Task>> getTasks({
     String? status,
     String? priority,
     String? search,
     String? sortBy,
     String? order,
+    String? filterType,
   }) async {
     final Map<String, String> queryParams = {};
     if (status != null && status.isNotEmpty && status != 'all') {
@@ -27,6 +28,9 @@ class TaskService {
     }
     if (order != null && order.isNotEmpty) {
       queryParams['order'] = order;
+    }
+    if (filterType != null && filterType.isNotEmpty && filterType != 'all') {
+      queryParams['filterType'] = filterType;
     }
 
     final response = await _client.get('/tasks', queryParameters: queryParams);

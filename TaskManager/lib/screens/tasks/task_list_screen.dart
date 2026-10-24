@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/task.dart';
 import '../../models/user.dart';
@@ -33,6 +33,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   // Search & Filters (B6)
   final TextEditingController _searchController = TextEditingController();
+  String _selectedScopeFilter = 'all'; // all, created_by_me, assigned_to_me, shared_with_me (C5)
   String _selectedStatusFilter = 'all'; // all, todo, in_progress, completed, cancelled
   String _selectedPriorityFilter = 'all'; // all, high, medium, low
   String _selectedSortBy = 'createdAt'; // createdAt, dueDate, priority, title
@@ -89,6 +90,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
         search: _searchController.text.trim().isEmpty ? null : _searchController.text.trim(),
         sortBy: _selectedSortBy,
         order: _selectedOrder,
+        filterType: _selectedScopeFilter == 'all' ? null : _selectedScopeFilter,
       );
       if (mounted) {
         setState(() {
@@ -104,6 +106,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
         });
       }
     }
+  }
+
+  void _onScopeFilterSelected(String scope) {
+    if (_selectedScopeFilter == scope) return;
+    setState(() {
+      _selectedScopeFilter = scope;
+    });
+    _fetchTasks();
   }
 
   void _onStatusFilterSelected(String filter) {
@@ -444,6 +454,23 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     ),
                     const SizedBox(height: 16),
 
+                    // Scope Filter Tabs (C5)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterChip('all', 'TẤT CẢ (ALL)', _selectedScopeFilter, _onScopeFilterSelected),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('created_by_me', 'TÔI TẠO', _selectedScopeFilter, _onScopeFilterSelected),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('assigned_to_me', 'GIAO CHO TÔI', _selectedScopeFilter, _onScopeFilterSelected),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('shared_with_me', 'ĐƯỢC CHIA SẺ', _selectedScopeFilter, _onScopeFilterSelected),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
                     // Search Bar (B6)
                     Container(
                       decoration: BoxDecoration(
@@ -719,6 +746,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       final task = _tasks[index];
                       return BrutalistTaskCard(
                         task: task,
+                        currentUserId: _currentUser?.id,
                         onTap: () => _openTaskDetail(task),
                         onStatusTap: () {
                           QuickStatusBottomSheet.show(

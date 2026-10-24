@@ -7,12 +7,14 @@ import 'brutalist_badge.dart';
 
 class BrutalistTaskCard extends StatelessWidget {
   final Task task;
+  final String? currentUserId;
   final VoidCallback? onTap;
   final VoidCallback? onStatusTap;
 
   const BrutalistTaskCard({
     super.key,
     required this.task,
+    this.currentUserId,
     this.onTap,
     this.onStatusTap,
   });
@@ -23,6 +25,11 @@ class BrutalistTaskCard extends StatelessWidget {
     final isOverdue = task.dueDate != null &&
         task.dueDate!.isBefore(now) &&
         task.status != 'completed';
+
+    final isOwner = currentUserId != null && task.createdBy?.id == currentUserId;
+    final sharedMember = currentUserId != null
+        ? task.sharedWith.where((m) => m.user.id == currentUserId).firstOrNull
+        : null;
 
     return GestureDetector(
       onTap: onTap,
@@ -44,7 +51,73 @@ class BrutalistTaskCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Row: Status badge & Priority badge
+            // Scope Badge (Tôi tạo / Được chia sẻ RBAC - C5)
+            if (currentUserId != null) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (isOwner)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryAccent,
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(color: AppColors.primaryInk, width: 1),
+                      ),
+                      child: Text(
+                        '★ BẠN LÀ CHỦ SỞ HỮU',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primaryInk,
+                        ),
+                      ),
+                    )
+                  else if (sharedMember != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: sharedMember.role == 'admin'
+                            ? AppColors.danger
+                            : sharedMember.role == 'editor'
+                                ? AppColors.primaryAccent
+                                : AppColors.secondarySurface,
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(color: AppColors.primaryInk, width: 1),
+                      ),
+                      child: Text(
+                        'CHIA SẺ // ${sharedMember.role.toUpperCase()}',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          color: sharedMember.role == 'admin' ? Colors.white : AppColors.primaryInk,
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondarySurface,
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(color: AppColors.primaryInk, width: 1),
+                      ),
+                      child: Text(
+                        'ĐƯỢC PHÂN CÔNG',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primaryInk,
+                        ),
+                      ),
+                    ),
+                  _buildPriorityBadge(task.priority),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
+
+            // Status row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -52,7 +125,7 @@ class BrutalistTaskCard extends StatelessWidget {
                   onTap: onStatusTap,
                   child: _buildStatusBadge(task.status),
                 ),
-                _buildPriorityBadge(task.priority),
+                if (currentUserId == null) _buildPriorityBadge(task.priority),
               ],
             ),
             const SizedBox(height: 12),
