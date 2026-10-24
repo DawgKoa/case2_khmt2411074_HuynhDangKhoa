@@ -9,11 +9,11 @@ import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_task_card.dart';
+import '../../widgets/quick_status_bottom_sheet.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
 import 'task_create_screen.dart';
 import 'task_detail_screen.dart';
-import '../../widgets/quick_status_bottom_sheet.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
@@ -31,13 +31,24 @@ class _TaskListScreenState extends State<TaskListScreen> {
   bool _isLoadingTasks = true;
   String? _errorMessage;
 
-  // Filter tab: all, todo, in_progress, completed
-  String _selectedStatusFilter = 'all';
+  // Search & Filters (B6)
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedStatusFilter = 'all'; // all, todo, in_progress, completed, cancelled
+  String _selectedPriorityFilter = 'all'; // all, high, medium, low
+  String _selectedSortBy = 'createdAt'; // createdAt, dueDate, priority, title
+  String _selectedOrder = 'desc'; // desc, asc
+  String _sortLabel = 'MỚI NHẤT';
 
   @override
   void initState() {
     super.initState();
     _loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
@@ -74,6 +85,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
     try {
       final tasks = await _taskService.getTasks(
         status: _selectedStatusFilter == 'all' ? null : _selectedStatusFilter,
+        priority: _selectedPriorityFilter == 'all' ? null : _selectedPriorityFilter,
+        search: _searchController.text.trim().isEmpty ? null : _searchController.text.trim(),
+        sortBy: _selectedSortBy,
+        order: _selectedOrder,
       );
       if (mounted) {
         setState(() {
@@ -97,6 +112,113 @@ class _TaskListScreenState extends State<TaskListScreen> {
       _selectedStatusFilter = filter;
     });
     _fetchTasks();
+  }
+
+  void _onPriorityFilterSelected(String filter) {
+    if (_selectedPriorityFilter == filter) return;
+    setState(() {
+      _selectedPriorityFilter = filter;
+    });
+    _fetchTasks();
+  }
+
+  void _showSortBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.scaffoldBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          border: const Border(
+            top: BorderSide(color: AppColors.primaryInk, width: 3),
+            left: BorderSide(color: AppColors.primaryInk, width: 2),
+            right: BorderSide(color: AppColors.primaryInk, width: 2),
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.primaryInk,
+              offset: Offset(0, -3),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryInk,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'SẮP XẾP CÔNG VIỆC (B6)',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppColors.primaryInk,
+              ),
+            ),
+            const SizedBox(height: 14),
+            _buildSortOption('createdAt', 'desc', 'MỚI NHẤT (NGÀY TẠO GIẢM DẦN)'),
+            const SizedBox(height: 8),
+            _buildSortOption('createdAt', 'asc', 'CŨ NHẤT (NGÀY TẠO TĂNG DẦN)'),
+            const SizedBox(height: 8),
+            _buildSortOption('dueDate', 'asc', 'HẠN CHÓT GẦN NHẤT'),
+            const SizedBox(height: 8),
+            _buildSortOption('dueDate', 'desc', 'HẠN CHÓT XA NHẤT'),
+            const SizedBox(height: 8),
+            _buildSortOption('priority', 'desc', 'MỨC ƯU TIÊN CAO ĐẾN THẤP'),
+            const SizedBox(height: 8),
+            _buildSortOption('title', 'asc', 'THEO TIÊU ĐỀ (A ➔ Z)'),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortOption(String sortBy, String order, String label) {
+    final isSelected = _selectedSortBy == sortBy && _selectedOrder == order;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedSortBy = sortBy;
+          _selectedOrder = order;
+          _sortLabel = label.split(' (')[0];
+        });
+        Navigator.of(context).pop();
+        _fetchTasks();
+      },
+      child: BrutalistCard(
+        backgroundColor: isSelected ? AppColors.primaryAccent : AppColors.cardWhite,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                color: AppColors.primaryInk,
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check, size: 18, color: AppColors.primaryInk),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showLogoutConfirmDialog() {
@@ -322,29 +444,117 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Quick filter tabs (Brutalist style chips)
+                    // Search Bar (B6)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.cardWhite,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.primaryInk, width: 2),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: AppColors.primaryInk,
+                            offset: Offset(3, 3),
+                            blurRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        onSubmitted: (_) => _fetchTasks(),
+                        onChanged: (text) {
+                          if (text.isEmpty) {
+                            _fetchTasks();
+                          }
+                        },
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryInk,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Tìm kiếm công việc...',
+                          hintStyle: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.secondaryText,
+                          ),
+                          prefixIcon: const Icon(Icons.search, color: AppColors.primaryInk),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, color: AppColors.primaryInk),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _fetchTasks();
+                                  },
+                                )
+                              : null,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Status Filter chips (Row 1)
+                    Text(
+                      'TRẠNG THÁI TIẾN ĐỘ',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.secondaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildFilterChip('all', 'TẤT CẢ'),
+                          _buildFilterChip('all', 'TẤT CẢ', _selectedStatusFilter, _onStatusFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('todo', 'CHỜ XỬ LÝ'),
+                          _buildFilterChip('todo', 'CHỜ XỬ LÝ', _selectedStatusFilter, _onStatusFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('in_progress', 'ĐANG LÀM'),
+                          _buildFilterChip('in_progress', 'ĐANG LÀM', _selectedStatusFilter, _onStatusFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('completed', 'HOÀN THÀNH'),
+                          _buildFilterChip('completed', 'HOÀN THÀNH', _selectedStatusFilter, _onStatusFilterSelected),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('cancelled', 'ĐÃ HỦY', _selectedStatusFilter, _onStatusFilterSelected),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Priority Filter chips (Row 2)
+                    Text(
+                      'MỨC ĐỘ ƯU TIÊN',
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.secondaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterChip('all', 'TẤT CẢ', _selectedPriorityFilter, _onPriorityFilterSelected),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('high', 'ƯU TIÊN CAO', _selectedPriorityFilter, _onPriorityFilterSelected),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('medium', 'TRUNG BÌNH', _selectedPriorityFilter, _onPriorityFilterSelected),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('low', 'THẤP', _selectedPriorityFilter, _onPriorityFilterSelected),
                         ],
                       ),
                     ),
                     const SizedBox(height: 16),
 
-                    // Section Title
+                    // Section Title & Sort Action
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'DANH SÁCH NHIỆM VỤ (B2)',
+                          'DANH SÁCH NHIỆM VỤ',
                           style: GoogleFonts.spaceGrotesk(
                             fontSize: 14,
                             fontWeight: FontWeight.w900,
@@ -352,12 +562,36 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             color: AppColors.primaryInk,
                           ),
                         ),
-                        Text(
-                          'KÉO XUỐNG ĐỂ TẢI LẠI',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.secondaryText,
+                        GestureDetector(
+                          onTap: _showSortBottomSheet,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardWhite,
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: AppColors.primaryInk,
+                                  offset: Offset(2, 2),
+                                  blurRadius: 0,
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.swap_vert, size: 14, color: AppColors.primaryInk),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _sortLabel,
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primaryInk,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -452,9 +686,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _selectedStatusFilter == 'all'
-                              ? 'Bạn chưa tạo hoặc chưa được phân công công việc nào. Hãy khởi tạo công việc đầu tiên ngay!'
-                              : 'Không có công việc nào trong trạng thái đã chọn.',
+                          _searchController.text.isNotEmpty || _selectedStatusFilter != 'all' || _selectedPriorityFilter != 'all'
+                              ? 'Không tìm thấy công việc nào phù hợp với bộ lọc hoặc từ khóa tìm kiếm.'
+                              : 'Bạn chưa tạo hoặc chưa được phân công công việc nào. Hãy khởi tạo công việc đầu tiên ngay!',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 13,
@@ -465,7 +699,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ),
                         const SizedBox(height: 20),
                         BrutalistButton(
-                          text: '+ TẠO CÔNG VIỆC ĐẦU TIÊN',
+                          text: '+ TẠO CÔNG VIỆC MỚI',
                           icon: Icons.add,
                           backgroundColor: AppColors.primaryAccent,
                           textColor: AppColors.primaryInk,
@@ -529,11 +763,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
   }
 
-  Widget _buildFilterChip(String value, String label) {
-    final isSelected = _selectedStatusFilter == value;
+  Widget _buildFilterChip(
+    String value,
+    String label,
+    String selectedValue,
+    Function(String) onSelected,
+  ) {
+    final isSelected = selectedValue == value;
 
     return GestureDetector(
-      onTap: () => _onStatusFilterSelected(value),
+      onTap: () => onSelected(value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

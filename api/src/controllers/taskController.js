@@ -1,9 +1,9 @@
 const Task = require('../models/Task');
 
 /**
- * Lấy danh sách công việc của người dùng hiện tại (B2)
+ * Lấy danh sách công việc của người dùng hiện tại (B2 & B6)
  * GET /api/tasks
- * Hỗ trợ filter theo status, priority và tìm kiếm theo q/title
+ * Hỗ trợ tìm kiếm (q), lọc theo status, priority và sắp xếp (sortBy, order)
  */
 const getTasks = async (req, res) => {
   try {
@@ -11,47 +11,61 @@ const getTasks = async (req, res) => {
     const { status, priority, q, sortBy, order } = req.query;
 
     // Filter cơ bản: user là người tạo HOẶC nằm trong danh sách phân công
-    const filter = {
-      $or: [
-        { createdBy: userId },
-        { assigneeIds: userId },
-        { primaryAssigneeId: userId },
-      ],
-    };
+    const andConditions = [
+      {
+        $or: [
+          { createdBy: userId },
+          { assigneeIds: userId },
+          { primaryAssigneeId: userId },
+        ],
+      },
+    ];
 
     if (status && ['todo', 'in_progress', 'completed', 'cancelled'].includes(status)) {
-      filter.status = status;
+      andConditions.push({ status });
     }
 
     if (priority && ['low', 'medium', 'high'].includes(priority)) {
-      filter.priority = priority;
+      andConditions.push({ priority });
     }
 
     if (q && q.trim() !== '') {
-      filter.$and = [
-        {
-          $or: [
-            { title: { $regex: q.trim(), $options: 'i' } },
-            { description: { $regex: q.trim(), $options: 'i' } },
-          ],
-        },
-      ];
+      andConditions.push({
+        $or: [
+          { title: { $regex: q.trim(), $options: 'i' } },
+          { description: { $regex: q.trim(), $options: 'i' } },
+        ],
+      });
     }
 
-    // Sắp xếp
+    const filter = { $and: andConditions };
+
+    // Xử lý sắp xếp
     let sortOptions = { createdAt: -1 };
     if (sortBy === 'dueDate') {
-      sortOptions = { dueDate: order === 'desc' ? -1 : 1 };
-    } else if (sortBy === 'priority') {
-      // Logic sort sau nếu cần
-      sortOptions = { createdAt: -1 };
+      sortOptions = { dueDate: order === 'desc' ? -1 : 1, createdAt: -1 };
+    } else if (sortBy === 'createdAt') {
+      sortOptions = { createdAt: order === 'asc' ? 1 : -1 };
+    } else if (sortBy === 'title') {
+      sortOptions = { title: order === 'desc' ? -1 : 1 };
     }
 
-    const tasks = await Task.find(filter)
+    let tasks = await Task.find(filter)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
       .populate('primaryAssigneeId', 'fullName email avatarUrl')
       .sort(sortOptions);
+
+    // Nếu sắp xếp theo priority: high -> medium -> low hoặc ngược lại
+    if (sortBy === 'priority') {
+      const priorityWeights = { high: 3, medium: 2, low: 1 };
+      const multiplier = order === 'asc' ? 1 : -1;
+      tasks = tasks.sort((a, b) => {
+        const weightA = priorityWeights[a.priority] || 0;
+        const weightB = priorityWeights[b.priority] || 0;
+        return (weightA - weightB) * multiplier;
+      });
+    }
 
     return res.status(200).json({
       status: 'success',
