@@ -22,6 +22,12 @@ router.put('/:id/assign', taskController.assignTask);
 // Chức năng C3: Chia sẻ công việc và phân quyền RBAC (viewer, editor, admin)
 router.post('/:id/share', taskController.shareTask);
 
+// Chức năng C4: Thay đổi vai trò thành viên trong công việc
+router.patch('/:id/members/:memberId', taskController.updateMemberRole);
+
+// Chức năng C4: Thu hồi quyền truy cập / Xóa thành viên khỏi công việc
+router.delete('/:id/members/:memberId', taskController.revokeTaskMember);
+
 // Chức năng B4: Đổi trạng thái nhanh công việc
 router.patch('/:id/status', taskController.updateTaskStatus);
 

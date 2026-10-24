@@ -13,6 +13,7 @@ import '../../widgets/quick_status_bottom_sheet.dart';
 import 'task_edit_screen.dart';
 import '../../widgets/brutalist_user_picker.dart';
 import '../../widgets/brutalist_share_modal.dart';
+import '../../widgets/brutalist_manage_members_modal.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -79,6 +80,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   bool get _isViewer => _task?.sharedWith.any((m) => m.user.id == _currentUser?.id && m.role == 'viewer') == true;
   bool get _canEdit => _isAdmin || _isEditor || _task?.primaryAssignee?.id == _currentUser?.id;
   bool get _canDelete => _isCreator || _isAdmin;
+
+  Future<void> _openManageMembers() async {
+    if (_task == null) return;
+    final updated = await BrutalistManageMembersModal.show(context: context, task: _task!);
+    if (updated != null && mounted) {
+      setState(() => _task = updated);
+    }
+  }
 
   Future<void> _openShareModal() async {
     if (_task == null) return;
@@ -596,6 +605,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               onPressed: _openQuickStatus,
                             ),
                                                         if (_isAdmin) ...[
+                              const SizedBox(height: 12),
+                              BrutalistButton(
+                                text: 'QUẢN LÝ THÀNH VIÊN (C4)',
+                                icon: Icons.manage_accounts,
+                                backgroundColor: AppColors.secondarySurface,
+                                textColor: AppColors.primaryInk,
+                                onPressed: _openManageMembers,
+                              ),
+                            ],
+                            if (_isAdmin) ...[
                               const SizedBox(height: 12),
                               BrutalistButton(
                                 text: 'CHIA SẺ CÔNG VIỆC (C3 - RBAC)',

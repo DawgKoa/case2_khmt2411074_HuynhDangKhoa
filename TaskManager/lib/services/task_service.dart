@@ -1,4 +1,4 @@
-import '../models/task.dart';
+﻿import '../models/task.dart';
 import 'api_client.dart';
 
 class TaskService {
@@ -124,6 +124,32 @@ class TaskService {
     final taskData = response['data']?['task'];
     if (taskData == null) {
       throw ApiException('Không nhận được dữ liệu công việc sau khi chia sẻ');
+    }
+
+    return Task.fromJson(taskData);
+  }
+
+  /// Thay đổi vai trò thành viên trong công việc (C4)
+  Future<Task> updateMemberRole(String taskId, String memberId, String role) async {
+    final response = await _client.patch('/tasks//members/', {
+      'role': role,
+    });
+
+    final taskData = response['data']?['task'];
+    if (taskData == null) {
+      throw ApiException('Không nhận được dữ liệu công việc sau khi đổi vai trò');
+    }
+
+    return Task.fromJson(taskData);
+  }
+
+  /// Thu hồi quyền truy cập / Xóa thành viên khỏi công việc (C4)
+  Future<Task> revokeTaskMember(String taskId, String memberId) async {
+    final response = await _client.delete('/tasks//members/');
+
+    final taskData = response['data']?['task'];
+    if (taskData == null) {
+      throw ApiException('Không nhận được dữ liệu công việc sau khi thu hồi quyền');
     }
 
     return Task.fromJson(taskData);

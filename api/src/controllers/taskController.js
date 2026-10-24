@@ -613,6 +613,156 @@ const shareTask = async (req, res) => {
   }
 };
 
+/**
+ * Thay đổi vai trò thành viên trong công việc (C4)
+ * PATCH /api/tasks/:id/members/:memberId
+ */
+const updateMemberRole = async (req, res) => {
+  try {
+    const { id, memberId } = req.params;
+    const { role } = req.body;
+    const currentUserIdStr = req.user._id.toString();
+
+    const validRoles = ['viewer', 'editor', 'admin'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Vai trò không hợp lệ (viewer, editor, admin).',
+      });
+    }
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    const permission = checkUserPermission(task, currentUserIdStr);
+    if (!permission.isAdmin) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Chỉ người tạo hoặc Quản trị viên mới có quyền đổi vai trò thành viên.',
+      });
+    }
+
+    if (task.createdBy.toString() === memberId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Không thể thay đổi vai trò của Chủ sở hữu công việc.',
+      });
+    }
+
+    const memberIndex = task.sharedWith.findIndex(
+      (m) => m.userId.toString() === memberId
+    );
+
+    if (memberIndex === -1) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Thành viên này không nằm trong danh sách được chia sẻ của công việc.',
+      });
+    }
+
+    task.sharedWith[memberIndex].role = role;
+    await task.save();
+
+    const populatedTask = await Task.findById(task._id)
+      .populate('createdBy', 'fullName email avatarUrl')
+      .populate('assigneeIds', 'fullName email avatarUrl')
+      .populate('primaryAssigneeId', 'fullName email avatarUrl')
+      .populate('sharedWith.userId', 'fullName email avatarUrl');
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Cập nhật vai trò thành viên thành công.',
+      data: {
+        task: populatedTask,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.updateMemberRole] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi thay đổi vai trò thành viên.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * Thu hồi quyền truy cập / Xóa thành viên khỏi công việc (C4)
+ * DELETE /api/tasks/:id/members/:memberId
+ */
+const revokeTaskMember = async (req, res) => {
+  try {
+    const { id, memberId } = req.params;
+    const currentUserIdStr = req.user._id.toString();
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    const permission = checkUserPermission(task, currentUserIdStr);
+    if (!permission.isAdmin) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Chỉ người tạo hoặc Quản trị viên mới có quyền thu hồi quyền thành viên.',
+      });
+    }
+
+    if (task.createdBy.toString() === memberId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Không thể thu hồi quyền của Chủ sở hữu công việc.',
+      });
+    }
+
+    // Xóa khỏi sharedWith
+    task.sharedWith = task.sharedWith.filter(
+      (m) => m.userId.toString() !== memberId
+    );
+
+    // Xóa khỏi assigneeIds
+    task.assigneeIds = task.assigneeIds.filter(
+      (a) => a.toString() !== memberId
+    );
+
+    // Nếu là primaryAssigneeId thì reset về createdBy
+    if (task.primaryAssigneeId?.toString() === memberId) {
+      task.primaryAssigneeId = task.createdBy;
+    }
+
+    await task.save();
+
+    const populatedTask = await Task.findById(task._id)
+      .populate('createdBy', 'fullName email avatarUrl')
+      .populate('assigneeIds', 'fullName email avatarUrl')
+      .populate('primaryAssigneeId', 'fullName email avatarUrl')
+      .populate('sharedWith.userId', 'fullName email avatarUrl');
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Thu hồi quyền truy cập của thành viên thành công.',
+      data: {
+        task: populatedTask,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.revokeTaskMember] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi thu hồi quyền thành viên.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getTasks,
   getTaskById,
@@ -622,4 +772,6 @@ module.exports = {
   deleteTask,
   assignTask,
   shareTask,
+  updateMemberRole,
+  revokeTaskMember,
 };
