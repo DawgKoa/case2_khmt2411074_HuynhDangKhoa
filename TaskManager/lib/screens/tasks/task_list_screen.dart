@@ -13,6 +13,7 @@ import '../../widgets/quick_status_bottom_sheet.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
 import '../notifications/notification_screen.dart';
+import '../stats/statistics_screen.dart';
 import '../../services/notification_service.dart';
 import 'task_create_screen.dart';
 import 'task_detail_screen.dart';
@@ -317,6 +318,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
     }
   }
 
+  Future<void> _openStatistics() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const StatisticsScreen()),
+    );
+  }
+
   Future<void> _openProfile() async {
     await Navigator.push(
       context,
@@ -366,6 +374,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart_outlined, color: AppColors.primaryInk),
+            tooltip: 'Thống kê & Báo cáo',
+            onPressed: _openStatistics,
+          ),
           Stack(
             clipBehavior: Clip.none,
             children: [
