@@ -782,9 +782,188 @@ const revokeTaskMember = async (req, res) => {
   }
 };
 
+
+/**
+ * Thống kê công việc và hiệu suất (E1)
+ * GET /api/tasks/stats/summary
+ */
+const getTaskStats = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { timeRange = 'all', scope = 'all' } = req.query;
+
+    let baseFilter = {};
+    if (scope === 'created_by_me') {
+      baseFilter.createdBy = userId;
+    } else if (scope === 'assigned_to_me') {
+      baseFilter.$or = [{ primaryAssigneeId: userId }, { assigneeIds: userId }];
+    } else if (scope === 'shared_with_me') {
+      baseFilter['sharedWith.userId'] = userId;
+    } else {
+      baseFilter.$or = [
+        { createdBy: userId },
+        { primaryAssigneeId: userId },
+        { assigneeIds: userId },
+        { 'sharedWith.userId': userId },
+      ];
+    }
+
+    const now = new Date();
+    if (timeRange === 'today') {
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      baseFilter.createdAt = { $gte: startOfDay };
+    } else if (timeRange === 'week') {
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - 7);
+      baseFilter.createdAt = { $gte: startOfWeek };
+    } else if (timeRange === 'month') {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      baseFilter.createdAt = { $gte: startOfMonth };
+    }
+
+    const tasks = await Task.find(baseFilter)
+      .populate('assigneeIds', 'fullName email avatarUrl')
+      .populate('primaryAssigneeId', 'fullName email avatarUrl')
+      .populate('createdBy', 'fullName email avatarUrl');
+
+    const totalTasks = tasks.length;
+
+    // Status counts
+    let todoCount = 0;
+    let inProgressCount = 0;
+    let completedCount = 0;
+    let cancelledCount = 0;
+
+    // Priority counts
+    let highPriorityCount = 0;
+    let mediumPriorityCount = 0;
+    let lowPriorityCount = 0;
+
+    // Deadline & performance metrics
+    let overdueCount = 0;
+    let dueSoonCount = 0;
+    let completedOnTimeCount = 0;
+
+    const next24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+    // Member workload map: userId -> { user, taskCount, completedCount }
+    const memberWorkloadMap = new Map();
+
+    for (const task of tasks) {
+      // Status
+      if (task.status === 'todo') todoCount++;
+      else if (task.status === 'in_progress') inProgressCount++;
+      else if (task.status === 'completed') completedCount++;
+      else if (task.status === 'cancelled') cancelledCount++;
+
+      // Priority
+      if (task.priority === 'high') highPriorityCount++;
+      else if (task.priority === 'medium') mediumPriorityCount++;
+      else if (task.priority === 'low') lowPriorityCount++;
+
+      // Deadlines
+      if (task.dueDate) {
+        const dueTime = new Date(task.dueDate).getTime();
+        const isCompleted = task.status === 'completed';
+
+        if (!isCompleted && task.status !== 'cancelled' && dueTime < now.getTime()) {
+          overdueCount++;
+        } else if (!isCompleted && task.status !== 'cancelled' && dueTime >= now.getTime() && dueTime <= next24h.getTime()) {
+          dueSoonCount++;
+        }
+
+        if (isCompleted) {
+          const updatedTime = new Date(task.updatedAt).getTime();
+          if (updatedTime <= dueTime) {
+            completedOnTimeCount++;
+          }
+        }
+      } else if (task.status === 'completed') {
+        completedOnTimeCount++;
+      }
+
+      // Member workload
+      const assignees = [];
+      if (task.primaryAssigneeId) assignees.push(task.primaryAssigneeId);
+      if (Array.isArray(task.assigneeIds)) {
+        task.assigneeIds.forEach((a) => {
+          if (!assignees.some((existing) => existing._id?.toString() === a._id?.toString())) {
+            assignees.push(a);
+          }
+        });
+      }
+
+      for (const assignee of assignees) {
+        if (!assignee?._id) continue;
+        const idStr = assignee._id.toString();
+        if (!memberWorkloadMap.has(idStr)) {
+          memberWorkloadMap.set(idStr, {
+            user: {
+              id: idStr,
+              fullName: assignee.fullName,
+              email: assignee.email,
+              avatarUrl: assignee.avatarUrl,
+            },
+            taskCount: 0,
+            completedCount: 0,
+          });
+        }
+        const memberStat = memberWorkloadMap.get(idStr);
+        memberStat.taskCount++;
+        if (task.status === 'completed') {
+          memberStat.completedCount++;
+        }
+      }
+    }
+
+    const completionRate = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
+    const memberWorkloads = Array.from(memberWorkloadMap.values()).sort(
+      (a, b) => b.taskCount - a.taskCount
+    );
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        timeRange,
+        scope,
+        summary: {
+          totalTasks,
+          completionRate,
+          completedOnTimeRate: completedCount > 0 ? Math.round((completedOnTimeCount / completedCount) * 100) : 100,
+        },
+        byStatus: {
+          todo: { count: todoCount, percentage: totalTasks > 0 ? Math.round((todoCount / totalTasks) * 100) : 0 },
+          inProgress: { count: inProgressCount, percentage: totalTasks > 0 ? Math.round((inProgressCount / totalTasks) * 100) : 0 },
+          completed: { count: completedCount, percentage: totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0 },
+          cancelled: { count: cancelledCount, percentage: totalTasks > 0 ? Math.round((cancelledCount / totalTasks) * 100) : 0 },
+        },
+        byPriority: {
+          high: { count: highPriorityCount, percentage: totalTasks > 0 ? Math.round((highPriorityCount / totalTasks) * 100) : 0 },
+          medium: { count: mediumPriorityCount, percentage: totalTasks > 0 ? Math.round((mediumPriorityCount / totalTasks) * 100) : 0 },
+          low: { count: lowPriorityCount, percentage: totalTasks > 0 ? Math.round((lowPriorityCount / totalTasks) * 100) : 0 },
+        },
+        deadlines: {
+          overdue: overdueCount,
+          dueSoon: dueSoonCount,
+          completedOnTime: completedOnTimeCount,
+        },
+        memberWorkloads,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.getTaskStats] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi lấy dữ liệu thống kê công việc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getTasks,
   getTaskById,
+  getTaskStats,
   createTask,
   updateTask,
   updateTaskStatus,
