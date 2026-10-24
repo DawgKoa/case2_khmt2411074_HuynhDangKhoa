@@ -1,5 +1,6 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
+const { notifyTaskAssignment, notifyTaskShared, notifyStatusChanged } = require('../services/notificationService');
 
 /**
  * Helper kiểm tra quyền của người dùng đối với task (RBAC)
@@ -219,6 +220,7 @@ const createTask = async (req, res) => {
       status: status || 'todo',
     });
 
+    notifyTaskAssignment({ task, assignerId: req.user._id, recipientIds: initialAssignees });
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -310,6 +312,7 @@ const updateTask = async (req, res) => {
       task.priority = priority;
     }
 
+    const oldStatus = task.status;
     if (status !== undefined) {
       if (!['todo', 'in_progress', 'completed', 'cancelled'].includes(status)) {
         return res.status(400).json({
@@ -329,6 +332,10 @@ const updateTask = async (req, res) => {
     }
 
     await task.save();
+
+    if (status !== undefined && status !== oldStatus) {
+      notifyStatusChanged({ task, updaterId: req.user._id, newStatus: status });
+    }
 
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
@@ -389,6 +396,7 @@ const updateTaskStatus = async (req, res) => {
     task.status = status;
     await task.save();
 
+    notifyStatusChanged({ task, updaterId: req.user._id, newStatus: status });
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -490,6 +498,15 @@ const assignTask = async (req, res) => {
 
     await task.save();
 
+    const recipientsToNotify = [];
+    if (Array.isArray(assigneeIds)) recipientsToNotify.push(...assigneeIds);
+    if (primaryAssigneeId && !recipientsToNotify.some(id => id.toString() === primaryAssigneeId.toString())) {
+      recipientsToNotify.push(primaryAssigneeId);
+    }
+    if (recipientsToNotify.length > 0) {
+      notifyTaskAssignment({ task, assignerId: req.user._id, recipientIds: recipientsToNotify });
+    }
+
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -590,6 +607,8 @@ const shareTask = async (req, res) => {
 
     await task.save();
 
+    notifyTaskShared({ task, sharerId: req.user._id, recipientId: targetUser._id, role: targetRole });
+
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -668,6 +687,7 @@ const updateMemberRole = async (req, res) => {
     task.sharedWith[memberIndex].role = role;
     await task.save();
 
+    notifyTaskShared({ task, sharerId: req.user._id, recipientId: memberId, role });
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -739,7 +759,6 @@ const revokeTaskMember = async (req, res) => {
     }
 
     await task.save();
-
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
