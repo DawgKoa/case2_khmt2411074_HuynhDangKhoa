@@ -8,6 +8,7 @@ import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
+import 'task_create_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
@@ -34,7 +35,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
       _isLoading = false;
     });
 
-    // Cố gắng cập nhật thông tin mới nhất từ API ngầm
     try {
       final latestUser = await _authService.getProfile();
       if (mounted) {
@@ -112,6 +112,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
     _loadUser();
   }
 
+  Future<void> _openCreateTask() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const TaskCreateScreen()),
+    );
+    if (result == true) {
+      _loadUser();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -163,14 +173,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       BrutalistBadge(
-                        text: 'SESSION ACTIVE // JWT STORED',
-                        backgroundColor: AppColors.success,
-                        textColor: Colors.white,
-                        icon: Icons.check_circle_outline,
+                        text: 'MODULE B // TASK OPS',
+                        backgroundColor: AppColors.primaryAccent,
+                        textColor: AppColors.primaryInk,
+                        icon: Icons.assignment_outlined,
                       ),
                       BrutalistBadge(
-                        text: 'MODULE A3 OK',
-                        backgroundColor: AppColors.primaryAccent,
+                        text: 'B1 READY',
+                        backgroundColor: AppColors.secondarySurface,
                         textColor: AppColors.primaryInk,
                       ),
                     ],
@@ -239,22 +249,22 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Placeholder Card for Module B
+                  // Action Card for Task Creation (B1)
                   BrutalistCard(
-                    backgroundColor: AppColors.secondarySurface.withValues(alpha: 0.15),
+                    backgroundColor: AppColors.cardWhite,
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.dashboard_outlined, color: AppColors.primaryInk, size: 22),
+                            const Icon(Icons.add_task, color: AppColors.primaryInk, size: 24),
                             const SizedBox(width: 8),
                             Text(
-                              'DANH SÁCH CÔNG VIỆC',
+                              'TẠO CÔNG VIỆC MỚI (B1)',
                               style: GoogleFonts.spaceGrotesk(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w900,
                                 color: AppColors.primaryInk,
                               ),
                             ),
@@ -262,7 +272,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Hồ sơ người dùng & Token xác thực đã đồng bộ hoàn tất (Module A3). Các chức năng Quản lý công việc (CRUD) sẽ được kết nối ở Module B.',
+                          'Khởi tạo nhiệm vụ mới, thiết lập hạn hoàn thành, mức độ ưu tiên (Low, Medium, High) và trạng thái ban đầu.',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -270,21 +280,52 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             height: 1.5,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
                         BrutalistButton(
-                          text: 'ĐĂNG XUẤT PHIÊN LÀM VIỆC',
-                          icon: Icons.logout,
-                          backgroundColor: AppColors.secondarySurface,
+                          text: '+ THÊM CÔNG VIỆC MỚI',
+                          icon: Icons.add,
+                          backgroundColor: AppColors.primaryAccent,
                           textColor: AppColors.primaryInk,
                           width: double.infinity,
-                          onPressed: _showLogoutConfirmDialog,
+                          onPressed: _openCreateTask,
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 20),
+
+                  // Logout Card
+                  BrutalistButton(
+                    text: 'ĐĂNG XUẤT PHIÊN LÀM VIỆC',
+                    icon: Icons.logout,
+                    backgroundColor: AppColors.secondarySurface,
+                    textColor: AppColors.primaryInk,
+                    width: double.infinity,
+                    onPressed: _showLogoutConfirmDialog,
+                  ),
                 ],
               ),
             ),
+      floatingActionButton: GestureDetector(
+        onTap: _openCreateTask,
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: AppColors.primaryAccent,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppColors.primaryInk, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.primaryInk,
+                offset: Offset(3, 3),
+                blurRadius: 0,
+              ),
+            ],
+          ),
+          child: const Icon(Icons.add, size: 30, color: AppColors.primaryInk),
+        ),
+      ),
     );
   }
 }
