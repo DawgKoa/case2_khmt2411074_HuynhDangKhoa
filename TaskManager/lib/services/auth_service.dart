@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import '../utils/constants.dart';
 import 'api_client.dart';
 
 class AuthService {
@@ -22,5 +25,63 @@ class AuthService {
     }
 
     return User.fromJson(userData);
+  }
+
+  /// Đăng nhập tài khoản & Lưu JWT token vào SharedPreferences (A2)
+  Future<User> login({
+    required String email,
+    required String password,
+  }) async {
+    final response = await _client.post('/auth/login', {
+      'email': email.trim().toLowerCase(),
+      'password': password,
+    });
+
+    final data = response['data'];
+    if (data == null || data['token'] == null || data['user'] == null) {
+      throw ApiException('Dữ liệu đăng nhập trả về không hợp lệ');
+    }
+
+    final String token = data['token'];
+    final user = User.fromJson(data['user']);
+
+    // Lưu token và thông tin user vào SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(AppConstants.keyToken, token);
+    await prefs.setString(AppConstants.keyUserData, jsonEncode(user.toJson()));
+
+    return user;
+  }
+
+  /// Kiểm tra trạng thái đã đăng nhập hay chưa
+  Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(AppConstants.keyToken);
+    return token != null && token.isNotEmpty;
+  }
+
+  /// Lấy token hiện tại
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(AppConstants.keyToken);
+  }
+
+  /// Lấy thông tin người dùng đang đăng nhập từ bộ nhớ máy
+  Future<User?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userJson = prefs.getString(AppConstants.keyUserData);
+    if (userJson == null) return null;
+    try {
+      return User.fromJson(jsonDecode(userJson));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Đăng xuất khỏi hệ thống
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(AppConstants.keyToken);
+    await prefs.remove(AppConstants.keyUserData);
   }
 }

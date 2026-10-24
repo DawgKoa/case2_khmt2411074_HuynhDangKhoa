@@ -33,6 +33,35 @@ const validateRegister = (req, res, next) => {
   next();
 };
 
+const validateLogin = (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || typeof email !== 'string' || email.trim().length === 0) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Vui lòng nhập email đăng nhập',
+    });
+  }
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email.trim())) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Định dạng email không hợp lệ',
+    });
+  }
+
+  if (!password || typeof password !== 'string' || password.length === 0) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Vui lòng nhập mật khẩu',
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   validateRegister,
+  validateLogin,
 };

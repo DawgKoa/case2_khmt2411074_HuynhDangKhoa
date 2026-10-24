@@ -8,6 +8,7 @@ import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
+import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -88,9 +89,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
 
-      // Chuyển hướng hoặc reset form
-      _passwordController.clear();
-      _confirmPasswordController.clear();
+      // Chuyển hướng sang màn hình đăng nhập
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => LoginScreen(initialEmail: user.email),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -300,9 +305,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // Điều hướng sang đăng nhập khi làm chức năng A2
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Chức năng Đăng nhập (A2) sẽ hoàn thiện ở bước tiếp theo!')),
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const LoginScreen()),
                           );
                         },
                         child: Text(

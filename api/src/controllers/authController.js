@@ -1,5 +1,14 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, email: user.email },
+    process.env.JWT_SECRET || 'super_secret_jwt_key_task_manager_casestudy2_2026',
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+  );
+};
 
 /**
  * Đăng ký tài khoản mới (A1)
@@ -53,6 +62,61 @@ const register = async (req, res) => {
   }
 };
 
+/**
+ * Đăng nhập tài khoản & nhận JWT token (A2)
+ * POST /api/auth/login
+ */
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Tìm người dùng theo email
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Email hoặc mật khẩu không chính xác',
+      });
+    }
+
+    // 2. So khớp mật khẩu với bản băm
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Email hoặc mật khẩu không chính xác',
+      });
+    }
+
+    // 3. Tạo JWT token
+    const token = generateToken(user);
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Đăng nhập thành công',
+      data: {
+        token,
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          avatarUrl: user.avatarUrl,
+          createdAt: user.createdAt,
+        },
+      },
+    });
+  } catch (error) {
+    console.error('[AuthController.login] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi đăng nhập. Vui lòng thử lại sau.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   register,
+  login,
 };
