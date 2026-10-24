@@ -94,7 +94,7 @@ class AuthService {
     return user;
   }
 
-  /// Đổi mật khẩu tài khoản (A4)
+  /// Đổi mật khẩu tài khoản khi đã đăng nhập (A4)
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
@@ -106,6 +106,30 @@ class AuthService {
 
     // Sau khi đổi mật khẩu, xóa phiên đăng nhập để người dùng đăng nhập lại
     await logout();
+  }
+
+  /// Yêu cầu gửi mã OTP quên mật khẩu
+  Future<Map<String, dynamic>> forgotPassword({required String email}) async {
+    final response = await _client.post('/auth/forgot-password', {
+      'email': email.trim().toLowerCase(),
+    });
+    return (response['data'] is Map<String, dynamic>)
+        ? response['data']
+        : <String, dynamic>{};
+  }
+
+  /// Xác thực mã OTP và đặt lại mật khẩu mới
+  Future<String> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    final response = await _client.post('/auth/reset-password', {
+      'email': email.trim().toLowerCase(),
+      'otp': otp.trim(),
+      'newPassword': newPassword,
+    });
+    return response['message']?.toString() ?? 'Đặt lại mật khẩu thành công';
   }
 
   /// Kiểm tra trạng thái đã đăng nhập hay chưa

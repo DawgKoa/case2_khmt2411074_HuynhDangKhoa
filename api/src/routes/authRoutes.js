@@ -5,6 +5,8 @@ const {
   validateRegister,
   validateLogin,
   validateChangePassword,
+  validateForgotPassword,
+  validateResetPassword,
 } = require('../validators/authValidator');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -20,5 +22,9 @@ router.put('/me', protect, authController.updateMe);
 
 // Chức năng A4: Đổi mật khẩu
 router.put('/change-password', protect, validateChangePassword, authController.changePassword);
+
+// Chức năng mở rộng: Quên mật khẩu & Đặt lại mật khẩu qua OTP
+router.post('/forgot-password', validateForgotPassword, authController.forgotPassword);
+router.post('/reset-password', validateResetPassword, authController.resetPassword);
 
 module.exports = router;

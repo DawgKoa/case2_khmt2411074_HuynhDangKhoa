@@ -10,6 +10,7 @@ import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
 import '../tasks/task_list_screen.dart';
 import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String? initialEmail;
@@ -242,7 +243,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         validator: (val) => Validators.required(val, 'Mật khẩu'),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 10),
+
+                      // Quên mật khẩu link
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ForgotPasswordScreen(
+                                  initialEmail: _emailController.text,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'QUÊN MẬT KHẨU?',
+                            style: GoogleFonts.spaceGrotesk(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.primaryInk,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
 
                       // Nút Đăng nhập
                       BrutalistButton(

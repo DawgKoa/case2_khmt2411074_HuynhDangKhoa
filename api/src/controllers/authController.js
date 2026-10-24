@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendOtpEmail } = require('../services/emailService');
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -189,7 +190,7 @@ const updateMe = async (req, res) => {
 };
 
 /**
- * Đổi mật khẩu (A4)
+ * Đổi mật khẩu khi đã đăng nhập (A4)
  * PUT /api/auth/change-password
  */
 const changePassword = async (req, res) => {
@@ -241,10 +242,106 @@ const changePassword = async (req, res) => {
   }
 };
 
+/**
+ * Yêu cầu gửi mã OTP đặt lại mật khẩu (Quên mật khẩu)
+ * POST /api/auth/forgot-password
+ */
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Tìm tài khoản theo email
+    const user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy tài khoản với địa chỉ email này.',
+      });
+    }
+
+    // 2. Tạo mã OTP ngẫu nhiên 6 chữ số
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+
+    user.resetPasswordOtp = otp;
+    user.resetPasswordOtpExpires = expires;
+    await user.save();
+
+    // 3. Gửi email chứa mã OTP
+    const mailRes = await sendOtpEmail({
+      to: user.email,
+      otp,
+      fullName: user.fullName,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Mã xác thực OTP đã được gửi đến email của bạn.',
+      data: {
+        email: user.email,
+        // Cung cấp OTP trực tiếp nếu là môi trường dev hoặc gửi mail fallback để dễ test
+        devOtp: mailRes.fallbackOtp || (process.env.NODE_ENV !== 'production' ? otp : undefined),
+      },
+    });
+  } catch (error) {
+    console.error('[AuthController.forgotPassword] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi xử lý yêu cầu quên mật khẩu.',
+    });
+  }
+};
+
+/**
+ * Xác thực mã OTP và đặt mật khẩu mới
+ * POST /api/auth/reset-password
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Tìm tài khoản với email, mã OTP khớp và chưa hết hạn
+    const user = await User.findOne({
+      email: cleanEmail,
+      resetPasswordOtp: otp.trim(),
+      resetPasswordOtpExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Mã xác thực OTP không chính xác hoặc đã hết thời gian hiệu lực (15 phút).',
+      });
+    }
+
+    // 2. Băm mật khẩu mới
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+    user.resetPasswordOtp = null;
+    user.resetPasswordOtpExpires = null;
+    await user.save();
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.',
+    });
+  } catch (error) {
+    console.error('[AuthController.resetPassword] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi đặt lại mật khẩu.',
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
   updateMe,
   changePassword,
+  forgotPassword,
+  resetPassword,
 };

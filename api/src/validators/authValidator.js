@@ -81,8 +81,58 @@ const validateChangePassword = (req, res, next) => {
   next();
 };
 
+const validateForgotPassword = (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email || typeof email !== 'string' || email.trim().length === 0) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Vui lòng nhập email tài khoản của bạn',
+    });
+  }
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email.trim())) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Định dạng email không hợp lệ',
+    });
+  }
+
+  next();
+};
+
+const validateResetPassword = (req, res, next) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (!email || typeof email !== 'string' || email.trim().length === 0) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Email không được để trống',
+    });
+  }
+
+  if (!otp || typeof otp !== 'string' || otp.trim().length !== 6) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Mã xác thực OTP phải gồm đúng 6 chữ số',
+    });
+  }
+
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Mật khẩu mới phải chứa ít nhất 6 ký tự',
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   validateRegister,
   validateLogin,
   validateChangePassword,
+  validateForgotPassword,
+  validateResetPassword,
 };

@@ -26,16 +26,26 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    resetPasswordOtp: {
+      type: String,
+      default: null,
+    },
+    resetPasswordOtpExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-// Tránh trả về passwordHash khi toJSON
+// Tránh trả về passwordHash và OTP khi toJSON
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.passwordHash;
+  delete user.resetPasswordOtp;
+  delete user.resetPasswordOtpExpires;
   return user;
 };
 
