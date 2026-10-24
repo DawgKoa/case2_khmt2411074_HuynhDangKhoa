@@ -101,11 +101,17 @@ class TaskMemberWorkload {
   final User user;
   final int taskCount;
   final int completedCount;
+  final int inProgressCount;
+  final int overdueCount;
+  final int completionRate;
 
   TaskMemberWorkload({
     required this.user,
     required this.taskCount,
     required this.completedCount,
+    this.inProgressCount = 0,
+    this.overdueCount = 0,
+    this.completionRate = 0,
   });
 
   factory TaskMemberWorkload.fromJson(Map<String, dynamic> json) {
@@ -113,6 +119,9 @@ class TaskMemberWorkload {
       user: User.fromJson(json['user'] ?? {}),
       taskCount: (json['taskCount'] as num?)?.toInt() ?? 0,
       completedCount: (json['completedCount'] as num?)?.toInt() ?? 0,
+      inProgressCount: (json['inProgressCount'] as num?)?.toInt() ?? 0,
+      overdueCount: (json['overdueCount'] as num?)?.toInt() ?? 0,
+      completionRate: (json['completionRate'] as num?)?.toInt() ?? 0,
     );
   }
 }

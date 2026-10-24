@@ -66,6 +66,266 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _fetchStats();
   }
 
+  void _showMemberPerformanceDialog(TaskMemberWorkload member) {
+    final rate = member.completionRate;
+    String ratingText = 'XUẤT SẮC 🌟';
+    Color ratingBg = AppColors.primaryAccent;
+    Color ratingColor = AppColors.primaryInk;
+
+    if (rate < 50) {
+      ratingText = 'CẦN ĐẨY NHANH ⚠️';
+      ratingBg = AppColors.danger;
+      ratingColor = Colors.white;
+    } else if (rate < 80) {
+      ratingText = 'ĐẠT TIẾN ĐỘ 🚀';
+      ratingBg = AppColors.cardWhite;
+      ratingColor = AppColors.primaryInk;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(color: AppColors.primaryInk, width: 2.0),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+        contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        title: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.primaryAccent,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.primaryInk, width: 1.8),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                member.user.fullName.isNotEmpty
+                    ? member.user.fullName[0].toUpperCase()
+                    : 'U',
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.primaryInk,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    member.user.fullName,
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.primaryInk,
+                    ),
+                  ),
+                  Text(
+                    member.user.email,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Divider(color: AppColors.primaryInk, thickness: 1.5),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'ĐÁNH GIÁ HIỆU SUẤT:',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.secondaryText,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: ratingBg,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: AppColors.primaryInk, width: 1.2),
+                  ),
+                  child: Text(
+                    ratingText,
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: ratingColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.scaffoldBackground,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${member.taskCount}',
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        Text(
+                          'ĐƯỢC GIAO',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.secondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryAccent,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${member.completedCount}',
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        Text(
+                          'HOÀN THÀNH',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.primaryInk,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: member.overdueCount > 0
+                          ? const Color(0xFFFFECEB)
+                          : AppColors.scaffoldBackground,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '${member.overdueCount}',
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: member.overdueCount > 0
+                                ? AppColors.danger
+                                : AppColors.primaryInk,
+                          ),
+                        ),
+                        Text(
+                          'QUÁ HẠN',
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.secondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Tỷ lệ hoàn thành:',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '$rate%',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Container(
+              height: 14,
+              decoration: BoxDecoration(
+                color: AppColors.scaffoldBackground,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: AppColors.primaryInk, width: 1.5),
+              ),
+              child: FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: (rate / 100.0).clamp(0.0, 1.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryAccent,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            BrutalistButton(
+              text: 'ĐÓNG',
+              backgroundColor: AppColors.primaryInk,
+              textColor: Colors.white,
+              height: 40,
+              onPressed: () => Navigator.of(ctx).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _onScopeChanged(String scope) {
     if (_selectedScope == scope) return;
     setState(() {
@@ -782,7 +1042,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 ? Math.round((member.completedCount / member.taskCount) * 100)
                                 : 0;
 
-                            return Row(
+                            return InkWell(
+                                onTap: () => _showMemberPerformanceDialog(member),
+                                child: Row(
                               children: [
                                 Container(
                                   width: 34,
@@ -866,7 +1128,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   ),
                                 ),
                               ],
-                            );
+                            ),
+                              );
                           },
                         ),
                       ],

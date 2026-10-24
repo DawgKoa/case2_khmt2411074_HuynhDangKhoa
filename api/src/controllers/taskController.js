@@ -906,20 +906,30 @@ const getTaskStats = async (req, res) => {
             },
             taskCount: 0,
             completedCount: 0,
+            inProgressCount: 0,
+            overdueCount: 0,
           });
         }
         const memberStat = memberWorkloadMap.get(idStr);
         memberStat.taskCount++;
         if (task.status === 'completed') {
           memberStat.completedCount++;
+        } else if (task.status === 'in_progress') {
+          memberStat.inProgressCount++;
+        }
+        if (task.dueDate && new Date(task.dueDate).getTime() < now.getTime() && task.status !== 'completed' && task.status !== 'cancelled') {
+          memberStat.overdueCount++;
         }
       }
     }
 
     const completionRate = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
-    const memberWorkloads = Array.from(memberWorkloadMap.values()).sort(
-      (a, b) => b.taskCount - a.taskCount
-    );
+    const memberWorkloads = Array.from(memberWorkloadMap.values())
+      .map((m) => ({
+        ...m,
+        completionRate: m.taskCount > 0 ? Math.round((m.completedCount / m.taskCount) * 100) : 0,
+      }))
+      .sort((a, b) => b.taskCount - a.taskCount);
 
     return res.status(200).json({
       status: 'success',
