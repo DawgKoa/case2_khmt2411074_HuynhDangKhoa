@@ -85,6 +85,57 @@ const getTasks = async (req, res) => {
 };
 
 /**
+ * Lấy chi tiết một công việc theo ID (B3)
+ * GET /api/tasks/:id
+ */
+const getTaskById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id.toString();
+
+    const task = await Task.findById(id)
+      .populate('createdBy', 'fullName email avatarUrl')
+      .populate('assigneeIds', 'fullName email avatarUrl')
+      .populate('primaryAssigneeId', 'fullName email avatarUrl');
+
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    // Kiểm tra quyền xem: Phải là người tạo hoặc người được phân công
+    const isCreator = task.createdBy?._id?.toString() === userId;
+    const isPrimary = task.primaryAssigneeId?._id?.toString() === userId;
+    const isAssignee = task.assigneeIds?.some(
+      (a) => a._id?.toString() === userId
+    );
+
+    if (!isCreator && !isPrimary && !isAssignee) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Bạn không có quyền truy cập công việc này.',
+      });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        task,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.getTaskById] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi lấy chi tiết công việc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
  * Tạo mới công việc (B1)
  * POST /api/tasks
  */
@@ -143,57 +194,6 @@ const createTask = async (req, res) => {
 };
 
 /**
- * Lấy chi tiết một công việc theo ID (B3)
- * GET /api/tasks/:id
- */
-const getTaskById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user._id.toString();
-
-    const task = await Task.findById(id)
-      .populate('createdBy', 'fullName email avatarUrl')
-      .populate('assigneeIds', 'fullName email avatarUrl')
-      .populate('primaryAssigneeId', 'fullName email avatarUrl');
-
-    if (!task) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Không tìm thấy công việc yêu cầu.',
-      });
-    }
-
-    // Kiểm tra quyền xem: Phải là người tạo hoặc người được phân công
-    const isCreator = task.createdBy?._id?.toString() === userId;
-    const isPrimary = task.primaryAssigneeId?._id?.toString() === userId;
-    const isAssignee = task.assigneeIds?.some(
-      (a) => a._id?.toString() === userId
-    );
-
-    if (!isCreator && !isPrimary && !isAssignee) {
-      return res.status(403).json({
-        status: 'error',
-        message: 'Bạn không có quyền truy cập công việc này.',
-      });
-    }
-
-    return res.status(200).json({
-      status: 'success',
-      data: {
-        task,
-      },
-    });
-  } catch (error) {
-    console.error('[TaskController.getTaskById] Error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Lỗi máy chủ khi lấy chi tiết công việc.',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-    });
-  }
-};
-
-/**
  * Cập nhật toàn bộ thông tin công việc (B4)
  * PUT /api/tasks/:id
  */
@@ -210,7 +210,7 @@ const updateTask = async (req, res) => {
       });
     }
 
-    // Kiểm tra quyền sửa: Người tạo HOẶC người được phân công
+    // Quyền sửa: Người tạo HOẶC người được phân công
     const isCreator = task.createdBy.toString() === userId;
     const isPrimary = task.primaryAssigneeId?.toString() === userId;
     const isAssignee = task.assigneeIds?.some((a) => a.toString() === userId);
@@ -411,6 +411,64 @@ const deleteTask = async (req, res) => {
   }
 };
 
+/**
+ * Phân công người thực hiện chính & danh sách người tham gia (C2)
+ * PUT /api/tasks/:id/assign
+ */
+const assignTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { primaryAssigneeId, assigneeIds } = req.body;
+    const userId = req.user._id.toString();
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    const isCreator = task.createdBy.toString() === userId;
+    if (!isCreator) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Chỉ người tạo công việc mới có quyền phân công người thực hiện.',
+      });
+    }
+
+    if (primaryAssigneeId !== undefined) {
+      task.primaryAssigneeId = primaryAssigneeId || null;
+    }
+
+    if (Array.isArray(assigneeIds)) {
+      task.assigneeIds = assigneeIds;
+    }
+
+    await task.save();
+
+    const populatedTask = await Task.findById(task._id)
+      .populate('createdBy', 'fullName email avatarUrl')
+      .populate('assigneeIds', 'fullName email avatarUrl')
+      .populate('primaryAssigneeId', 'fullName email avatarUrl');
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Cập nhật phân công công việc thành công.',
+      data: {
+        task: populatedTask,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.assignTask] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi phân công công việc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getTasks,
   getTaskById,
@@ -418,4 +476,5 @@ module.exports = {
   updateTask,
   updateTaskStatus,
   deleteTask,
+  assignTask,
 };

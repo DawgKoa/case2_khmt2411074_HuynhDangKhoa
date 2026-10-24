@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../models/user.dart';
 import '../../services/task_service.dart';
-import '../../services/api_client.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/validators.dart';
 import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
+import '../../widgets/brutalist_user_picker.dart';
 
 class TaskCreateScreen extends StatefulWidget {
   const TaskCreateScreen({super.key});
@@ -28,6 +29,11 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
   DateTime? _dueDate;
   String _priority = 'medium'; // low, medium, high
   String _status = 'todo'; // todo, in_progress
+
+  // Assignment (C2)
+  User? _primaryAssignee;
+  List<User> _collaborators = [];
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -78,6 +84,39 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
     }
   }
 
+  Future<void> _pickPrimaryAssignee() async {
+    final results = await BrutalistUserPicker.show(
+      context: context,
+      title: 'NGƯỜI PHỤ TRÁCH CHÍNH // C2',
+      isMultiSelect: false,
+      initialSelected: _primaryAssignee != null ? [_primaryAssignee!] : [],
+    );
+
+    if (results != null && results.isNotEmpty) {
+      setState(() {
+        _primaryAssignee = results.first;
+        if (!_collaborators.any((u) => u.id == _primaryAssignee!.id)) {
+          _collaborators.add(_primaryAssignee!);
+        }
+      });
+    }
+  }
+
+  Future<void> _pickCollaborators() async {
+    final results = await BrutalistUserPicker.show(
+      context: context,
+      title: 'THÀNH VIÊN THAM GIA // C2',
+      isMultiSelect: true,
+      initialSelected: _collaborators,
+    );
+
+    if (results != null) {
+      setState(() {
+        _collaborators = results;
+      });
+    }
+  }
+
   Future<void> _handleCreateTask() async {
     setState(() {
       _errorMessage = null;
@@ -106,6 +145,8 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
         dueDate: _dueDate,
         priority: _priority,
         status: _status,
+        primaryAssigneeId: _primaryAssignee?.id,
+        assigneeIds: _collaborators.map((u) => u.id).toList(),
       );
 
       if (!mounted) return;
@@ -136,11 +177,11 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
         ),
       );
 
-      Navigator.pop(context, true); // Trả về true để TaskListScreen tự động refresh
+      Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = e is ApiException ? e.message : e.toString();
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
       });
     } finally {
       if (mounted) {
@@ -151,84 +192,6 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
     }
   }
 
-  Widget _buildPriorityOption(String value, String label, Color color) {
-    final bool isSelected = _priority == value;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _priority = value),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? color : AppColors.cardWhite,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: AppColors.primaryInk,
-              width: isSelected ? 2.5 : 1.5,
-            ),
-            boxShadow: isSelected
-                ? const [
-                    BoxShadow(
-                      color: AppColors.primaryInk,
-                      offset: Offset(2, 2),
-                      blurRadius: 0,
-                    ),
-                  ]
-                : null,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              color: isSelected && value == 'high' ? Colors.white : AppColors.primaryInk,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusOption(String value, String label) {
-    final bool isSelected = _status == value;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _status = value),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryAccent : AppColors.cardWhite,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: AppColors.primaryInk,
-              width: isSelected ? 2.5 : 1.5,
-            ),
-            boxShadow: isSelected
-                ? const [
-                    BoxShadow(
-                      color: AppColors.primaryInk,
-                      offset: Offset(2, 2),
-                      blurRadius: 0,
-                    ),
-                  ]
-                : null,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primaryInk,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy');
@@ -237,7 +200,7 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'THÊM CÔNG VIỆC MỚI',
+          'TẠO CÔNG VIỆC MỚI // B1 & C2',
           style: GoogleFonts.spaceGrotesk(
             fontSize: 16,
             fontWeight: FontWeight.w900,
@@ -245,16 +208,6 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
             color: AppColors.primaryInk,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: BrutalistBadge(
-              text: 'CREATE // B1',
-              backgroundColor: AppColors.primaryAccent,
-              textColor: AppColors.primaryInk,
-            ),
-          ),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2),
           child: Container(
@@ -265,43 +218,30 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+          padding: const EdgeInsets.all(20.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Section Badge & Header
+                // Header badge
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     BrutalistBadge(
-                      text: 'MODULE B // TASK CREATION',
-                      backgroundColor: AppColors.secondarySurface,
+                      text: 'TASK OPS // CREATE',
+                      backgroundColor: AppColors.primaryAccent,
                       textColor: AppColors.primaryInk,
                       icon: Icons.add_task,
                     ),
+                    BrutalistBadge(
+                      text: 'MODULE B & C',
+                      backgroundColor: AppColors.cardWhite,
+                      textColor: AppColors.primaryInk,
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'KHỞI TẠO NHIỆM VỤ',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -0.5,
-                    color: AppColors.primaryInk,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Điền thông tin chi tiết để tạo mới công việc trong hệ thống.',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.secondaryText,
-                  ),
-                ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Error Banner nếu có
                 if (_errorMessage != null) ...[
@@ -355,6 +295,143 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                       ),
                       const SizedBox(height: 20),
 
+                      // PHÂN CÔNG NHÂN SỰ (C2)
+                      Text(
+                        'PHÂN CÔNG NHÂN SỰ (C2)',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                          color: AppColors.primaryInk,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Người phụ trách chính
+                      GestureDetector(
+                        onTap: _pickPrimaryAssignee,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardWhite,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: AppColors.primaryInk,
+                                offset: Offset(2, 2),
+                                blurRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryAccent,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  _primaryAssignee != null && _primaryAssignee!.fullName.isNotEmpty
+                                      ? _primaryAssignee!.fullName[0].toUpperCase()
+                                      : '★',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.primaryInk,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'NGƯỜI PHỤ TRÁCH CHÍNH',
+                                      style: GoogleFonts.jetBrainsMono(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.secondaryText,
+                                      ),
+                                    ),
+                                    Text(
+                                      _primaryAssignee?.fullName ?? 'Mặc định (Bạn)',
+                                      style: GoogleFonts.spaceGrotesk(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.primaryInk,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primaryInk),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Thành viên tham gia
+                      GestureDetector(
+                        onTap: _pickCollaborators,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardWhite,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: AppColors.primaryInk,
+                                offset: Offset(2, 2),
+                                blurRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.group_add, color: AppColors.primaryInk, size: 22),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'THÀNH VIÊN CÙNG THAM GIA',
+                                      style: GoogleFonts.jetBrainsMono(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.secondaryText,
+                                      ),
+                                    ),
+                                    Text(
+                                      _collaborators.isEmpty
+                                          ? 'Nhấn để chọn thành viên...'
+                                          : 'Đã chọn ${_collaborators.length} thành viên',
+                                      style: GoogleFonts.spaceGrotesk(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: _collaborators.isEmpty
+                                            ? AppColors.secondaryText
+                                            : AppColors.primaryInk,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.chevron_right, size: 20, color: AppColors.primaryInk),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
                       // Ngày bắt đầu & Hạn hoàn thành
                       Text(
                         'THỜI GIAN THỰC HIỆN',
@@ -368,7 +445,6 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          // Ngày bắt đầu
                           Expanded(
                             child: GestureDetector(
                               onTap: () => _pickDate(isStart: true),
@@ -421,8 +497,6 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-
-                          // Hạn hoàn thành
                           Expanded(
                             child: GestureDetector(
                               onTap: () => _pickDate(isStart: false),
@@ -535,6 +609,93 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPriorityOption(String value, String label, Color color) {
+    final isSelected = _priority == value;
+    final isHigh = value == 'high';
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _priority = value;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color : AppColors.cardWhite,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: AppColors.primaryInk,
+              width: isSelected ? 2.5 : 1.5,
+            ),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: AppColors.primaryInk,
+                      offset: Offset(2, 2),
+                      blurRadius: 0,
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+              color: isSelected && isHigh ? Colors.white : AppColors.primaryInk,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusOption(String value, String label) {
+    final isSelected = _status == value;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _status = value;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primaryAccent : AppColors.cardWhite,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: AppColors.primaryInk,
+              width: isSelected ? 2.5 : 1.5,
+            ),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: AppColors.primaryInk,
+                      offset: Offset(2, 2),
+                      blurRadius: 0,
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: GoogleFonts.jetBrainsMono(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+              color: AppColors.primaryInk,
             ),
           ),
         ),

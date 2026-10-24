@@ -11,6 +11,7 @@ import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/quick_status_bottom_sheet.dart';
 import 'task_edit_screen.dart';
+import '../../widgets/brutalist_user_picker.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -173,6 +174,158 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _reassignStaff() async {
+    if (_task == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: AppColors.scaffoldBackground,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          border: const Border(
+            top: BorderSide(color: AppColors.primaryInk, width: 3),
+            left: BorderSide(color: AppColors.primaryInk, width: 2),
+            right: BorderSide(color: AppColors.primaryInk, width: 2),
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.primaryInk,
+              offset: Offset(0, -3),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryInk,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'PHÂN CÔNG NHÂN SỰ // C2',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: AppColors.primaryInk,
+              ),
+            ),
+            const SizedBox(height: 14),
+            GestureDetector(
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                final picked = await BrutalistUserPicker.show(
+                  context: context,
+                  title: 'ĐỔI NGƯỜI PHỤ TRÁCH CHÍNH',
+                  isMultiSelect: false,
+                  initialSelected: _task!.primaryAssignee != null ? [_task!.primaryAssignee!] : [],
+                );
+                if (picked != null && picked.isNotEmpty) {
+                  try {
+                    final updated = await _taskService.assignTask(
+                      _task!.id,
+                      primaryAssigneeId: picked.first.id,
+                    );
+                    if (mounted) {
+                      setState(() => _task = updated);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('ĐÃ CẬP NHẬT NGƯỜI PHỤ TRÁCH CHÍNH'),
+                          backgroundColor: AppColors.primaryInk,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Lỗi: '), backgroundColor: AppColors.danger),
+                      );
+                    }
+                  }
+                }
+              },
+              child: BrutalistCard(
+                backgroundColor: AppColors.cardWhite,
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star, color: AppColors.primaryAccent),
+                    const SizedBox(width: 12),
+                    Text(
+                      'ĐỔI NGƯỜI PHỤ TRÁCH CHÍNH',
+                      style: GoogleFonts.spaceGrotesk(fontSize: 14, fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                final picked = await BrutalistUserPicker.show(
+                  context: context,
+                  title: 'CHỌN THÀNH VIÊN THAM GIA',
+                  isMultiSelect: true,
+                  initialSelected: _task!.assignees,
+                );
+                if (picked != null) {
+                  try {
+                    final updated = await _taskService.assignTask(
+                      _task!.id,
+                      assigneeIds: picked.map((u) => u.id).toList(),
+                    );
+                    if (mounted) {
+                      setState(() => _task = updated);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('ĐÃ CẬP NHẬT DANH SÁCH THÀNH VIÊN'),
+                          backgroundColor: AppColors.primaryInk,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Lỗi: '), backgroundColor: AppColors.danger),
+                      );
+                    }
+                  }
+                }
+              },
+              child: BrutalistCard(
+                backgroundColor: AppColors.cardWhite,
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    const Icon(Icons.group_add, color: AppColors.primaryInk),
+                    const SizedBox(width: 12),
+                    Text(
+                      'CẬP NHẬT THÀNH VIÊN THAM GIA',
+                      style: GoogleFonts.spaceGrotesk(fontSize: 14, fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -429,6 +582,16 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               textColor: AppColors.primaryInk,
                               onPressed: _openQuickStatus,
                             ),
+                            if (_isCreator) ...[
+                              const SizedBox(height: 12),
+                              BrutalistButton(
+                                text: 'PHÂN CÔNG NHÂN SỰ (C2)',
+                                icon: Icons.person_add_alt_1,
+                                backgroundColor: AppColors.primaryAccent,
+                                textColor: AppColors.primaryInk,
+                                onPressed: _reassignStaff,
+                              ),
+                            ],
                             const SizedBox(height: 12),
                             BrutalistButton(
                               text: 'CHỈNH SỬA CÔNG VIỆC',

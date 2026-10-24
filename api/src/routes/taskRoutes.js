@@ -16,6 +16,9 @@ router.get('/:id', taskController.getTaskById);
 // Chức năng B4: Cập nhật thông tin công việc
 router.put('/:id', taskController.updateTask);
 
+// Chức năng C2: Phân công người thực hiện chính & danh sách người tham gia
+router.put('/:id/assign', taskController.assignTask);
+
 // Chức năng B4: Đổi trạng thái nhanh công việc
 router.patch('/:id/status', taskController.updateTaskStatus);
 

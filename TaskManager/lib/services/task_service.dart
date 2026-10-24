@@ -4,7 +4,7 @@ import 'api_client.dart';
 class TaskService {
   final ApiClient _client = ApiClient.instance;
 
-  /// Lấy danh sách công việc của người dùng hiện tại (B2)
+  /// Lấy danh sách công việc của người dùng hiện tại (B2 & B6)
   Future<List<Task>> getTasks({
     String? status,
     String? priority,
@@ -88,6 +88,26 @@ class TaskService {
     return Task.fromJson(taskData);
   }
 
+  /// Phân công người thực hiện chính & danh sách người tham gia (C2)
+  Future<Task> assignTask(
+    String taskId, {
+    String? primaryAssigneeId,
+    List<String>? assigneeIds,
+  }) async {
+    final Map<String, dynamic> data = {};
+    if (primaryAssigneeId != null) data['primaryAssigneeId'] = primaryAssigneeId;
+    if (assigneeIds != null) data['assigneeIds'] = assigneeIds;
+
+    final response = await _client.put('/tasks/$taskId/assign', data);
+
+    final taskData = response['data']?['task'];
+    if (taskData == null) {
+      throw ApiException('Không nhận được dữ liệu công việc sau phân công');
+    }
+
+    return Task.fromJson(taskData);
+  }
+
   /// Đổi trạng thái nhanh công việc (B4)
   Future<Task> updateTaskStatus(String taskId, String status) async {
     final response = await _client.patch('/tasks/$taskId/status', {
@@ -107,7 +127,7 @@ class TaskService {
     await _client.delete('/tasks/$taskId');
   }
 
-  /// Tạo công việc mới (B1)
+  /// Tạo công việc mới (B1 & C2)
   Future<Task> createTask({
     required String title,
     String? description,
