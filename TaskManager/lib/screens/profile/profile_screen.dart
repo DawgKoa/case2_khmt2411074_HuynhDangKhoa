@@ -10,6 +10,8 @@ import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
+import '../auth/login_screen.dart';
+import '../auth/welcome_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,16 +21,27 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _profileFormKey = GlobalKey<FormState>();
+  final _passwordFormKey = GlobalKey<FormState>();
   final _authService = AuthService();
 
   final _fullNameController = TextEditingController();
   final _avatarUrlController = TextEditingController();
 
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmNewPasswordController = TextEditingController();
+
+  bool _obscureCurrentPw = true;
+  bool _obscureNewPw = true;
+  bool _obscureConfirmNewPw = true;
+
   User? _user;
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _isChangingPassword = false;
   String? _errorMessage;
+  String? _passwordErrorMessage;
 
   @override
   void initState() {
@@ -40,6 +53,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void dispose() {
     _fullNameController.dispose();
     _avatarUrlController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmNewPasswordController.dispose();
     super.dispose();
   }
 
@@ -57,7 +73,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _avatarUrlController.text = user.avatarUrl ?? '';
       });
     } catch (e) {
-      // Nếu API lỗi, thử lấy từ cache offline
       final cachedUser = await _authService.getCurrentUser();
       setState(() {
         _user = cachedUser;
@@ -81,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _errorMessage = null;
     });
 
-    if (!_formKey.currentState!.validate()) {
+    if (!_profileFormKey.currentState!.validate()) {
       return;
     }
 
@@ -140,6 +155,148 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _handleChangePassword() async {
+    setState(() {
+      _passwordErrorMessage = null;
+    });
+
+    if (!_passwordFormKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isChangingPassword = true;
+    });
+
+    try {
+      await _authService.changePassword(
+        currentPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
+      );
+
+      if (!mounted) return;
+
+      // Hiển thị Dialog thông báo thành công và chuyển hướng đăng nhập lại
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.cardWhite,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: const BorderSide(color: AppColors.primaryInk, width: 2),
+          ),
+          title: Row(
+            children: [
+              const Icon(Icons.lock_reset, color: AppColors.primaryAccent, size: 28),
+              const SizedBox(width: 10),
+              Text(
+                'ĐỔI MẬT KHẨU THÀNH CÔNG',
+                style: GoogleFonts.spaceGrotesk(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.primaryInk,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Mật khẩu của bạn đã được cập nhật thành công. Vì lý do an toàn, phiên làm việc đã kết thúc. Vui lòng đăng nhập lại bằng mật khẩu mới.',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: AppColors.primaryInk,
+            ),
+          ),
+          actions: [
+            BrutalistButton(
+              text: 'ĐĂNG NHẬP NGAY',
+              backgroundColor: AppColors.primaryAccent,
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (route) => false,
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _passwordErrorMessage = e is ApiException ? e.message : e.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isChangingPassword = false;
+        });
+      }
+    }
+  }
+
+  void _showLogoutConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: AppColors.primaryInk, width: 2),
+        ),
+        title: Text(
+          'XÁC NHẬN ĐĂNG XUẤT',
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: AppColors.primaryInk,
+          ),
+        ),
+        content: Text(
+          'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống Task Manager?',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.secondaryText,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'HỦY',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: AppColors.secondaryText,
+              ),
+            ),
+          ),
+          BrutalistButton(
+            text: 'ĐĂNG XUẤT',
+            icon: Icons.logout,
+            backgroundColor: AppColors.danger,
+            textColor: Colors.white,
+            height: 42,
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await _authService.logout();
+              if (!mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   String _getInitials(String name) {
     if (name.trim().isEmpty) return '?';
     final parts = name.trim().split(RegExp(r'\s+'));
@@ -167,13 +324,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: BrutalistBadge(
-              text: 'PROFILE // A3',
-              backgroundColor: AppColors.primaryAccent,
-              textColor: AppColors.primaryInk,
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: AppColors.primaryInk),
+            tooltip: 'Đăng xuất',
+            onPressed: _showLogoutConfirmDialog,
           ),
         ],
         bottom: PreferredSize(
@@ -194,176 +348,188 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Header Badge & Title
-                      Row(
-                        children: [
-                          BrutalistBadge(
-                            text: 'MODULE A // USER IDENTITY',
-                            backgroundColor: AppColors.secondarySurface,
-                            textColor: AppColors.primaryInk,
-                            icon: Icons.badge_outlined,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'THÔNG TIN TÀI KHOẢN',
-                        style: GoogleFonts.spaceGrotesk(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                          color: AppColors.primaryInk,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Header Badge & Title
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        BrutalistBadge(
+                          text: 'MODULE A // PROFILE & SECURITY',
+                          backgroundColor: AppColors.primaryAccent,
+                          textColor: AppColors.primaryInk,
+                          icon: Icons.shield_outlined,
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Xem và chỉnh sửa thông tin hiển thị của bạn trên hệ thống.',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.secondaryText,
+                        BrutalistBadge(
+                          text: 'A4 READY',
+                          backgroundColor: AppColors.secondarySurface,
+                          textColor: AppColors.primaryInk,
                         ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Error Banner nếu có
-                      if (_errorMessage != null) ...[
-                        BrutalistCard(
-                          backgroundColor: AppColors.danger,
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.error_outline, color: Colors.white, size: 22),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  _errorMessage!,
-                                  style: GoogleFonts.spaceGrotesk(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
                       ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'TÀI KHOẢN & BẢO MẬT',
+                      style: GoogleFonts.spaceGrotesk(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
+                        color: AppColors.primaryInk,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Quản lý thông tin hồ sơ và đổi mật khẩu bảo mật tài khoản.',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.secondaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                      // Profile Hero Card
+                    // Error Banner hồ sơ nếu có
+                    if (_errorMessage != null) ...[
                       BrutalistCard(
-                        backgroundColor: AppColors.cardWhite,
-                        padding: const EdgeInsets.all(20.0),
+                        backgroundColor: AppColors.danger,
+                        padding: const EdgeInsets.all(12),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Avatar Box
-                            Container(
-                              width: 68,
-                              height: 68,
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryAccent,
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: AppColors.primaryInk,
-                                  width: AppColors.borderWidth,
-                                ),
-                                boxShadow: AppColors.hardShadow,
-                              ),
-                              child: _user?.avatarUrl != null && _user!.avatarUrl!.isNotEmpty
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(6.0),
-                                      child: Image.network(
-                                        _user!.avatarUrl!,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) => Center(
-                                          child: Text(
-                                            _getInitials(_user?.fullName ?? ''),
-                                            style: GoogleFonts.spaceGrotesk(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w900,
-                                              color: AppColors.primaryInk,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Center(
-                                      child: Text(
-                                        _getInitials(_user?.fullName ?? ''),
-                                        style: GoogleFonts.spaceGrotesk(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppColors.primaryInk,
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                            const SizedBox(width: 16),
-
-                            // User Info preview
+                            const Icon(Icons.error_outline, color: Colors.white, size: 22),
+                            const SizedBox(width: 10),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _user?.fullName ?? 'Chưa cập nhật',
-                                    style: GoogleFonts.spaceGrotesk(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.primaryInk,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _user?.email ?? '',
-                                    style: GoogleFonts.jetBrainsMono(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.secondaryText,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'NGÀY TẠO: $createdDateStr',
-                                    style: GoogleFonts.jetBrainsMono(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.secondaryText,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
+                              child: Text(
+                                _errorMessage!,
+                                style: GoogleFonts.spaceGrotesk(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
+                    ],
 
-                      // Edit Form Card
-                      BrutalistCard(
+                    // Profile Hero Card
+                    BrutalistCard(
+                      backgroundColor: AppColors.cardWhite,
+                      padding: const EdgeInsets.all(20.0),
+                      child: Row(
+                        children: [
+                          // Avatar Box
+                          Container(
+                            width: 68,
+                            height: 68,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryAccent,
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(
+                                color: AppColors.primaryInk,
+                                width: AppColors.borderWidth,
+                              ),
+                              boxShadow: AppColors.hardShadow,
+                            ),
+                            child: _user?.avatarUrl != null && _user!.avatarUrl!.isNotEmpty
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(6.0),
+                                    child: Image.network(
+                                      _user!.avatarUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) => Center(
+                                        child: Text(
+                                          _getInitials(_user?.fullName ?? ''),
+                                          style: GoogleFonts.spaceGrotesk(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w900,
+                                            color: AppColors.primaryInk,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Center(
+                                    child: Text(
+                                      _getInitials(_user?.fullName ?? ''),
+                                      style: GoogleFonts.spaceGrotesk(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.primaryInk,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(width: 16),
+
+                          // User Info preview
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _user?.fullName ?? 'Chưa cập nhật',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primaryInk,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _user?.email ?? '',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.secondaryText,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'NGÀY TẠO: $createdDateStr',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.secondaryText,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Form Chỉnh sửa thông tin
+                    Form(
+                      key: _profileFormKey,
+                      child: BrutalistCard(
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'CHỈNH SỬA THÔNG TIN',
-                              style: GoogleFonts.spaceGrotesk(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primaryInk,
-                              ),
+                            Row(
+                              children: [
+                                const Icon(Icons.edit_outlined, color: AppColors.primaryInk, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'CHỈNH SỬA THÔNG TIN',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primaryInk,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 16),
 
@@ -396,9 +562,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 24),
 
-                            // Nút lưu thay đổi
+                            // Nút lưu thay đổi hồ sơ
                             BrutalistButton(
-                              text: 'LƯU THAY ĐỔI',
+                              text: 'LƯU THAY ĐỔI HỒ SƠ',
                               icon: Icons.save_outlined,
                               isLoading: _isSaving,
                               width: double.infinity,
@@ -410,8 +576,153 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section Đổi Mật Khẩu (A4)
+                    Form(
+                      key: _passwordFormKey,
+                      child: BrutalistCard(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.password_outlined, color: AppColors.primaryInk, size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'ĐỔI MẬT KHẨU',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primaryInk,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Nhập mật khẩu cũ và đặt mật khẩu mới tối thiểu 6 ký tự.',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.secondaryText,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Error Banner đổi mật khẩu nếu có
+                            if (_passwordErrorMessage != null) ...[
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.danger,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.error_outline, color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _passwordErrorMessage!,
+                                        style: GoogleFonts.spaceGrotesk(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+
+                            // Mật khẩu hiện tại
+                            BrutalistTextField(
+                              label: 'Mật khẩu hiện tại',
+                              hintText: 'Nhập mật khẩu cũ',
+                              controller: _currentPasswordController,
+                              obscureText: _obscureCurrentPw,
+                              prefixIcon: const Icon(Icons.lock_clock_outlined, color: AppColors.primaryInk),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureCurrentPw ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                  color: AppColors.primaryInk,
+                                ),
+                                onPressed: () => setState(() => _obscureCurrentPw = !_obscureCurrentPw),
+                              ),
+                              validator: (val) => Validators.required(val, 'Mật khẩu hiện tại'),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Mật khẩu mới
+                            BrutalistTextField(
+                              label: 'Mật khẩu mới',
+                              hintText: 'Tối thiểu 6 ký tự',
+                              controller: _newPasswordController,
+                              obscureText: _obscureNewPw,
+                              prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primaryInk),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureNewPw ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                  color: AppColors.primaryInk,
+                                ),
+                                onPressed: () => setState(() => _obscureNewPw = !_obscureNewPw),
+                              ),
+                              validator: Validators.password,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Xác nhận mật khẩu mới
+                            BrutalistTextField(
+                              label: 'Xác nhận mật khẩu mới',
+                              hintText: 'Nhập lại mật khẩu mới',
+                              controller: _confirmNewPasswordController,
+                              obscureText: _obscureConfirmNewPw,
+                              prefixIcon: const Icon(Icons.lock_reset_outlined, color: AppColors.primaryInk),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureConfirmNewPw ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                                  color: AppColors.primaryInk,
+                                ),
+                                onPressed: () => setState(() => _obscureConfirmNewPw = !_obscureConfirmNewPw),
+                              ),
+                              validator: (val) => Validators.confirmPassword(val, _newPasswordController.text),
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Nút Đổi mật khẩu
+                            BrutalistButton(
+                              text: 'CẬP NHẬT MẬT KHẨU',
+                              icon: Icons.key_outlined,
+                              isLoading: _isChangingPassword,
+                              width: double.infinity,
+                              height: 52,
+                              backgroundColor: AppColors.cardWhite,
+                              textColor: AppColors.primaryInk,
+                              onPressed: _handleChangePassword,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section Nút Đăng Xuất (A4)
+                    BrutalistButton(
+                      text: 'ĐĂNG XUẤT KHỎI HỆ THỐNG',
+                      icon: Icons.logout,
+                      height: 50,
+                      backgroundColor: AppColors.danger,
+                      textColor: Colors.white,
+                      onPressed: _showLogoutConfirmDialog,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                 ),
               ),
             ),

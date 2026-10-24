@@ -45,13 +45,62 @@ class _TaskListScreenState extends State<TaskListScreen> {
     } catch (_) {}
   }
 
-  Future<void> _handleLogout() async {
-    await _authService.logout();
-    if (!mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-      (route) => false,
+  void _showLogoutConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.cardWhite,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: const BorderSide(color: AppColors.primaryInk, width: 2),
+        ),
+        title: Text(
+          'XÁC NHẬN ĐĂNG XUẤT',
+          style: GoogleFonts.spaceGrotesk(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: AppColors.primaryInk,
+          ),
+        ),
+        content: Text(
+          'Bạn có chắc chắn muốn đăng xuất khỏi hệ thống Task Manager?',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.secondaryText,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'HỦY',
+              style: GoogleFonts.spaceGrotesk(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: AppColors.secondaryText,
+              ),
+            ),
+          ),
+          BrutalistButton(
+            text: 'ĐĂNG XUẤT',
+            icon: Icons.logout,
+            backgroundColor: AppColors.danger,
+            textColor: Colors.white,
+            height: 42,
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await _authService.logout();
+              if (!mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -86,7 +135,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
           IconButton(
             icon: const Icon(Icons.logout, color: AppColors.primaryInk),
             tooltip: 'Đăng xuất',
-            onPressed: _handleLogout,
+            onPressed: _showLogoutConfirmDialog,
           ),
         ],
         bottom: PreferredSize(
@@ -228,7 +277,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           backgroundColor: AppColors.secondarySurface,
                           textColor: AppColors.primaryInk,
                           width: double.infinity,
-                          onPressed: _handleLogout,
+                          onPressed: _showLogoutConfirmDialog,
                         ),
                       ],
                     ),

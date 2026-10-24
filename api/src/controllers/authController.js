@@ -188,9 +188,63 @@ const updateMe = async (req, res) => {
   }
 };
 
+/**
+ * Đổi mật khẩu (A4)
+ * PUT /api/auth/change-password
+ */
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    // 1. Lấy thông tin người dùng kèm theo passwordHash
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Tài khoản không tồn tại',
+      });
+    }
+
+    // 2. So khớp mật khẩu hiện tại
+    const isCurrentValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isCurrentValid) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Mật khẩu hiện tại không chính xác',
+      });
+    }
+
+    // 3. Mật khẩu mới không được trùng mật khẩu cũ
+    const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
+    if (isSamePassword) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Mật khẩu mới không được trùng với mật khẩu hiện tại',
+      });
+    }
+
+    // 4. Băm mật khẩu mới và lưu
+    const salt = await bcrypt.genSalt(10);
+    user.passwordHash = await bcrypt.hash(newPassword, salt);
+    await user.save();
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại.',
+    });
+  } catch (error) {
+    console.error('[AuthController.changePassword] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi đổi mật khẩu.',
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
   updateMe,
+  changePassword,
 };

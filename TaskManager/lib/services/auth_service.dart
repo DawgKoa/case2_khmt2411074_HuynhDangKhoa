@@ -94,6 +94,20 @@ class AuthService {
     return user;
   }
 
+  /// Đổi mật khẩu tài khoản (A4)
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _client.put('/auth/change-password', {
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    });
+
+    // Sau khi đổi mật khẩu, xóa phiên đăng nhập để người dùng đăng nhập lại
+    await logout();
+  }
+
   /// Kiểm tra trạng thái đã đăng nhập hay chưa
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();

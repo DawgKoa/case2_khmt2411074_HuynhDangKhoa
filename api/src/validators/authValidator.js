@@ -61,7 +61,28 @@ const validateLogin = (req, res, next) => {
   next();
 };
 
+const validateChangePassword = (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || typeof currentPassword !== 'string' || currentPassword.length === 0) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Vui lòng nhập mật khẩu hiện tại',
+    });
+  }
+
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Mật khẩu mới phải chứa ít nhất 6 ký tự',
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   validateRegister,
   validateLogin,
+  validateChangePassword,
 };
