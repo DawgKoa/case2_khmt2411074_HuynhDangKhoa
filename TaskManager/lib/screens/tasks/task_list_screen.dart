@@ -12,6 +12,8 @@ import '../../widgets/brutalist_task_card.dart';
 import '../../widgets/quick_status_bottom_sheet.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
+import '../notifications/notification_screen.dart';
+import '../../services/notification_service.dart';
 import 'task_create_screen.dart';
 import 'task_detail_screen.dart';
 
@@ -25,6 +27,8 @@ class TaskListScreen extends StatefulWidget {
 class _TaskListScreenState extends State<TaskListScreen> {
   final _authService = AuthService();
   final _taskService = TaskService();
+  final _notificationService = NotificationService.instance;
+  int _unreadNotificationCount = 0;
 
   User? _currentUser;
   List<Task> _tasks = [];
@@ -56,7 +60,19 @@ class _TaskListScreenState extends State<TaskListScreen> {
     await Future.wait([
       _loadUser(),
       _fetchTasks(),
+      _fetchUnreadNotificationCount(),
     ]);
+  }
+
+  Future<void> _fetchUnreadNotificationCount() async {
+    try {
+      final res = await _notificationService.getNotifications(isRead: false, limit: 1);
+      if (mounted) {
+        setState(() {
+          _unreadNotificationCount = res.unreadCount;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadUser() async {
@@ -290,6 +306,17 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
   }
 
+  Future<void> _openNotifications() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const NotificationScreen()),
+    );
+    if (mounted) {
+      _fetchUnreadNotificationCount();
+      _fetchTasks();
+    }
+  }
+
   Future<void> _openProfile() async {
     await Navigator.push(
       context,
@@ -339,6 +366,39 @@ class _TaskListScreenState extends State<TaskListScreen> {
           ),
         ),
         actions: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, color: AppColors.primaryInk),
+                tooltip: 'Thông báo',
+                onPressed: _openNotifications,
+              ),
+              if (_unreadNotificationCount > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: AppColors.primaryInk, width: 1.2),
+                    ),
+                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                    child: Text(
+                      _unreadNotificationCount > 99 ? '99+' : '$_unreadNotificationCount',
+                      style: GoogleFonts.jetBrainsMono(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.person_outline, color: AppColors.primaryInk),
             tooltip: 'Hồ sơ cá nhân',
