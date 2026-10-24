@@ -12,6 +12,7 @@ import '../../widgets/brutalist_card.dart';
 import '../../widgets/quick_status_bottom_sheet.dart';
 import 'task_edit_screen.dart';
 import '../../widgets/brutalist_user_picker.dart';
+import '../../widgets/brutalist_share_modal.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -72,9 +73,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
-  bool get _isCreator {
-    if (_task == null || _currentUser == null) return false;
-    return _task!.createdBy?.id == _currentUser!.id;
+  bool get _isCreator => _task?.createdBy?.id == _currentUser?.id;
+  bool get _isAdmin => _isCreator || _task?.sharedWith.any((m) => m.user.id == _currentUser?.id && m.role == 'admin') == true;
+  bool get _isEditor => _isAdmin || _task?.sharedWith.any((m) => m.user.id == _currentUser?.id && m.role == 'editor') == true;
+  bool get _isViewer => _task?.sharedWith.any((m) => m.user.id == _currentUser?.id && m.role == 'viewer') == true;
+  bool get _canEdit => _isAdmin || _isEditor || _task?.primaryAssignee?.id == _currentUser?.id;
+  bool get _canDelete => _isCreator || _isAdmin;
+
+  Future<void> _openShareModal() async {
+    if (_task == null) return;
+    final updated = await BrutalistShareModal.show(context: context, task: _task!);
+    if (updated != null && mounted) {
+      setState(() => _task = updated);
+    }
   }
 
   void _showDeleteConfirmDialog() {
@@ -473,6 +484,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                 _buildStatusBadge(task.status),
                               ],
                             ),
+                            Row(children: [_buildRoleBadge()]),
                             const SizedBox(height: 14),
 
                             // Main Title Card
@@ -574,7 +586,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             _buildPeopleCard(task),
                             const SizedBox(height: 20),
 
-                            // Action Buttons (B4)
+                            // Action Buttons (B4 & C3 RBAC)
+                            if (_canEdit) ...[
                             BrutalistButton(
                               text: 'CHUYỂN TRẠNG THÁI NHANH',
                               icon: Icons.sync,
@@ -582,7 +595,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               textColor: AppColors.primaryInk,
                               onPressed: _openQuickStatus,
                             ),
-                            if (_isCreator) ...[
+                                                        if (_isAdmin) ...[
+                              const SizedBox(height: 12),
+                              BrutalistButton(
+                                text: 'CHIA SẺ CÔNG VIỆC (C3 - RBAC)',
+                                icon: Icons.share,
+                                backgroundColor: AppColors.cardWhite,
+                                textColor: AppColors.primaryInk,
+                                onPressed: _openShareModal,
+                              ),
+                            ],
+                            if (_isAdmin) ...[
                               const SizedBox(height: 12),
                               BrutalistButton(
                                 text: 'PHÂN CÔNG NHÂN SỰ (C2)',
@@ -600,7 +623,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               textColor: AppColors.primaryInk,
                               onPressed: _openEditTask,
                             ),
-                            if (_isCreator) ...[
+                            ],
+                            if (_canDelete) ...[
                               const SizedBox(height: 12),
                               BrutalistButton(
                                 text: 'XÓA CÔNG VIỆC (B5)',
@@ -615,6 +639,44 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         ),
                       ),
                     ),
+    );
+  }
+
+  Widget _buildRoleBadge() {
+    String text = 'THÀNH VIÊN';
+    Color bg = AppColors.secondarySurface;
+    Color tc = AppColors.primaryInk;
+
+    if (_isCreator) {
+      text = 'CHỦ SỞ HỮU (OWNER)';
+      bg = AppColors.primaryAccent;
+    } else if (_isAdmin) {
+      text = 'QUẢN TRỊ VIÊN (ADMIN)';
+      bg = AppColors.danger;
+      tc = Colors.white;
+    } else if (_isEditor) {
+      text = 'NGƯỜI CHỈNH SỬA (EDITOR)';
+      bg = AppColors.primaryAccent;
+    } else if (_isViewer) {
+      text = 'NGƯỜI XEM (VIEWER)';
+      bg = AppColors.secondarySurface;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppColors.primaryInk, width: 1.5),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.jetBrainsMono(
+          fontSize: 9,
+          fontWeight: FontWeight.w900,
+          color: tc,
+        ),
+      ),
     );
   }
 

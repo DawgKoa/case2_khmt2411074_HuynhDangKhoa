@@ -1,5 +1,46 @@
 import 'user.dart';
 
+class TaskShareMember {
+  final User user;
+  final String role; // viewer, editor, admin
+  final DateTime? sharedAt;
+
+  TaskShareMember({
+    required this.user,
+    this.role = 'viewer',
+    this.sharedAt,
+  });
+
+  factory TaskShareMember.fromJson(Map<String, dynamic> json) {
+    User parsedUser;
+    if (json['userId'] is Map<String, dynamic>) {
+      parsedUser = User.fromJson(json['userId']);
+    } else {
+      parsedUser = User(
+        id: json['userId']?.toString() ?? '',
+        fullName: 'Người dùng',
+        email: '',
+      );
+    }
+
+    return TaskShareMember(
+      user: parsedUser,
+      role: json['role'] ?? 'viewer',
+      sharedAt: json['sharedAt'] != null
+          ? DateTime.tryParse(json['sharedAt'].toString())
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': user.toJson(),
+      'role': role,
+      'sharedAt': sharedAt?.toIso8601String(),
+    };
+  }
+}
+
 class Task {
   final String id;
   final String title;
@@ -7,10 +48,11 @@ class Task {
   final User? createdBy;
   final List<User> assignees;
   final User? primaryAssignee;
+  final List<TaskShareMember> sharedWith;
   final DateTime? startDate;
   final DateTime? dueDate;
   final String priority; // low, medium, high
-  final String status; // todo, in_progress, completed
+  final String status; // todo, in_progress, completed, cancelled
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -21,6 +63,7 @@ class Task {
     this.createdBy,
     this.assignees = const [],
     this.primaryAssignee,
+    this.sharedWith = const [],
     this.startDate,
     this.dueDate,
     this.priority = 'medium',
@@ -58,6 +101,16 @@ class Task {
       }
     }
 
+    // Parse sharedWith (C3)
+    List<TaskShareMember> parsedShared = [];
+    if (json['sharedWith'] is List) {
+      for (var item in json['sharedWith']) {
+        if (item is Map<String, dynamic>) {
+          parsedShared.add(TaskShareMember.fromJson(item));
+        }
+      }
+    }
+
     return Task(
       id: json['_id'] ?? json['id'] ?? '',
       title: json['title'] ?? '',
@@ -65,6 +118,7 @@ class Task {
       createdBy: creator,
       assignees: parsedAssignees,
       primaryAssignee: primary,
+      sharedWith: parsedShared,
       startDate: json['startDate'] != null
           ? DateTime.tryParse(json['startDate'].toString())
           : null,
@@ -90,6 +144,7 @@ class Task {
       'createdBy': createdBy?.toJson(),
       'assigneeIds': assignees.map((u) => u.toJson()).toList(),
       'primaryAssigneeId': primaryAssignee?.toJson(),
+      'sharedWith': sharedWith.map((s) => s.toJson()).toList(),
       'startDate': startDate?.toIso8601String(),
       'dueDate': dueDate?.toIso8601String(),
       'priority': priority,
@@ -106,6 +161,7 @@ class Task {
     User? createdBy,
     List<User>? assignees,
     User? primaryAssignee,
+    List<TaskShareMember>? sharedWith,
     DateTime? startDate,
     DateTime? dueDate,
     String? priority,
@@ -120,6 +176,7 @@ class Task {
       createdBy: createdBy ?? this.createdBy,
       assignees: assignees ?? this.assignees,
       primaryAssignee: primaryAssignee ?? this.primaryAssignee,
+      sharedWith: sharedWith ?? this.sharedWith,
       startDate: startDate ?? this.startDate,
       dueDate: dueDate ?? this.dueDate,
       priority: priority ?? this.priority,

@@ -29,6 +29,25 @@ const taskSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
+    // Chia sẻ công việc và phân quyền RBAC (C3)
+    sharedWith: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: ['viewer', 'editor', 'admin'],
+          default: 'viewer',
+        },
+        sharedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     startDate: {
       type: Date,
       default: null,
@@ -48,8 +67,8 @@ const taskSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: {
-        values: ['todo', 'in_progress', 'completed'],
-        message: 'Trạng thái phải là todo, in_progress hoặc completed',
+        values: ['todo', 'in_progress', 'completed', 'cancelled'],
+        message: 'Trạng thái phải là todo, in_progress, completed hoặc cancelled',
       },
       default: 'todo',
     },
@@ -62,6 +81,7 @@ const taskSchema = new mongoose.Schema(
 // Indexes phục vụ tìm kiếm và sắp xếp hiệu quả
 taskSchema.index({ createdBy: 1, status: 1, priority: 1, dueDate: 1 });
 taskSchema.index({ assigneeIds: 1 });
+taskSchema.index({ 'sharedWith.userId': 1 });
 taskSchema.index({ title: 'text', description: 'text' });
 
 module.exports = mongoose.model('Task', taskSchema);

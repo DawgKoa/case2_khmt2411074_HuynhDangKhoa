@@ -108,6 +108,27 @@ class TaskService {
     return Task.fromJson(taskData);
   }
 
+  /// Chia sẻ công việc và phân quyền RBAC (C3)
+  Future<Task> shareTask(
+    String taskId, {
+    String? userId,
+    String? email,
+    required String role,
+  }) async {
+    final Map<String, dynamic> data = {'role': role};
+    if (userId != null) data['userId'] = userId;
+    if (email != null) data['email'] = email.trim();
+
+    final response = await _client.post('/tasks/$taskId/share', data);
+
+    final taskData = response['data']?['task'];
+    if (taskData == null) {
+      throw ApiException('Không nhận được dữ liệu công việc sau khi chia sẻ');
+    }
+
+    return Task.fromJson(taskData);
+  }
+
   /// Đổi trạng thái nhanh công việc (B4)
   Future<Task> updateTaskStatus(String taskId, String status) async {
     final response = await _client.patch('/tasks/$taskId/status', {

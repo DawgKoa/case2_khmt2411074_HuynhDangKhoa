@@ -19,10 +19,13 @@ router.put('/:id', taskController.updateTask);
 // Chức năng C2: Phân công người thực hiện chính & danh sách người tham gia
 router.put('/:id/assign', taskController.assignTask);
 
+// Chức năng C3: Chia sẻ công việc và phân quyền RBAC (viewer, editor, admin)
+router.post('/:id/share', taskController.shareTask);
+
 // Chức năng B4: Đổi trạng thái nhanh công việc
 router.patch('/:id/status', taskController.updateTaskStatus);
 
-// Chức năng B5: Xóa công việc (Chỉ người tạo có quyền)
+// Chức năng B5: Xóa công việc (Chỉ người tạo hoặc Admin có quyền)
 router.delete('/:id', taskController.deleteTask);
 
 // Chức năng B1: Tạo mới công việc
