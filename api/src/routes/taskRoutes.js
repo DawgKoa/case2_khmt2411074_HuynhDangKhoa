@@ -13,6 +13,12 @@ router.get('/', taskController.getTasks);
 // Chức năng B3: Xem chi tiết công việc
 router.get('/:id', taskController.getTaskById);
 
+// Chức năng B4: Cập nhật thông tin công việc
+router.put('/:id', taskController.updateTask);
+
+// Chức năng B4: Đổi trạng thái nhanh công việc
+router.patch('/:id/status', taskController.updateTaskStatus);
+
 // Chức năng B1: Tạo mới công việc
 router.post('/', validateCreateTask, taskController.createTask);
 

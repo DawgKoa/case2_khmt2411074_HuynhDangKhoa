@@ -8,6 +8,8 @@ import '../../utils/app_colors.dart';
 import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
+import '../../widgets/quick_status_bottom_sheet.dart';
+import 'task_edit_screen.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   final String taskId;
@@ -61,6 +63,34 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
+  void _openQuickStatus() {
+    if (_task == null) return;
+    QuickStatusBottomSheet.show(
+      context: context,
+      task: _task!,
+      onUpdated: (updated) {
+        setState(() {
+          _task = updated;
+        });
+      },
+    );
+  }
+
+  Future<void> _openEditTask() async {
+    if (_task == null) return;
+    final updated = await Navigator.push<Task>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => TaskEditScreen(task: _task!),
+      ),
+    );
+    if (updated != null && mounted) {
+      setState(() {
+        _task = updated;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final task = _task;
@@ -78,6 +108,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.edit, color: AppColors.primaryInk),
+            tooltip: 'Chỉnh sửa',
+            onPressed: _openEditTask,
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.primaryInk),
             tooltip: 'Tải lại',
@@ -264,6 +299,24 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
                             // People Involved (CreatedBy & Assignees)
                             _buildPeopleCard(task),
+                            const SizedBox(height: 20),
+
+                            // Action Buttons (B4)
+                            BrutalistButton(
+                              text: 'CHUYỂN TRẠNG THÁI NHANH',
+                              icon: Icons.sync,
+                              backgroundColor: AppColors.primaryAccent,
+                              textColor: AppColors.primaryInk,
+                              onPressed: _openQuickStatus,
+                            ),
+                            const SizedBox(height: 12),
+                            BrutalistButton(
+                              text: 'CHỈNH SỬA CÔNG VIỆC',
+                              icon: Icons.edit_note,
+                              backgroundColor: AppColors.cardWhite,
+                              textColor: AppColors.primaryInk,
+                              onPressed: _openEditTask,
+                            ),
                             const SizedBox(height: 24),
                           ],
                         ),

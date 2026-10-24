@@ -51,6 +51,57 @@ class TaskService {
     return Task.fromJson(taskData);
   }
 
+  /// Cập nhật thông tin công việc (B4)
+  Future<Task> updateTask(
+    String taskId, {
+    String? title,
+    String? description,
+    DateTime? startDate,
+    DateTime? dueDate,
+    String? priority,
+    String? status,
+    List<String>? assigneeIds,
+    String? primaryAssigneeId,
+  }) async {
+    final Map<String, dynamic> data = {};
+
+    if (title != null) data['title'] = title.trim();
+    if (description != null) data['description'] = description.trim();
+    if (startDate != null) {
+      data['startDate'] = startDate.toIso8601String();
+    }
+    if (dueDate != null) {
+      data['dueDate'] = dueDate.toIso8601String();
+    }
+    if (priority != null) data['priority'] = priority;
+    if (status != null) data['status'] = status;
+    if (assigneeIds != null) data['assigneeIds'] = assigneeIds;
+    if (primaryAssigneeId != null) data['primaryAssigneeId'] = primaryAssigneeId;
+
+    final response = await _client.put('/tasks/$taskId', data);
+
+    final taskData = response['data']?['task'];
+    if (taskData == null) {
+      throw ApiException('Không nhận được dữ liệu công việc cập nhật');
+    }
+
+    return Task.fromJson(taskData);
+  }
+
+  /// Đổi trạng thái nhanh công việc (B4)
+  Future<Task> updateTaskStatus(String taskId, String status) async {
+    final response = await _client.patch('/tasks/$taskId/status', {
+      'status': status,
+    });
+
+    final taskData = response['data']?['task'];
+    if (taskData == null) {
+      throw ApiException('Không nhận được dữ liệu công việc cập nhật trạng thái');
+    }
+
+    return Task.fromJson(taskData);
+  }
+
   /// Tạo công việc mới (B1)
   Future<Task> createTask({
     required String title,

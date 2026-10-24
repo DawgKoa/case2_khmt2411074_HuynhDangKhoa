@@ -179,8 +179,186 @@ const getTaskById = async (req, res) => {
   }
 };
 
+/**
+ * Cập nhật toàn bộ thông tin công việc (B4)
+ * PUT /api/tasks/:id
+ */
+const updateTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id.toString();
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    // Kiểm tra quyền sửa: Người tạo HOẶC người được phân công
+    const isCreator = task.createdBy.toString() === userId;
+    const isPrimary = task.primaryAssigneeId?.toString() === userId;
+    const isAssignee = task.assigneeIds?.some((a) => a.toString() === userId);
+
+    if (!isCreator && !isPrimary && !isAssignee) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Bạn không có quyền chỉnh sửa công việc này.',
+      });
+    }
+
+    const {
+      title,
+      description,
+      startDate,
+      dueDate,
+      priority,
+      status,
+      assigneeIds,
+      primaryAssigneeId,
+    } = req.body;
+
+    if (title !== undefined) {
+      if (typeof title !== 'string' || title.trim() === '') {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Tiêu đề công việc không được để trống.',
+        });
+      }
+      task.title = title.trim();
+    }
+
+    if (description !== undefined) {
+      task.description = description.trim();
+    }
+
+    if (startDate !== undefined) {
+      task.startDate = startDate ? new Date(startDate) : null;
+    }
+
+    if (dueDate !== undefined) {
+      task.dueDate = dueDate ? new Date(dueDate) : null;
+    }
+
+    if (priority !== undefined) {
+      if (!['low', 'medium', 'high'].includes(priority)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Mức độ ưu tiên không hợp lệ (low, medium, high).',
+        });
+      }
+      task.priority = priority;
+    }
+
+    if (status !== undefined) {
+      if (!['todo', 'in_progress', 'completed', 'cancelled'].includes(status)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Trạng thái không hợp lệ (todo, in_progress, completed, cancelled).',
+        });
+      }
+      task.status = status;
+    }
+
+    if (Array.isArray(assigneeIds)) {
+      task.assigneeIds = assigneeIds;
+    }
+
+    if (primaryAssigneeId !== undefined) {
+      task.primaryAssigneeId = primaryAssigneeId || null;
+    }
+
+    await task.save();
+
+    const populatedTask = await Task.findById(task._id)
+      .populate('createdBy', 'fullName email avatarUrl')
+      .populate('assigneeIds', 'fullName email avatarUrl')
+      .populate('primaryAssigneeId', 'fullName email avatarUrl');
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Cập nhật công việc thành công.',
+      data: {
+        task: populatedTask,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.updateTask] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi cập nhật công việc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
+ * Đổi trạng thái nhanh công việc (B4)
+ * PATCH /api/tasks/:id/status
+ */
+const updateTaskStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const userId = req.user._id.toString();
+
+    if (!status || !['todo', 'in_progress', 'completed', 'cancelled'].includes(status)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Trạng thái công việc không hợp lệ (todo, in_progress, completed, cancelled).',
+      });
+    }
+
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    // Quyền: Người tạo hoặc người được phân công
+    const isCreator = task.createdBy.toString() === userId;
+    const isPrimary = task.primaryAssigneeId?.toString() === userId;
+    const isAssignee = task.assigneeIds?.some((a) => a.toString() === userId);
+
+    if (!isCreator && !isPrimary && !isAssignee) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Bạn không có quyền thay đổi trạng thái công việc này.',
+      });
+    }
+
+    task.status = status;
+    await task.save();
+
+    const populatedTask = await Task.findById(task._id)
+      .populate('createdBy', 'fullName email avatarUrl')
+      .populate('assigneeIds', 'fullName email avatarUrl')
+      .populate('primaryAssigneeId', 'fullName email avatarUrl');
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Cập nhật trạng thái thành công.',
+      data: {
+        task: populatedTask,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.updateTaskStatus] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi cập nhật trạng thái công việc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
 module.exports = {
   getTasks,
   getTaskById,
   createTask,
+  updateTask,
+  updateTaskStatus,
 };

@@ -13,6 +13,7 @@ import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
 import 'task_create_screen.dart';
 import 'task_detail_screen.dart';
+import '../../widgets/quick_status_bottom_sheet.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
@@ -485,6 +486,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       return BrutalistTaskCard(
                         task: task,
                         onTap: () => _openTaskDetail(task),
+                        onStatusTap: () {
+                          QuickStatusBottomSheet.show(
+                            context: context,
+                            task: task,
+                            onUpdated: (_) => _fetchTasks(),
+                          );
+                        },
                       );
                     },
                     childCount: _tasks.length,
