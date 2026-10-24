@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/auth/welcome_screen.dart';
 import 'screens/tasks/task_list_screen.dart';
 import 'services/auth_service.dart';
 import 'utils/app_theme.dart';
@@ -23,7 +23,7 @@ class TaskManagerApp extends StatelessWidget {
       title: 'Task Manager // OS',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: isLoggedIn ? const TaskListScreen() : const LoginScreen(),
+      home: isLoggedIn ? const TaskListScreen() : const WelcomeScreen(),
     );
   }
 }

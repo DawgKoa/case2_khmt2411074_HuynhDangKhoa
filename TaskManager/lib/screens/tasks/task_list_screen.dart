@@ -6,7 +6,7 @@ import '../../utils/app_colors.dart';
 import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
-import '../auth/login_screen.dart';
+import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
 
 class TaskListScreen extends StatefulWidget {
@@ -48,9 +48,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
   Future<void> _handleLogout() async {
     await _authService.logout();
     if (!mounted) return;
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+      (route) => false,
     );
   }
 
