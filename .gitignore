@@ -32,3 +32,6 @@ Thumbs.db
 *.class
 *.pyc
 *.swp
+
+# AI Agents & Assistants
+.agent/

@@ -1,13 +1,14 @@
 # CASE STUDY 2: ỨNG DỤNG QUẢN LÝ VÀ GIAO CÔNG VIỆC NHÓM
-> **Đồ án môn học / Case Study:** Xây dựng ứng dụng di động và hệ thống backend quản lý công việc, phân công nhiệm vụ nhóm và theo dõi tiến độ thời gian thực.
-
----
 
 ## 👤 THÔNG TIN SINH VIÊN THỰC HIỆN
 - **Họ và tên:** Huỳnh Đăng Khoa
-- **Mã số sinh viên (MSSV):** KHMT2411074
+- **Mã số sinh viên (MSSV):** khmt2411074
 - **Chuyên ngành:** Khoa học Máy tính (KHMT)
-- **Repository GitHub:** [https://github.com/DawgKoa/casestudy2](https://github.com/DawgKoa/casestudy2)
+- **Repository GitHub:** [https://github.com/DawgKoa/case2_khmt2411074_HuynhDangKhoa.git](https://github.com/DawgKoa/case2_khmt2411074_HuynhDangKhoa.git)
+
+---
+
+> **Đồ án môn học / Case Study:** Xây dựng ứng dụng di động và hệ thống backend quản lý công việc, phân công nhiệm vụ nhóm và theo dõi tiến độ thời gian thực.
 
 ---
 
@@ -41,42 +42,58 @@
 
 ---
 
-## 📁 CẤU TRÚC DỰ ÁN
+## 📁 CẤU TRÚC DỰ ÁN CHUẨN HÓA
 
 ```
 casestudy2/
-├── README.md                           # Tài liệu tổng quan dự án
-├── .gitignore                          # Quy tắc loại trừ tệp git
+├── README.md                           # Tài liệu tổng quan dự án & thông tin sinh viên
+├── .gitignore                          # Quy tắc loại trừ tệp git (.agent/, node_modules/, build/)
 │
 ├── api/                                # BACKEND NODE.JS & EXPRESS REST API
 │   ├── package.json                    # Cấu hình gói và dependencies backend
 │   ├── .env                            # Biến môi trường (PORT, MONGO_URI, JWT_SECRET, EMAIL_...)
 │   └── src/
 │       ├── server.js                   # Điểm khởi chạy server và background reminder cron
-│       ├── app.js                      # Cấu hình Express app, middleware và routes
+│       ├── app.js                      # Cấu hình Express app, middleware và routes tập trung
 │       ├── config/
 │       │   ├── database.js             # Kết nối MongoDB
 │       │   └── email.js                # Cấu hình Nodemailer transporter
 │       ├── models/
 │       │   ├── User.js                 # Schema Người dùng (fullName, email, passwordHash, avatar)
 │       │   ├── Task.js                 # Schema Công việc (title, priority, status, dates, assignees, RBAC sharedWith)
+│       │   ├── TaskShare.js            # Schema Phân quyền chia sẻ công việc (taskId, userId, permission, sharedBy)
+│       │   ├── EmailLog.js             # Schema Nhật ký gửi mail (taskId, recipientEmail, eventType, status, attempts)
+│       │   ├── TaskActivity.js         # Schema Nhật ký hoạt động công việc (taskId, userId, action, details)
 │       │   └── Notification.js         # Schema Thông báo (userId, senderId, taskId, type, isRead)
 │       ├── controllers/
 │       │   ├── authController.js       # Xử lý Đăng ký, Đăng nhập, Profile, Đổi mật khẩu, Quên mật khẩu OTP
-│       │   ├── taskController.js       # CRUD công việc, phân công, RBAC share, thống kê KPI
-│       │   ├── userController.js       # Tìm kiếm cộng tác viên theo email / họ tên
-│       │   └── notificationController.js # Lấy thông báo, đánh dấu đã đọc, xóa, trigger nhắc nhở
+│       │   ├── taskController.js       # CRUD công việc, đổi trạng thái, activities, email-logs
+│       │   ├── assignmentController.js # Quản lý người thực hiện công việc (GET, POST, PATCH, DELETE)
+│       │   ├── taskShareController.js  # Quản lý chia sẻ quyền RBAC (GET, POST, PATCH, DELETE)
+│       │   ├── statisticsController.js # Thống kê công việc, phân công & hạn chót
+│       │   ├── userController.js       # Tìm kiếm cộng tác viên theo email / họ tên, xem user theo ID
+│       │   └── notificationController.js # Lấy thông báo, unread-count, đánh dấu đã đọc, xóa, trigger nhắc nhở
 │       ├── routes/
 │       │   ├── authRoutes.js           # Định tuyến /api/auth
 │       │   ├── taskRoutes.js           # Định tuyến /api/tasks
+│       │   ├── assignmentRoutes.js     # Định tuyến /api/tasks/:id/assignees
+│       │   ├── taskShareRoutes.js      # Định tuyến /api/tasks/:id/shares
+│       │   ├── statisticsRoutes.js     # Định tuyến /api/statistics (/tasks, /assignments, /deadlines)
+│       │   ├── emailLogRoutes.js       # Định tuyến /api/email-logs/:id/retry
 │       │   ├── userRoutes.js           # Định tuyến /api/users
 │       │   └── notificationRoutes.js   # Định tuyến /api/notifications
 │       ├── middleware/
-│       │   └── authMiddleware.js       # Xác thực JWT Bearer Token & phân quyền
+│       │   ├── authMiddleware.js       # Xác thực JWT Bearer Token
+│       │   ├── permissionMiddleware.js # Phân quyền RBAC (chặn viewer, editor không được xóa/chia sẻ)
+│       │   ├── validateMiddleware.js   # Middleware chuẩn hóa lỗi xác thực 400
+│       │   └── errorMiddleware.js      # Xử lý tập trung lỗi 404 và format JSON lỗi máy chủ
 │       ├── services/
-│       │   ├── emailService.js         # Dịch vụ gửi email thông báo (Mẫu Brutalist HTML)
+│       │   ├── taskService.js          # Nghiệp vụ log activity, sync TaskShare, kiểm tra quyền hạn
+│       │   ├── emailService.js         # Dịch vụ gửi email thông báo kèm ghi log vào EmailLog & retry
 │       │   ├── notificationService.js  # Điều phối thông báo In-app và Email đa kênh
 │       │   └── reminderService.js      # Tiến trình định kỳ quét và cảnh báo hạn chót
+│       ├── utils/
+│       │   └── emailTemplates.js       # Tách riêng toàn bộ mẫu HTML Email phong cách Neo-Brutalist
 │       └── validators/
 │           ├── authValidator.js        # Kiểm tra tính hợp lệ của dữ liệu người dùng
 │           └── taskValidator.js        # Kiểm tra tính hợp lệ khi tạo và sửa công việc
@@ -84,20 +101,27 @@ casestudy2/
 └── TaskManager/                        # FRONTEND MOBILE APP (FLUTTER)
     ├── pubspec.yaml                    # Cấu hình dependencies Flutter
     └── lib/
-        ├── main.dart                   # Điểm khởi chạy Flutter App & Routing
+        ├── main.dart                   # Điểm khởi chạy app & nạp phiên đăng nhập
+        ├── app.dart                    # Cấu hình MaterialApp, Theme & Router chính
         ├── models/
         │   ├── user.dart               # Data model User
         │   ├── task.dart               # Data model Task & TaskShareMember
+        │   ├── task_share.dart         # Data model TaskShare (phân quyền)
+        │   ├── task_activity.dart      # Data model TaskActivity (nhật ký thao tác)
         │   ├── notification_model.dart # Data model AppNotification & TaskSummary
+        │   ├── notification.dart       # Export notification model chuẩn hóa
         │   └── task_stats.dart         # Data model KPI Summary, Status & Priority Breakdown
         ├── services/
         │   ├── api_client.dart         # HTTP Client tập trung (GET, POST, PUT, PATCH, DELETE)
         │   ├── auth_service.dart       # Quản lý phiên đăng nhập, JWT token, User API
-        │   ├── task_service.dart       # Giao tiếp API công việc, lọc, phân công, phân quyền
+        │   ├── task_service.dart       # Giao tiếp API công việc, lọc, phân công, activities
+        │   ├── task_share_service.dart # Dịch vụ quản lý chia sẻ quyền công việc
+        │   ├── stats_service.dart      # Dịch vụ lấy báo cáo KPI và phân tích công việc
+        │   ├── statistics_service.dart # Dịch vụ thống kê chuyên sâu (/statistics)
         │   ├── user_service.dart       # Tìm kiếm người dùng hệ thống
-        │   ├── notification_service.dart # Dịch vụ lấy và cập nhật trạng thái thông báo
-        │   └── stats_service.dart      # Dịch vụ lấy báo cáo KPI và phân tích công việc
+        │   └── notification_service.dart # Dịch vụ lấy và cập nhật trạng thái thông báo
         ├── utils/
+        │   ├── date_formatter.dart     # Định dạng ngày giờ chuẩn phong cách Brutalist & timeAgo
         │   ├── app_colors.dart         # Bảng màu Nivora Brutalist UI
         │   ├── app_theme.dart          # Cấu hình ThemeData chuẩn Neo-Brutalism
         │   ├── constants.dart          # Hằng số cấu hình hệ thống và API Base URL
@@ -105,6 +129,7 @@ casestudy2/
         ├── widgets/
         │   ├── brutalist_button.dart   # Nút bấm phẳng Neo-Brutalist với hiệu ứng nảy cứng
         │   ├── brutalist_card.dart     # Khung thẻ nền trắng/kem viền mực 2px kèm bóng đổ
+        │   ├── brutalist_avatar.dart   # Avatar Neo-Brutalist đa năng với 6 presets offline
         │   ├── brutalist_text_field.dart # Ô nhập liệu viền mực đậm, nhãn chữ kỹ thuật
         │   ├── brutalist_badge.dart    # Huy hiệu trạng thái và tag hệ thống
         │   ├── brutalist_task_card.dart# Thẻ công việc chi tiết với hạn chót và thành viên
@@ -123,7 +148,7 @@ casestudy2/
             ├── tasks/
             │   ├── task_list_screen.dart   # Màn hình danh sách công việc chính, tìm kiếm, lọc
             │   ├── task_create_screen.dart # Tạo mới công việc kèm người phụ trách & tham gia
-            │   ├── task_detail_screen.dart # Xem chi tiết, lịch sử thời gian, hạn chót, xóa
+            │   ├── task_detail_screen.dart # Xem chi tiết, lịch sử hoạt động, hạn chót, xóa
             │   └── task_edit_screen.dart   # Chỉnh sửa toàn diện nội dung công việc
             ├── notifications/
             │   └── notification_screen.dart# Trung tâm thông báo In-app (Tất cả / Chưa đọc)
@@ -135,7 +160,7 @@ casestudy2/
 
 ## 📋 CHECKLIST CHỨC NĂNG ĐÃ TRIỂN KHAI HOÀN THIỆN
 
-### 🟢 GIAI ĐOẠN 1: MODULE A - XÁC THỰC VÀ QUẢN LÝ TÀI KHOẢN (Branch `feature/auth`)
+### 🟢 GIAI ĐOẠN 1: MODULE A - XÁC THỰC VÀ QUẢN LÝ TÀI KHOẢN (Branch `feature/module-a-auth`)
 - [x] **A1: Đăng ký tài khoản:** Xác thực họ tên, email hợp lệ, mật khẩu tối thiểu 6 ký tự, mã hóa bcrypt an toàn.
 - [x] **A2: Đăng nhập & Lưu JWT Token:** Cấp JWT token thời hạn dài, tự động lưu trữ bảo mật với `SharedPreferences`, tự động điều hướng khi mở app.
 - [x] **UX: Màn hình Chào (Welcome Screen):** Giao diện định danh đồ án với lựa chọn Đăng nhập / Đăng ký trực quan.
@@ -143,25 +168,25 @@ casestudy2/
 - [x] **A4: Đổi mật khẩu:** Kiểm tra mật khẩu hiện tại, cập nhật mật khẩu mới có xác nhận.
 - [x] **Quên mật khẩu & Xác thực OTP qua Email:** Tạo mã OTP ngẫu nhiên 6 chữ số có thời hạn 15 phút, gửi email tự động và xác thực đặt lại mật khẩu mới.
 
-### 🟢 GIAI ĐOẠN 2: MODULE B - QUẢN LÝ CÔNG VIỆC CƠ BẢN (Branch `feature/task-management`)
+### 🟢 GIAI ĐOẠN 2: MODULE B - QUẢN LÝ CÔNG VIỆC CƠ BẢN (Branch `feature/module-b-task-management`)
 - [x] **B1: Tạo mới công việc:** Nhập tiêu đề, mô tả chi tiết, ngày bắt đầu, hạn chót hoàn thành, mức độ ưu tiên (Thấp, Trung bình, Cao).
 - [x] **B2: Danh sách công việc:** Hiển thị dạng thẻ Brutalist Card sắc nét, hỗ trợ kéo xuống để làm mới (Pull-to-refresh).
-- [x] **B3: Xem chi tiết công việc:** Xem đầy đủ thông tin, thời gian tạo, cập nhật, hạn chót, cảnh báo trễ hạn.
+- [x] **B3: Xem chi tiết công việc:** Xem đầy đủ thông tin, thời gian tạo, cập nhật, hạn chót, cảnh báo trễ hạn và Lịch sử hoạt động.
 - [x] **B4: Cập nhật & Đổi trạng thái nhanh:** Menu trượt Bottom Sheet đổi trạng thái tức thì giữa `TODO`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`.
 - [x] **B5: Xóa công việc:** Hộp thoại xác nhận phong cách Neo-Brutalist, kiểm tra phân quyền người tạo/quản trị trước khi xóa.
 - [x] **B6: Tìm kiếm, Lọc và Sắp xếp:** Thanh tìm kiếm tức thời theo từ khóa tiêu đề/mô tả; chip lọc theo trạng thái, mức ưu tiên; sắp xếp theo ngày tạo, hạn chót, mức ưu tiên.
 
-### 🟢 GIAI ĐOẠN 3: MODULE C - PHÂN CÔNG & CHIA SẺ VỚI PHÂN QUYỀN RBAC (Branch `feature/task-assignment-sharing`)
+### 🟢 GIAI ĐOẠN 3: MODULE C - PHÂN CÔNG & CHIA SẺ VỚI PHÂN QUYỀN RBAC (Branch `feature/module-c-assignment-sharing`)
 - [x] **C1: Tìm kiếm người dùng:** Tìm kiếm nhanh theo email hoặc họ tên qua modal `BrutalistUserPicker`.
 - [x] **C2: Phân công người thực hiện chính & người tham gia:** Chỉ định 1 người chịu trách nhiệm chính (`primaryAssigneeId`) và nhiều thành viên cùng tham gia (`assigneeIds`).
 - [x] **C3: Chia sẻ công việc & Phân quyền RBAC:** Phân cấp 3 vai trò rõ rệt:
   - `Viewer` (Người xem): Chỉ có quyền đọc thông tin, không sửa hay đổi trạng thái.
-  - `Editor` (Người chỉnh sửa): Có quyền cập nhật tiến độ, nội dung công việc.
+  - `Editor` (Người chỉnh sửa): Có quyền cập nhật tiến độ, nội dung công việc, không được xóa hay phân quyền.
   - `Admin` (Quản trị viên): Toàn quyền thêm bớt thành viên, chia sẻ quyền và xóa công việc.
 - [x] **C4: Quản lý thành viên & Thu hồi quyền:** Modal `BrutalistManageMembersModal` cho phép đổi vai trò hoặc thu hồi quyền truy cập của bất kỳ thành viên nào.
 - [x] **C5: Phân loại phạm vi công việc (Scope Tabs):** Lọc theo 4 phạm vi: *Tất cả*, *Tôi tạo*, *Giao cho tôi*, *Được chia sẻ*.
 
-### 🟢 GIAI ĐOẠN 4: MODULE D - THÔNG BÁO VÀ NHẮC NHỞ EMAIL (Branch `feature/notification-email`)
+### 🟢 GIAI ĐOẠN 4: MODULE D - THÔNG BÁO VÀ NHẮC NHỞ EMAIL (Branch `feature/module-d-notifications`)
 - [x] **D1: Hệ thống Thông báo In-App (Model & APIs):** Lưu trữ thông báo trong CSDL MongoDB, hỗ trợ đánh dấu đã đọc từng thông báo hoặc toàn bộ, đếm số lượng chưa đọc.
 - [x] **D2: Màn hình Trung tâm Thông báo (Notification Center):**
   - Biểu tượng chuông thông báo trên thanh tiêu đề kèm huy hiệu số lượng chưa đọc.
@@ -177,8 +202,8 @@ casestudy2/
   - Cơ chế chống gửi lặp lại trong vòng 12 giờ.
   - Cung cấp endpoint `POST /api/notifications/reminders/trigger` kích hoạt quét tức thời cho việc kiểm thử và chấm điểm.
 
-### 🟢 GIAI ĐOẠN 5: MODULE E - THỐNG KÊ, BÁO CÁO & TIỆN ÍCH (Branch `feature/statistics-utility`)
-- [x] **E1: API Thống kê Công việc & Hiệu suất:** Endpoint `GET /api/tasks/stats/summary` tính toán tổng số việc, tỷ lệ hoàn thành (%), tỷ lệ đúng hạn, phân bổ theo trạng thái và mức độ ưu tiên.
+### 🟢 GIAI ĐOẠN 5: MODULE E - THỐNG KÊ, BÁO CÁO & TIỆN ÍCH (Branch `feature/module-e-statistics`)
+- [x] **E1: API Thống kê Công việc & Hiệu suất:** Endpoint `/api/statistics/tasks` và `/api/tasks/stats/summary` tính toán tổng số việc, tỷ lệ hoàn thành (%), tỷ lệ đúng hạn, phân bổ theo trạng thái và mức độ ưu tiên.
 - [x] **E2: Màn hình Dashboard Thống kê & Báo cáo:** Màn hình `StatisticsScreen` hiển thị các thẻ KPI trực quan, thanh tiến độ tỷ lệ hoàn thành dạng biểu đồ thanh ngang, phân bổ mức ưu tiên và trạng thái hạn chót.
 - [x] **E3: Thống kê Hiệu suất Cá nhân & Cộng tác Nhóm:**
   - Bảng xếp hạng khối lượng công việc từng thành viên trong nhóm.
@@ -255,45 +280,56 @@ casestudy2/
 
 ---
 
-## 📡 DANH SÁCH RESTful API ENDPOINTS
+## 📡 DANH SÁCH RESTful API ENDPOINTS CHUẨN
 
 | Phương thức | Đường dẫn API | Mô tả chức năng | Yêu cầu JWT |
 | :--- | :--- | :--- | :---: |
 | **POST** | `/api/auth/register` | Đăng ký tài khoản mới bằng họ tên, email, mật khẩu | ❌ |
 | **POST** | `/api/auth/login` | Đăng nhập tài khoản & nhận JWT token | ❌ |
-| **GET** | `/api/auth/profile` | Lấy thông tin hồ sơ người dùng hiện tại | ✅ |
-| **PUT** | `/api/auth/profile` | Cập nhật họ tên, avatar người dùng | ✅ |
+| **GET** | `/api/auth/me` | Lấy thông tin hồ sơ người dùng hiện tại | ✅ |
+| **PUT** | `/api/auth/me` | Cập nhật họ tên, avatar người dùng | ✅ |
 | **PUT** | `/api/auth/change-password` | Đổi mật khẩu tài khoản | ✅ |
 | **POST** | `/api/auth/forgot-password` | Yêu cầu gửi mã OTP đặt lại mật khẩu qua email | ❌ |
 | **POST** | `/api/auth/reset-password` | Đặt lại mật khẩu mới bằng mã OTP xác thực | ❌ |
-| **GET** | `/api/users/search` | Tìm kiếm người dùng theo email hoặc họ tên | ✅ |
+| **GET** | `/api/users/search?q=` | Tìm kiếm người dùng theo email hoặc họ tên | ✅ |
+| **GET** | `/api/users/:id` | Xem chi tiết thông tin người dùng theo ID | ✅ |
 | **GET** | `/api/tasks` | Lấy danh sách công việc (hỗ trợ search, filter, sort, scope) | ✅ |
 | **POST** | `/api/tasks` | Tạo mới công việc (assignees, dates, priority) | ✅ |
-| **GET** | `/api/tasks/stats/summary` | Lấy số liệu thống kê KPI, biểu đồ tiến độ & hiệu suất | ✅ |
 | **GET** | `/api/tasks/:id` | Xem thông tin chi tiết một công việc | ✅ |
 | **PUT** | `/api/tasks/:id` | Cập nhật thông tin công việc | ✅ |
-| **PATCH** | `/api/tasks/:id/status` | Đổi trạng thái nhanh công việc (`todo`, `in_progress`, ...) | ✅ |
 | **DELETE** | `/api/tasks/:id` | Xóa công việc (yêu cầu quyền Creator hoặc Admin) | ✅ |
-| **PUT** | `/api/tasks/:id/assign` | Phân công người thực hiện chính & danh sách tham gia | ✅ |
-| **POST** | `/api/tasks/:id/share` | Chia sẻ công việc và phân quyền RBAC (`viewer`, `editor`, `admin`) | ✅ |
-| **PATCH** | `/api/tasks/:id/members/:memberId`| Cập nhật vai trò thành viên trong công việc | ✅ |
-| **DELETE** | `/api/tasks/:id/members/:memberId`| Thu hồi quyền truy cập / Xóa thành viên khỏi công việc | ✅ |
+| **PATCH** | `/api/tasks/:id/status` | Đổi trạng thái nhanh công việc (`todo`, `in_progress`, ...) | ✅ |
+| **GET** | `/api/tasks/:id/activities` | Xem lịch sử hoạt động ghi nhận trên công việc | ✅ |
+| **GET** | `/api/tasks/:id/email-logs` | Xem danh sách nhật ký email đã gửi của công việc | ✅ |
+| **GET** | `/api/tasks/:id/assignees` | Lấy danh sách người thực hiện công việc | ✅ |
+| **POST** | `/api/tasks/:id/assignees` | Thêm người thực hiện vào công việc | ✅ |
+| **PATCH** | `/api/tasks/:id/assignees/:userId` | Đặt người thực hiện chính | ✅ |
+| **DELETE** | `/api/tasks/:id/assignees/:userId` | Xóa người thực hiện khỏi công việc | ✅ |
+| **GET** | `/api/tasks/:id/shares` | Lấy danh sách phân quyền chia sẻ của công việc | ✅ |
+| **POST** | `/api/tasks/:id/shares` | Chia sẻ công việc với phân quyền RBAC (`viewer`, `editor`, `admin`) | ✅ |
+| **PATCH** | `/api/tasks/:id/shares/:shareId` | Cập nhật vai trò / quyền chia sẻ | ✅ |
+| **DELETE** | `/api/tasks/:id/shares/:shareId` | Thu hồi quyền truy cập công việc | ✅ |
 | **GET** | `/api/notifications` | Lấy danh sách thông báo In-app (kèm số lượng chưa đọc) | ✅ |
+| **GET** | `/api/notifications/unread-count` | Lấy số lượng thông báo chưa đọc | ✅ |
 | **PATCH** | `/api/notifications/:id/read` | Đánh dấu 1 thông báo là đã đọc | ✅ |
 | **PATCH** | `/api/notifications/read-all` | Đánh dấu tất cả thông báo là đã đọc | ✅ |
 | **DELETE** | `/api/notifications/:id` | Xóa một thông báo | ✅ |
 | **POST** | `/api/notifications/reminders/trigger` | Kích hoạt quét và gửi nhắc nhở hạn chót tức thời | ✅ |
+| **GET** | `/api/statistics/tasks` | Thống kê tổng quan công việc & hiệu suất | ✅ |
+| **GET** | `/api/statistics/assignments` | Thống kê phân công nhiệm vụ và khối lượng thành viên | ✅ |
+| **GET** | `/api/statistics/deadlines` | Thống kê hạn chót, quá hạn và đúng hạn | ✅ |
+| **POST** | `/api/email-logs/:id/retry` | Thử gửi lại email đã thất bại | ✅ |
 
 ---
 
 ## 🌿 LỊCH SỬ NHÁNH & QUY TRÌNH PHÁT TRIỂN
-Dự án tuân thủ nghiêm ngặt quy trình phát triển tính năng theo nhánh chuyên biệt:
+Dự án tuân thủ nghiêm ngặt quy trình phát triển tính năng theo nhánh chuyên biệt theo đề bài:
 - `main`: Nhánh production ổn định, tích hợp tất cả các module đã hoàn thiện và kiểm thử.
-- `feature/auth`: Nhánh phát triển Giai đoạn 1 (Module A - Xác thực tài khoản & Profile).
-- `feature/task-management`: Nhánh phát triển Giai đoạn 2 (Module B - Quản lý công việc cơ bản).
-- `feature/task-assignment-sharing`: Nhánh phát triển Giai đoạn 3 (Module C - Phân công & Phân quyền RBAC).
-- `feature/notification-email`: Nhánh phát triển Giai đoạn 4 (Module D - Thông báo & Nhắc nhở Email).
-- `feature/statistics-utility`: Nhánh phát triển Giai đoạn 5 (Module E - Thống kê, Báo cáo & Tiện ích).
+- `feature/module-a-auth`: Nhánh phát triển Chức năng A: Quản lý tài khoản và xác thực.
+- `feature/module-b-task-management`: Nhánh phát triển Chức năng B: Quản lý công việc.
+- `feature/module-c-assignment-sharing`: Nhánh phát triển Chức năng C: Giao việc và chia sẻ.
+- `feature/module-d-notifications`: Nhánh phát triển Chức năng D: Thông báo qua email và trong ứng dụng.
+- `feature/module-e-statistics`: Nhánh phát triển Chức năng E: Thống kê và tiện ích.
 
 ---
-*Bản quyền đồ án © 2026 Huỳnh Đăng Khoa - MSSV: KHMT2411074. Trường Đại học - Khoa học Máy tính.*
+*Bản quyền đồ án © 2026 Huỳnh Đăng Khoa - MSSV: khmt2411074. Trường Đại học - Khoa học Máy tính.*
