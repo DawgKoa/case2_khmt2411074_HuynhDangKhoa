@@ -78,6 +78,7 @@ const checkAndSendDeadlineReminders = async () => {
               dueDate: task.dueDate,
               priority: task.priority,
               hoursLeft: isOverdue ? 0 : hoursLeft,
+              taskId: task._id,
             }).catch((err) =>
               console.error('[ReminderService] Email send error:', err)
             );
@@ -98,6 +99,7 @@ const checkAndSendDeadlineReminders = async () => {
     console.log(
       `[ReminderService] Scanned ${upcomingTasks.length} tasks, sent ${remindersSent} reminders.`
     );
+
     return {
       scannedTasks: upcomingTasks.length,
       remindersSent,

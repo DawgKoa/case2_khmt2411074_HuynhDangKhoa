@@ -9,6 +9,9 @@ router.use(protect);
 // Chức năng D1: Lấy danh sách thông báo
 router.get('/', notificationController.getNotifications);
 
+// Lấy số lượng thông báo chưa đọc (Đặt trước :id)
+router.get('/unread-count', notificationController.getUnreadCount);
+
 // Chức năng D1: Đánh dấu tất cả thông báo là đã đọc
 router.patch('/read-all', notificationController.markAllAsRead);
 

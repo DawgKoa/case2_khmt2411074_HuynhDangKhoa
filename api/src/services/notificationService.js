@@ -69,6 +69,7 @@ const notifyTaskAssignment = async ({ task, assignerId, recipientIds }) => {
             assignerName,
             dueDate: task.dueDate,
             priority: task.priority,
+            taskId: task._id,
           }).catch((err) => console.error('[NotificationService] Assignment email error:', err));
         }
       }
@@ -106,6 +107,7 @@ const notifyTaskShared = async ({ task, sharerId, recipientId, role }) => {
           taskTitle: task.title,
           sharerName: sharer?.fullName || 'Một thành viên',
           role,
+          taskId: task._id,
         }).catch((err) => console.error('[NotificationService] Share email error:', err));
       }
     }
@@ -162,6 +164,7 @@ const notifyStatusChanged = async ({ task, updaterId, newStatus }) => {
             taskTitle: task.title,
             updaterName,
             newStatus,
+            taskId: task._id,
           }).catch((err) => console.error('[NotificationService] Status email error:', err));
         }
       }

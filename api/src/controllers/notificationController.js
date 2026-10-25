@@ -45,6 +45,34 @@ const getNotifications = async (req, res) => {
 };
 
 /**
+ * Lấy số lượng thông báo chưa đọc
+ * GET /api/notifications/unread-count
+ */
+const getUnreadCount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const unreadCount = await Notification.countDocuments({
+      userId,
+      isRead: false,
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        unreadCount,
+      },
+    });
+  } catch (error) {
+    console.error('[NotificationController.getUnreadCount] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi lấy số lượng thông báo chưa đọc.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+};
+
+/**
  * Đánh dấu 1 thông báo là đã đọc (D1)
  * PATCH /api/notifications/:id/read
  */
@@ -169,6 +197,7 @@ const triggerDeadlineReminders = async (req, res) => {
 
 module.exports = {
   getNotifications,
+  getUnreadCount,
   markAsRead,
   markAllAsRead,
   deleteNotification,

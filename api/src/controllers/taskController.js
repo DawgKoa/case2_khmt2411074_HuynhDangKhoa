@@ -1,13 +1,31 @@
 const Task = require('../models/Task');
 const User = require('../models/User');
-const { notifyTaskAssignment, notifyTaskShared, notifyStatusChanged } = require('../services/notificationService');
+const TaskShare = require('../models/TaskShare');
+const TaskActivity = require('../models/TaskActivity');
+const EmailLog = require('../models/EmailLog');
+const {
+  recordActivity,
+  getTaskActivities: fetchTaskActivities,
+  syncTaskShare,
+  removeTaskShare,
+  getTaskPermission,
+} = require('../services/taskService');
+const { retryEmailLog } = require('../services/emailService');
+const { calculateStats } = require('./statisticsController');
+const {
+  notifyTaskAssignment,
+  notifyTaskShared,
+  notifyStatusChanged,
+} = require('../services/notificationService');
 
 /**
  * Helper kiểm tra quyền của người dùng đối với task (RBAC)
- * Trả về: { isCreator, isAdmin, isEditor, isViewer, canEdit, canDelete }
+ * Trả về: { isCreator, isAdmin, isEditor, isViewer, canEdit, canDelete, canManageShare }
  */
 const checkUserPermission = (task, userIdStr) => {
-  const isCreator = task.createdBy?._id?.toString() === userIdStr || task.createdBy?.toString() === userIdStr;
+  const isCreator =
+    task.createdBy?._id?.toString() === userIdStr ||
+    task.createdBy?.toString() === userIdStr;
 
   const sharedMember = task.sharedWith?.find(
     (m) => (m.userId?._id?.toString() || m.userId?.toString()) === userIdStr
@@ -19,7 +37,9 @@ const checkUserPermission = (task, userIdStr) => {
   const isAssignee = task.assigneeIds?.some(
     (a) => (a._id?.toString() || a.toString()) === userIdStr
   );
-  const isPrimary = (task.primaryAssigneeId?._id?.toString() || task.primaryAssigneeId?.toString()) === userIdStr;
+  const isPrimary =
+    (task.primaryAssigneeId?._id?.toString() ||
+      task.primaryAssigneeId?.toString()) === userIdStr;
 
   return {
     isCreator,
@@ -28,9 +48,16 @@ const checkUserPermission = (task, userIdStr) => {
     isViewer: sharedRole === 'viewer',
     isAssignee,
     isPrimary,
-    canView: isCreator || isAdmin || isEditor || sharedRole === 'viewer' || isAssignee || isPrimary,
+    canView:
+      isCreator ||
+      isAdmin ||
+      isEditor ||
+      sharedRole === 'viewer' ||
+      isAssignee ||
+      isPrimary,
     canEdit: isAdmin || isEditor || isPrimary,
     canDelete: isCreator || isAdmin,
+    canManageShare: isCreator || isAdmin,
   };
 };
 
@@ -43,7 +70,6 @@ const getTasks = async (req, res) => {
     const userId = req.user._id;
     const { status, priority, q, sortBy, order, filterType } = req.query;
 
-    // Filter cơ bản: user là creator, assignee, primaryAssignee HOẶC nằm trong sharedWith
     let baseOrConditions = [
       { createdBy: userId },
       { assigneeIds: userId },
@@ -51,7 +77,6 @@ const getTasks = async (req, res) => {
       { 'sharedWith.userId': userId },
     ];
 
-    // Hỗ trợ tab C5: created_by_me, assigned_to_me, shared_with_me
     if (filterType === 'created_by_me') {
       baseOrConditions = [{ createdBy: userId }];
     } else if (filterType === 'assigned_to_me') {
@@ -220,7 +245,39 @@ const createTask = async (req, res) => {
       status: status || 'todo',
     });
 
-    notifyTaskAssignment({ task, assignerId: req.user._id, recipientIds: initialAssignees });
+    // 1. Đồng bộ sang TaskShare nếu có sharedWith
+    if (Array.isArray(sharedWith)) {
+      for (const item of sharedWith) {
+        if (item.userId) {
+          await syncTaskShare({
+            taskId: task._id,
+            userId: item.userId,
+            permission: item.role || 'viewer',
+            sharedBy: req.user._id,
+          });
+        }
+      }
+    }
+
+    // 2. Ghi log hoạt động vào TaskActivity
+    await recordActivity({
+      taskId: task._id,
+      userId: req.user._id,
+      action: 'task_created',
+      details: {
+        title: task.title,
+        priority: task.priority,
+        status: task.status,
+      },
+    });
+
+    // 3. Gửi thông báo phân công
+    notifyTaskAssignment({
+      task,
+      assignerId: req.user._id,
+      recipientIds: initialAssignees,
+    });
+
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -262,10 +319,16 @@ const updateTask = async (req, res) => {
     }
 
     const permission = checkUserPermission(task, userIdStr);
+    if (permission.isViewer) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Thành viên có quyền Viewer không được phép chỉnh sửa công việc.',
+      });
+    }
     if (!permission.canEdit) {
       return res.status(403).json({
         status: 'error',
-        message: 'Bạn không có quyền chỉnh sửa công việc này (yêu cầu quyền Editor hoặc Admin).',
+        message: 'Bạn không có quyền chỉnh sửa công việc này (yêu cầu quyền Editor hoặc Quản trị viên).',
       });
     }
 
@@ -280,6 +343,8 @@ const updateTask = async (req, res) => {
       primaryAssigneeId,
     } = req.body;
 
+    const changes = {};
+
     if (title !== undefined) {
       if (typeof title !== 'string' || title.trim() === '') {
         return res.status(400).json({
@@ -287,6 +352,7 @@ const updateTask = async (req, res) => {
           message: 'Tiêu đề công việc không được để trống.',
         });
       }
+      changes.title = { old: task.title, new: title.trim() };
       task.title = title.trim();
     }
 
@@ -299,6 +365,7 @@ const updateTask = async (req, res) => {
     }
 
     if (dueDate !== undefined) {
+      changes.dueDate = { old: task.dueDate, new: dueDate };
       task.dueDate = dueDate ? new Date(dueDate) : null;
     }
 
@@ -309,6 +376,7 @@ const updateTask = async (req, res) => {
           message: 'Mức độ ưu tiên không hợp lệ (low, medium, high).',
         });
       }
+      changes.priority = { old: task.priority, new: priority };
       task.priority = priority;
     }
 
@@ -320,6 +388,7 @@ const updateTask = async (req, res) => {
           message: 'Trạng thái không hợp lệ (todo, in_progress, completed, cancelled).',
         });
       }
+      changes.status = { old: oldStatus, new: status };
       task.status = status;
     }
 
@@ -332,6 +401,14 @@ const updateTask = async (req, res) => {
     }
 
     await task.save();
+
+    // Ghi log hoạt động vào TaskActivity
+    await recordActivity({
+      taskId: task._id,
+      userId: req.user._id,
+      action: 'task_updated',
+      details: changes,
+    });
 
     if (status !== undefined && status !== oldStatus) {
       notifyStatusChanged({ task, updaterId: req.user._id, newStatus: status });
@@ -386,6 +463,12 @@ const updateTaskStatus = async (req, res) => {
     }
 
     const permission = checkUserPermission(task, userIdStr);
+    if (permission.isViewer) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Thành viên có quyền Viewer không được phép thay đổi trạng thái công việc.',
+      });
+    }
     if (!permission.canEdit) {
       return res.status(403).json({
         status: 'error',
@@ -393,10 +476,23 @@ const updateTaskStatus = async (req, res) => {
       });
     }
 
+    const oldStatus = task.status;
     task.status = status;
     await task.save();
 
+    // Ghi nhật ký vào TaskActivity
+    await recordActivity({
+      taskId: task._id,
+      userId: req.user._id,
+      action: 'status_changed',
+      details: {
+        oldStatus,
+        newStatus: status,
+      },
+    });
+
     notifyStatusChanged({ task, updaterId: req.user._id, newStatus: status });
+
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -423,7 +519,7 @@ const updateTaskStatus = async (req, res) => {
 /**
  * Xóa công việc (B5 & C3 RBAC)
  * DELETE /api/tasks/:id
- * Người tạo (createdBy) hoặc Admin được chia sẻ mới có quyền xóa
+ * Editor KHÔNG ĐƯỢC XÓA - Chỉ người tạo (createdBy) hoặc Admin có quyền xóa
  */
 const deleteTask = async (req, res) => {
   try {
@@ -442,11 +538,21 @@ const deleteTask = async (req, res) => {
     if (!permission.canDelete) {
       return res.status(403).json({
         status: 'error',
-        message: 'Chỉ người tạo hoặc Quản trị viên mới có quyền xóa công việc này.',
+        message: 'Thành viên có quyền Editor hoặc Viewer không thể xóa công việc. Chỉ Người tạo hoặc Quản trị viên mới có quyền này.',
       });
     }
 
-    await Task.findByIdAndDelete(id);
+    // Xóa liên quan trong TaskShare và ghi nhật ký
+    await Promise.all([
+      Task.findByIdAndDelete(id),
+      TaskShare.deleteMany({ taskId: id }),
+      recordActivity({
+        taskId: id,
+        userId: req.user._id,
+        action: 'task_deleted',
+        details: { title: task.title },
+      }),
+    ]);
 
     return res.status(200).json({
       status: 'success',
@@ -464,7 +570,7 @@ const deleteTask = async (req, res) => {
 
 /**
  * Phân công người thực hiện chính & danh sách người tham gia (C2)
- * PUT /api/tasks/:id/assign
+ * PUT /api/tasks/:id/assign (Legacy Alias)
  */
 const assignTask = async (req, res) => {
   try {
@@ -498,9 +604,19 @@ const assignTask = async (req, res) => {
 
     await task.save();
 
+    await recordActivity({
+      taskId: task._id,
+      userId: req.user._id,
+      action: 'task_assigned',
+      details: {
+        primaryAssigneeId,
+        assigneeIds,
+      },
+    });
+
     const recipientsToNotify = [];
     if (Array.isArray(assigneeIds)) recipientsToNotify.push(...assigneeIds);
-    if (primaryAssigneeId && !recipientsToNotify.some(id => id.toString() === primaryAssigneeId.toString())) {
+    if (primaryAssigneeId && !recipientsToNotify.some((id) => id.toString() === primaryAssigneeId.toString())) {
       recipientsToNotify.push(primaryAssigneeId);
     }
     if (recipientsToNotify.length > 0) {
@@ -532,16 +648,16 @@ const assignTask = async (req, res) => {
 
 /**
  * Chia sẻ công việc và phân quyền RBAC (C3)
- * POST /api/tasks/:id/share
+ * POST /api/tasks/:id/share (Legacy Alias)
  */
 const shareTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, email, role } = req.body;
+    const { userId, email, role, permission } = req.body;
     const currentUserIdStr = req.user._id.toString();
 
     const validRoles = ['viewer', 'editor', 'admin'];
-    const targetRole = validRoles.includes(role) ? role : 'viewer';
+    const targetRole = validRoles.includes(role || permission) ? (role || permission) : 'viewer';
 
     const task = await Task.findById(id);
     if (!task) {
@@ -551,15 +667,14 @@ const shareTask = async (req, res) => {
       });
     }
 
-    const permission = checkUserPermission(task, currentUserIdStr);
-    if (!permission.isAdmin) {
+    const userPerm = checkUserPermission(task, currentUserIdStr);
+    if (!userPerm.isAdmin) {
       return res.status(403).json({
         status: 'error',
-        message: 'Chỉ người tạo hoặc Quản trị viên của công việc mới có quyền chia sẻ.',
+        message: 'Thành viên Editor không có quyền chia sẻ. Chỉ Người tạo hoặc Quản trị viên mới có quyền chia sẻ.',
       });
     }
 
-    // Tìm người dùng được chia sẻ
     let targetUser = null;
     if (userId) {
       targetUser = await User.findById(userId);
@@ -576,7 +691,6 @@ const shareTask = async (req, res) => {
 
     const targetUserIdStr = targetUser._id.toString();
 
-    // Không thể tự chia sẻ cho chính người tạo
     if (task.createdBy.toString() === targetUserIdStr) {
       return res.status(400).json({
         status: 'error',
@@ -584,9 +698,16 @@ const shareTask = async (req, res) => {
       });
     }
 
-    // Cập nhật hoặc thêm vào danh sách sharedWith
+    // Đồng bộ TaskShare collection
+    await syncTaskShare({
+      taskId: task._id,
+      userId: targetUser._id,
+      permission: targetRole,
+      sharedBy: req.user._id,
+    });
+
     const existingIndex = task.sharedWith.findIndex(
-      (m) => m.userId.toString() === targetUserIdStr
+      (m) => (m.userId?._id?.toString() || m.userId?.toString()) === targetUserIdStr
     );
 
     if (existingIndex > -1) {
@@ -600,12 +721,21 @@ const shareTask = async (req, res) => {
       });
     }
 
-    // Đảm bảo user có trong assigneeIds để công việc xuất hiện trong danh sách của họ
-    if (!task.assigneeIds.some((a) => a.toString() === targetUserIdStr)) {
+    if (!task.assigneeIds.some((a) => (a._id?.toString() || a.toString()) === targetUserIdStr)) {
       task.assigneeIds.push(targetUser._id);
     }
 
     await task.save();
+
+    await recordActivity({
+      taskId: task._id,
+      userId: req.user._id,
+      action: 'task_shared',
+      details: {
+        recipientId: targetUser._id,
+        role: targetRole,
+      },
+    });
 
     notifyTaskShared({ task, sharerId: req.user._id, recipientId: targetUser._id, role: targetRole });
 
@@ -634,7 +764,7 @@ const shareTask = async (req, res) => {
 
 /**
  * Thay đổi vai trò thành viên trong công việc (C4)
- * PATCH /api/tasks/:id/members/:memberId
+ * PATCH /api/tasks/:id/members/:memberId (Legacy Alias)
  */
 const updateMemberRole = async (req, res) => {
   try {
@@ -674,7 +804,7 @@ const updateMemberRole = async (req, res) => {
     }
 
     const memberIndex = task.sharedWith.findIndex(
-      (m) => m.userId.toString() === memberId
+      (m) => (m.userId?._id?.toString() || m.userId?.toString()) === memberId
     );
 
     if (memberIndex === -1) {
@@ -687,7 +817,23 @@ const updateMemberRole = async (req, res) => {
     task.sharedWith[memberIndex].role = role;
     await task.save();
 
+    // Đồng bộ TaskShare
+    await syncTaskShare({
+      taskId: task._id,
+      userId: memberId,
+      permission: role,
+      sharedBy: req.user._id,
+    });
+
+    await recordActivity({
+      taskId: task._id,
+      userId: req.user._id,
+      action: 'member_role_updated',
+      details: { memberId, role },
+    });
+
     notifyTaskShared({ task, sharerId: req.user._id, recipientId: memberId, role });
+
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -713,7 +859,7 @@ const updateMemberRole = async (req, res) => {
 
 /**
  * Thu hồi quyền truy cập / Xóa thành viên khỏi công việc (C4)
- * DELETE /api/tasks/:id/members/:memberId
+ * DELETE /api/tasks/:id/members/:memberId (Legacy Alias)
  */
 const revokeTaskMember = async (req, res) => {
   try {
@@ -743,22 +889,30 @@ const revokeTaskMember = async (req, res) => {
       });
     }
 
-    // Xóa khỏi sharedWith
     task.sharedWith = task.sharedWith.filter(
-      (m) => m.userId.toString() !== memberId
+      (m) => (m.userId?._id?.toString() || m.userId?.toString()) !== memberId
     );
 
-    // Xóa khỏi assigneeIds
     task.assigneeIds = task.assigneeIds.filter(
-      (a) => a.toString() !== memberId
+      (a) => (a._id?.toString() || a.toString()) !== memberId
     );
 
-    // Nếu là primaryAssigneeId thì reset về createdBy
     if (task.primaryAssigneeId?.toString() === memberId) {
       task.primaryAssigneeId = task.createdBy;
     }
 
     await task.save();
+
+    // Đồng bộ xóa TaskShare
+    await removeTaskShare({ taskId: task._id, userId: memberId });
+
+    await recordActivity({
+      taskId: task._id,
+      userId: req.user._id,
+      action: 'member_revoked',
+      details: { memberId },
+    });
+
     const populatedTask = await Task.findById(task._id)
       .populate('createdBy', 'fullName email avatarUrl')
       .populate('assigneeIds', 'fullName email avatarUrl')
@@ -782,183 +936,99 @@ const revokeTaskMember = async (req, res) => {
   }
 };
 
+/**
+ * Lấy lịch sử hoạt động của một công việc
+ * GET /api/tasks/:id/activities
+ */
+const getTaskActivities = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const task = await Task.findById(id);
+    if (!task) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Không tìm thấy công việc yêu cầu.',
+      });
+    }
+
+    const activities = await fetchTaskActivities(id);
+
+    return res.status(200).json({
+      status: 'success',
+      results: activities.length,
+      data: {
+        activities,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.getTaskActivities] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi lấy nhật ký hoạt động công việc.',
+    });
+  }
+};
 
 /**
- * Thống kê công việc và hiệu suất (E1)
+ * Lấy danh sách email log của một công việc
+ * GET /api/tasks/:id/email-logs
+ */
+const getTaskEmailLogs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const emailLogs = await EmailLog.find({ taskId: id }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      status: 'success',
+      results: emailLogs.length,
+      data: {
+        emailLogs,
+      },
+    });
+  } catch (error) {
+    console.error('[TaskController.getTaskEmailLogs] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Lỗi máy chủ khi lấy nhật ký email của công việc.',
+    });
+  }
+};
+
+/**
+ * Gửi lại email bị thất bại
+ * POST /api/email-logs/:id/retry
+ */
+const retryEmail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await retryEmailLog(id);
+
+    return res.status(200).json({
+      status: result.success ? 'success' : 'failed',
+      message: result.success
+        ? 'Gửi lại email thành công.'
+        : `Gửi lại email thất bại: ${result.error}`,
+      data: result.emailLog,
+    });
+  } catch (error) {
+    console.error('[TaskController.retryEmail] Error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Lỗi máy chủ khi thử gửi lại email.',
+    });
+  }
+};
+
+/**
+ * Thống kê công việc và hiệu suất (E1 - Giữ lại để tương thích Flutter)
  * GET /api/tasks/stats/summary
  */
 const getTaskStats = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { timeRange = 'all', scope = 'all' } = req.query;
-
-    let baseFilter = {};
-    if (scope === 'created_by_me') {
-      baseFilter.createdBy = userId;
-    } else if (scope === 'assigned_to_me') {
-      baseFilter.$or = [{ primaryAssigneeId: userId }, { assigneeIds: userId }];
-    } else if (scope === 'shared_with_me') {
-      baseFilter['sharedWith.userId'] = userId;
-    } else {
-      baseFilter.$or = [
-        { createdBy: userId },
-        { primaryAssigneeId: userId },
-        { assigneeIds: userId },
-        { 'sharedWith.userId': userId },
-      ];
-    }
-
-    const now = new Date();
-    if (timeRange === 'today') {
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      baseFilter.createdAt = { $gte: startOfDay };
-    } else if (timeRange === 'week') {
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(now.getDate() - 7);
-      baseFilter.createdAt = { $gte: startOfWeek };
-    } else if (timeRange === 'month') {
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      baseFilter.createdAt = { $gte: startOfMonth };
-    }
-
-    const tasks = await Task.find(baseFilter)
-      .populate('assigneeIds', 'fullName email avatarUrl')
-      .populate('primaryAssigneeId', 'fullName email avatarUrl')
-      .populate('createdBy', 'fullName email avatarUrl');
-
-    const totalTasks = tasks.length;
-
-    // Status counts
-    let todoCount = 0;
-    let inProgressCount = 0;
-    let completedCount = 0;
-    let cancelledCount = 0;
-
-    // Priority counts
-    let highPriorityCount = 0;
-    let mediumPriorityCount = 0;
-    let lowPriorityCount = 0;
-
-    // Deadline & performance metrics
-    let overdueCount = 0;
-    let dueSoonCount = 0;
-    let completedOnTimeCount = 0;
-
-    const next24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-
-    // Member workload map: userId -> { user, taskCount, completedCount }
-    const memberWorkloadMap = new Map();
-
-    for (const task of tasks) {
-      // Status
-      if (task.status === 'todo') todoCount++;
-      else if (task.status === 'in_progress') inProgressCount++;
-      else if (task.status === 'completed') completedCount++;
-      else if (task.status === 'cancelled') cancelledCount++;
-
-      // Priority
-      if (task.priority === 'high') highPriorityCount++;
-      else if (task.priority === 'medium') mediumPriorityCount++;
-      else if (task.priority === 'low') lowPriorityCount++;
-
-      // Deadlines
-      if (task.dueDate) {
-        const dueTime = new Date(task.dueDate).getTime();
-        const isCompleted = task.status === 'completed';
-
-        if (!isCompleted && task.status !== 'cancelled' && dueTime < now.getTime()) {
-          overdueCount++;
-        } else if (!isCompleted && task.status !== 'cancelled' && dueTime >= now.getTime() && dueTime <= next24h.getTime()) {
-          dueSoonCount++;
-        }
-
-        if (isCompleted) {
-          const updatedTime = new Date(task.updatedAt).getTime();
-          if (updatedTime <= dueTime) {
-            completedOnTimeCount++;
-          }
-        }
-      } else if (task.status === 'completed') {
-        completedOnTimeCount++;
-      }
-
-      // Member workload
-      const assignees = [];
-      if (task.primaryAssigneeId) assignees.push(task.primaryAssigneeId);
-      if (Array.isArray(task.assigneeIds)) {
-        task.assigneeIds.forEach((a) => {
-          if (!assignees.some((existing) => existing._id?.toString() === a._id?.toString())) {
-            assignees.push(a);
-          }
-        });
-      }
-
-      for (const assignee of assignees) {
-        if (!assignee?._id) continue;
-        const idStr = assignee._id.toString();
-        if (!memberWorkloadMap.has(idStr)) {
-          memberWorkloadMap.set(idStr, {
-            user: {
-              id: idStr,
-              fullName: assignee.fullName,
-              email: assignee.email,
-              avatarUrl: assignee.avatarUrl,
-            },
-            taskCount: 0,
-            completedCount: 0,
-            inProgressCount: 0,
-            overdueCount: 0,
-          });
-        }
-        const memberStat = memberWorkloadMap.get(idStr);
-        memberStat.taskCount++;
-        if (task.status === 'completed') {
-          memberStat.completedCount++;
-        } else if (task.status === 'in_progress') {
-          memberStat.inProgressCount++;
-        }
-        if (task.dueDate && new Date(task.dueDate).getTime() < now.getTime() && task.status !== 'completed' && task.status !== 'cancelled') {
-          memberStat.overdueCount++;
-        }
-      }
-    }
-
-    const completionRate = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
-    const memberWorkloads = Array.from(memberWorkloadMap.values())
-      .map((m) => ({
-        ...m,
-        completionRate: m.taskCount > 0 ? Math.round((m.completedCount / m.taskCount) * 100) : 0,
-      }))
-      .sort((a, b) => b.taskCount - a.taskCount);
-
+    const stats = await calculateStats(req.user._id, req.query);
     return res.status(200).json({
       status: 'success',
-      data: {
-        timeRange,
-        scope,
-        summary: {
-          totalTasks,
-          completionRate,
-          completedOnTimeRate: completedCount > 0 ? Math.round((completedOnTimeCount / completedCount) * 100) : 100,
-        },
-        byStatus: {
-          todo: { count: todoCount, percentage: totalTasks > 0 ? Math.round((todoCount / totalTasks) * 100) : 0 },
-          inProgress: { count: inProgressCount, percentage: totalTasks > 0 ? Math.round((inProgressCount / totalTasks) * 100) : 0 },
-          completed: { count: completedCount, percentage: totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0 },
-          cancelled: { count: cancelledCount, percentage: totalTasks > 0 ? Math.round((cancelledCount / totalTasks) * 100) : 0 },
-        },
-        byPriority: {
-          high: { count: highPriorityCount, percentage: totalTasks > 0 ? Math.round((highPriorityCount / totalTasks) * 100) : 0 },
-          medium: { count: mediumPriorityCount, percentage: totalTasks > 0 ? Math.round((mediumPriorityCount / totalTasks) * 100) : 0 },
-          low: { count: lowPriorityCount, percentage: totalTasks > 0 ? Math.round((lowPriorityCount / totalTasks) * 100) : 0 },
-        },
-        deadlines: {
-          overdue: overdueCount,
-          dueSoon: dueSoonCount,
-          completedOnTime: completedOnTimeCount,
-        },
-        memberWorkloads,
-      },
+      data: stats,
     });
   } catch (error) {
     console.error('[TaskController.getTaskStats] Error:', error);
@@ -982,4 +1052,7 @@ module.exports = {
   shareTask,
   updateMemberRole,
   revokeTaskMember,
+  getTaskActivities,
+  getTaskEmailLogs,
+  retryEmail,
 };
