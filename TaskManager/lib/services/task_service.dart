@@ -1,4 +1,5 @@
 import '../models/task.dart';
+import '../models/task_activity.dart';
 import 'api_client.dart';
 
 class TaskService {
@@ -55,6 +56,16 @@ class TaskService {
     return Task.fromJson(taskData);
   }
 
+  /// Lấy lịch sử hoạt động của công việc
+  Future<List<TaskActivity>> getTaskActivities(String taskId) async {
+    final response = await _client.get('/tasks/$taskId/activities');
+
+    final raw = response['data']?['activities'];
+    if (raw is! List) return [];
+
+    return raw.map((a) => TaskActivity.fromJson(a as Map<String, dynamic>)).toList();
+  }
+
   /// Cập nhật thông tin công việc (B4)
   Future<Task> updateTask(
     String taskId, {
@@ -99,14 +110,18 @@ class TaskService {
     List<String>? assigneeIds,
   }) async {
     final Map<String, dynamic> data = {};
-    if (primaryAssigneeId != null) data['primaryAssigneeId'] = primaryAssigneeId;
-    if (assigneeIds != null) data['assigneeIds'] = assigneeIds;
+    if (primaryAssigneeId != null) {
+      data['primaryAssigneeId'] = primaryAssigneeId;
+    }
+    if (assigneeIds != null) {
+      data['assigneeIds'] = assigneeIds;
+    }
 
     final response = await _client.put('/tasks/$taskId/assign', data);
 
     final taskData = response['data']?['task'];
     if (taskData == null) {
-      throw ApiException('Không nhận được dữ liệu công việc sau phân công');
+      throw ApiException('Không nhận được dữ liệu công việc sau khi phân công');
     }
 
     return Task.fromJson(taskData);
@@ -117,11 +132,13 @@ class TaskService {
     String taskId, {
     String? userId,
     String? email,
-    required String role,
+    String role = 'viewer',
   }) async {
-    final Map<String, dynamic> data = {'role': role};
-    if (userId != null) data['userId'] = userId;
-    if (email != null) data['email'] = email.trim();
+    final Map<String, dynamic> data = {
+      'role': role,
+    };
+    if (userId != null && userId.isNotEmpty) data['userId'] = userId;
+    if (email != null && email.isNotEmpty) data['email'] = email;
 
     final response = await _client.post('/tasks/$taskId/share', data);
 
@@ -135,7 +152,7 @@ class TaskService {
 
   /// Thay đổi vai trò thành viên trong công việc (C4)
   Future<Task> updateMemberRole(String taskId, String memberId, String role) async {
-    final response = await _client.patch('/tasks//members/', {
+    final response = await _client.patch('/tasks/$taskId/members/$memberId', {
       'role': role,
     });
 
@@ -149,7 +166,7 @@ class TaskService {
 
   /// Thu hồi quyền truy cập / Xóa thành viên khỏi công việc (C4)
   Future<Task> revokeTaskMember(String taskId, String memberId) async {
-    final response = await _client.delete('/tasks//members/');
+    final response = await _client.delete('/tasks/$taskId/members/$memberId');
 
     final taskData = response['data']?['task'];
     if (taskData == null) {

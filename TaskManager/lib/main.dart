@@ -1,8 +1,8 @@
+export 'app.dart';
+
 import 'package:flutter/material.dart';
-import 'screens/auth/welcome_screen.dart';
-import 'screens/tasks/task_list_screen.dart';
+import 'app.dart';
 import 'services/auth_service.dart';
-import 'utils/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,20 +10,4 @@ void main() async {
   final bool loggedIn = await authService.isLoggedIn();
 
   runApp(TaskManagerApp(isLoggedIn: loggedIn));
-}
-
-class TaskManagerApp extends StatelessWidget {
-  final bool isLoggedIn;
-
-  const TaskManagerApp({super.key, required this.isLoggedIn});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Task Manager // OS',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.theme,
-      home: isLoggedIn ? const TaskListScreen() : const WelcomeScreen(),
-    );
-  }
 }

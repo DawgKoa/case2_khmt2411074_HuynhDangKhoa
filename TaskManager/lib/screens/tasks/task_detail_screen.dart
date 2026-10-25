@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../models/task.dart';
+import '../../models/task_activity.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/task_service.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/date_formatter.dart';
 import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
@@ -36,6 +38,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Task? _task;
   User? _currentUser;
+  List<TaskActivity> _activities = [];
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -56,12 +59,14 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       final results = await Future.wait([
         _taskService.getTaskById(widget.taskId),
         _authService.getCurrentUser(),
+        _taskService.getTaskActivities(widget.taskId).catchError((_) => <TaskActivity>[]),
       ]);
 
       if (mounted) {
         setState(() {
           _task = results[0] as Task;
           _currentUser = results[1] as User?;
+          _activities = results[2] as List<TaskActivity>;
           _isLoading = false;
         });
       }
@@ -594,6 +599,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
                             // People Involved (CreatedBy & Assignees)
                             _buildPeopleCard(task),
+                            const SizedBox(height: 16),
+
+                            // Activity History Section
+                            _buildActivityHistoryCard(),
                             const SizedBox(height: 20),
 
                             // Action Buttons (B4 & C3 RBAC)
@@ -1062,5 +1071,160 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         );
     }
+  }
+
+  Widget _buildActivityHistoryCard() {
+    return BrutalistCard(
+      padding: const EdgeInsets.all(20.0),
+      backgroundColor: AppColors.cardWhite,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.history, size: 20, color: AppColors.primaryInk),
+                  const SizedBox(width: 8),
+                  Text(
+                    'LỊCH SỬ HOẠT ĐỘNG',
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                      color: AppColors.primaryInk,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryAccent,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                ),
+                child: Text(
+                  '${_activities.length} HOẠT ĐỘNG',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primaryInk,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 1.5,
+            color: AppColors.divider.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 14),
+          if (_activities.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Center(
+                child: Text(
+                  'Chưa có lịch sử hoạt động cho công việc này.',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.secondaryText,
+                  ),
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _activities.length > 5 ? 5 : _activities.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final act = _activities[index];
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.scaffoldBackground,
+                    border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: AppColors.primaryInk,
+                        offset: Offset(2, 2),
+                        blurRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardWhite,
+                              border: Border.all(color: AppColors.primaryInk, width: 1),
+                            ),
+                            child: Text(
+                              act.actionLabel,
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.primaryInk,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            DateFormatter.timeAgo(act.createdAt),
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.secondaryText,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        act.description,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryInk,
+                        ),
+                      ),
+                      if (act.user != null && act.user!.fullName.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            BrutalistAvatar(
+                              name: act.user!.fullName,
+                              avatarUrl: act.user!.avatarUrl,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              act.user!.fullName,
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.secondaryText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
   }
 }
