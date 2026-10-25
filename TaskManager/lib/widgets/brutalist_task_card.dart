@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/task.dart';
 import '../utils/app_colors.dart';
 import 'brutalist_badge.dart';
+import 'brutalist_avatar.dart';
 
 class BrutalistTaskCard extends StatelessWidget {
   final Task task;
@@ -330,35 +331,23 @@ class BrutalistTaskCard extends StatelessWidget {
   }
 
   Widget _buildAssigneeBadge() {
-    final name = task.primaryAssignee?.fullName ??
-        (task.assignees.isNotEmpty ? task.assignees.first.fullName : task.createdBy?.fullName);
+    final assignee = task.primaryAssignee ??
+        (task.assignees.isNotEmpty ? task.assignees.first : task.createdBy);
 
-    if (name == null || name.isEmpty) {
+    if (assignee == null || assignee.fullName.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final initial = name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : '?';
+    final name = assignee.fullName;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 22,
-          height: 22,
-          decoration: BoxDecoration(
-            color: AppColors.secondarySurface,
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.primaryInk, width: 1.5),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            initial,
-            style: GoogleFonts.spaceGrotesk(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: AppColors.primaryInk,
-            ),
-          ),
+        BrutalistAvatar(
+          avatarUrl: assignee.avatarUrl,
+          name: name,
+          size: 22,
+          backgroundColor: AppColors.secondarySurface,
         ),
         const SizedBox(width: 6),
         ConstrainedBox(

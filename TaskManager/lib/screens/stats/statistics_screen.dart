@@ -8,6 +8,7 @@ import '../../utils/app_colors.dart';
 import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
+import '../../widgets/brutalist_avatar.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -210,25 +211,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         title: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColors.primaryAccent,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.primaryInk, width: 1.8),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                member.user.fullName.isNotEmpty
-                    ? member.user.fullName[0].toUpperCase()
-                    : 'U',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.primaryInk,
-                ),
-              ),
+            BrutalistAvatar(
+              avatarUrl: member.user.avatarUrl,
+              name: member.user.fullName,
+              size: 40,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1168,27 +1154,33 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 child: Row(
                               children: [
                                 Container(
-                                  width: 34,
-                                  height: 34,
+                                  width: 28,
+                                  height: 28,
                                   decoration: BoxDecoration(
                                     color: index == 0
                                         ? AppColors.primaryAccent
                                         : AppColors.scaffoldBackground,
-                                    shape: BoxShape.circle,
+                                    borderRadius: BorderRadius.circular(4),
                                     border: Border.all(
                                       color: AppColors.primaryInk,
-                                      width: 1.5,
+                                      width: 1.2,
                                     ),
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     '#${index + 1}',
                                     style: GoogleFonts.spaceGrotesk(
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w900,
                                       color: AppColors.primaryInk,
                                     ),
                                   ),
+                                ),
+                                const SizedBox(width: 8),
+                                BrutalistAvatar(
+                                  avatarUrl: member.user.avatarUrl,
+                                  name: member.user.fullName,
+                                  size: 34,
                                 ),
                                 const SizedBox(width: 10),
                                 Expanded(

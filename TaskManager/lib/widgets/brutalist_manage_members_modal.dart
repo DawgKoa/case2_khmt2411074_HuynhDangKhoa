@@ -6,6 +6,7 @@ import '../utils/app_colors.dart';
 import 'brutalist_badge.dart';
 import 'brutalist_button.dart';
 import 'brutalist_card.dart';
+import 'brutalist_avatar.dart';
 import 'brutalist_share_modal.dart';
 
 class BrutalistManageMembersModal {
@@ -304,25 +305,11 @@ class _ManageMembersContentState extends State<_ManageMembersContent> {
                           padding: const EdgeInsets.all(12),
                           child: Row(
                             children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryAccent,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  _task.createdBy!.fullName.isNotEmpty
-                                      ? _task.createdBy!.fullName[0].toUpperCase()
-                                      : 'O',
-                                  style: GoogleFonts.spaceGrotesk(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.primaryInk,
-                                  ),
-                                ),
+                              BrutalistAvatar(
+                                avatarUrl: _task.createdBy?.avatarUrl,
+                                name: _task.createdBy?.fullName ?? 'O',
+                                size: 36,
+                                backgroundColor: AppColors.primaryAccent,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -405,25 +392,11 @@ class _ManageMembersContentState extends State<_ManageMembersContent> {
                               padding: const EdgeInsets.all(12),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.secondarySurface,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: AppColors.primaryInk, width: 1.5),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      member.user.fullName.isNotEmpty
-                                          ? member.user.fullName[0].toUpperCase()
-                                          : '?',
-                                      style: GoogleFonts.spaceGrotesk(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.primaryInk,
-                                      ),
-                                    ),
+                                  BrutalistAvatar(
+                                    avatarUrl: member.user.avatarUrl,
+                                    name: member.user.fullName,
+                                    size: 36,
+                                    backgroundColor: AppColors.secondarySurface,
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(

@@ -9,6 +9,7 @@ import '../../utils/app_colors.dart';
 import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
+import '../../widgets/brutalist_avatar.dart';
 import '../../widgets/quick_status_bottom_sheet.dart';
 import 'task_edit_screen.dart';
 import '../../widgets/brutalist_user_picker.dart';
@@ -920,7 +921,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   Widget _buildUserTile(User? user, {bool isCreator = false, bool isPrimary = false}) {
     final name = user?.fullName.isNotEmpty == true ? user!.fullName : 'Không rõ';
     final email = user?.email.isNotEmpty == true ? user!.email : '---';
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -931,23 +931,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: isPrimary ? AppColors.primaryAccent : AppColors.cardWhite,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.primaryInk, width: 1.5),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              initial,
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 14,
-                fontWeight: FontWeight.w900,
-                color: AppColors.primaryInk,
-              ),
-            ),
+          BrutalistAvatar(
+            avatarUrl: user?.avatarUrl,
+            name: name,
+            size: 34,
+            backgroundColor: isPrimary ? AppColors.primaryAccent : AppColors.cardWhite,
           ),
           const SizedBox(width: 12),
           Expanded(

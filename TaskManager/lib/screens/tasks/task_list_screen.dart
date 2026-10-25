@@ -9,6 +9,7 @@ import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_task_card.dart';
+import '../../widgets/brutalist_avatar.dart';
 import '../../widgets/quick_status_bottom_sheet.dart';
 import '../auth/welcome_screen.dart';
 import '../profile/profile_screen.dart';
@@ -475,25 +476,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       onTap: _openProfile,
                       child: Row(
                         children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryAccent,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.primaryInk, width: 2),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              (_currentUser?.fullName.isNotEmpty == true)
-                                  ? _currentUser!.fullName[0].toUpperCase()
-                                  : 'U',
-                              style: GoogleFonts.spaceGrotesk(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.primaryInk,
-                              ),
-                            ),
+                          BrutalistAvatar(
+                            avatarUrl: _currentUser?.avatarUrl,
+                            name: _currentUser?.fullName ?? 'U',
+                            size: 44,
                           ),
                           const SizedBox(width: 14),
                           Expanded(

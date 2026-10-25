@@ -54,6 +54,19 @@ class ApiClient {
     throw ApiException(message, response.statusCode);
   }
 
+  ApiException _formatError(dynamic e) {
+    if (e is ApiException) return e;
+    final errorStr = e.toString();
+    if (errorStr.contains('Connection refused') ||
+        errorStr.contains('SocketException') ||
+        errorStr.contains('Failed host lookup')) {
+      return ApiException(
+        'Không thể kết nối đến máy chủ backend (Port 5000). Vui lòng đảm bảo server Node.js đang chạy.',
+      );
+    }
+    return ApiException('Không thể kết nối đến máy chủ: $e');
+  }
+
   Future<dynamic> get(String endpoint, {Map<String, dynamic>? queryParameters}) async {
     try {
       final headers = await _getHeaders();
@@ -64,8 +77,7 @@ class ApiClient {
       final response = await http.get(uri, headers: headers);
       return _handleResponse(response);
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Không thể kết nối đến máy chủ: $e');
+      throw _formatError(e);
     }
   }
 
@@ -80,8 +92,7 @@ class ApiClient {
       );
       return _handleResponse(response);
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Không thể kết nối đến máy chủ: $e');
+      throw _formatError(e);
     }
   }
 
@@ -96,8 +107,7 @@ class ApiClient {
       );
       return _handleResponse(response);
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Không thể kết nối đến máy chủ: $e');
+      throw _formatError(e);
     }
   }
 
@@ -112,8 +122,7 @@ class ApiClient {
       );
       return _handleResponse(response);
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Không thể kết nối đến máy chủ: $e');
+      throw _formatError(e);
     }
   }
 
@@ -124,8 +133,7 @@ class ApiClient {
       final response = await http.delete(uri, headers: headers);
       return _handleResponse(response);
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Không thể kết nối đến máy chủ: $e');
+      throw _formatError(e);
     }
   }
 }

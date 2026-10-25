@@ -5,6 +5,7 @@ import '../services/user_service.dart';
 import '../utils/app_colors.dart';
 import 'brutalist_button.dart';
 import 'brutalist_card.dart';
+import 'brutalist_avatar.dart';
 
 class BrutalistUserPicker {
   /// Hiển thị modal chọn người dùng (C1)
@@ -303,28 +304,14 @@ class _UserPickerModalState extends State<_UserPickerModal> {
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                   child: Row(
                                     children: [
-                                      // Avatar initials
-                                      Container(
-                                        width: 36,
-                                        height: 36,
-                                        decoration: BoxDecoration(
-                                          color: isSelected
-                                              ? AppColors.cardWhite
-                                              : AppColors.secondarySurface,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: AppColors.primaryInk, width: 1.5),
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          user.fullName.isNotEmpty
-                                              ? user.fullName[0].toUpperCase()
-                                              : '?',
-                                          style: GoogleFonts.spaceGrotesk(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w900,
-                                            color: AppColors.primaryInk,
-                                          ),
-                                        ),
+                                      // Avatar initials / image
+                                      BrutalistAvatar(
+                                        avatarUrl: user.avatarUrl,
+                                        name: user.fullName,
+                                        size: 36,
+                                        backgroundColor: isSelected
+                                            ? AppColors.cardWhite
+                                            : AppColors.secondarySurface,
                                       ),
                                       const SizedBox(width: 12),
 

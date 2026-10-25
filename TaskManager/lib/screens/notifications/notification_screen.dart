@@ -7,6 +7,7 @@ import '../../utils/app_colors.dart';
 import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
+import '../../widgets/brutalist_avatar.dart';
 import '../tasks/task_detail_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -588,12 +589,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                   const SizedBox(height: 8),
                                                   Row(
                                                     children: [
-                                                      const Icon(
-                                                        Icons.person_pin,
-                                                        size: 14,
-                                                        color: AppColors.secondaryText,
+                                                      BrutalistAvatar(
+                                                        avatarUrl: item.sender!.avatarUrl,
+                                                        name: item.sender!.fullName,
+                                                        size: 20,
                                                       ),
-                                                      const SizedBox(width: 4),
+                                                      const SizedBox(width: 6),
                                                       Text(
                                                         'Từ: ${item.sender!.fullName}',
                                                         style: GoogleFonts.jetBrainsMono(

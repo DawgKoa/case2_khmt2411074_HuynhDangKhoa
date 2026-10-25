@@ -10,6 +10,7 @@ import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
+import '../../widgets/brutalist_avatar.dart';
 import '../auth/login_screen.dart';
 import '../auth/welcome_screen.dart';
 
@@ -297,13 +298,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  String _getInitials(String name) {
-    if (name.trim().isEmpty) return '?';
-    final parts = name.trim().split(RegExp(r'\s+'));
-    if (parts.length == 1) return parts[0][0].toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
@@ -421,47 +415,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       padding: const EdgeInsets.all(20.0),
                       child: Row(
                         children: [
-                          // Avatar Box
-                          Container(
-                            width: 68,
-                            height: 68,
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryAccent,
-                              borderRadius: BorderRadius.circular(8.0),
-                              border: Border.all(
-                                color: AppColors.primaryInk,
-                                width: AppColors.borderWidth,
-                              ),
-                              boxShadow: AppColors.hardShadow,
-                            ),
-                            child: _user?.avatarUrl != null && _user!.avatarUrl!.isNotEmpty
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(6.0),
-                                    child: Image.network(
-                                      _user!.avatarUrl!,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Center(
-                                        child: Text(
-                                          _getInitials(_user?.fullName ?? ''),
-                                          style: GoogleFonts.spaceGrotesk(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w900,
-                                            color: AppColors.primaryInk,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Center(
-                                    child: Text(
-                                      _getInitials(_user?.fullName ?? ''),
-                                      style: GoogleFonts.spaceGrotesk(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppColors.primaryInk,
-                                      ),
-                                    ),
-                                  ),
+                          // Avatar Box (Synchronized BrutalistAvatar)
+                          BrutalistAvatar(
+                            avatarUrl: _avatarUrlController.text.isNotEmpty
+                                ? _avatarUrlController.text
+                                : _user?.avatarUrl,
+                            name: _user?.fullName ?? 'U',
+                            size: 68,
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
                           const SizedBox(width: 16),
 
@@ -552,6 +514,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               prefixIcon: const Icon(Icons.lock_outline, color: AppColors.secondaryText),
                             ),
                             const SizedBox(height: 16),
+
+                            // Chọn nhanh Preset Avatar
+                            Text(
+                              'CHỌN AVATAR NHANH (HOẶC NHẬP LINK WEB)',
+                              style: GoogleFonts.jetBrainsMono(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.secondaryText,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: BrutalistAvatar.presets.entries.map((entry) {
+                                  final isSelected = _avatarUrlController.text.trim() == entry.key;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 12.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          _avatarUrlController.text = entry.key;
+                                        });
+                                      },
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: isSelected ? AppColors.danger : Colors.transparent,
+                                                width: 2.5,
+                                              ),
+                                            ),
+                                            child: BrutalistAvatar(
+                                              avatarUrl: entry.key,
+                                              name: entry.value.label,
+                                              size: 44,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            entry.value.label,
+                                            style: GoogleFonts.jetBrainsMono(
+                                              fontSize: 10,
+                                              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                                              color: isSelected ? AppColors.danger : AppColors.secondaryText,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
 
                             // URL Ảnh đại diện
                             BrutalistTextField(
