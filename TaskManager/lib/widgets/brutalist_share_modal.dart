@@ -128,7 +128,7 @@ class _ShareModalContentState extends State<_ShareModalContent> {
           BoxShadow(
             color: AppColors.primaryInk,
             offset: Offset(0, -3),
-            blurRadius: 0,
+            blurRadius: 10,
           ),
         ],
       ),
@@ -140,10 +140,10 @@ class _ShareModalContentState extends State<_ShareModalContent> {
           // Drag handle
           Center(
             child: Container(
-              width: 48,
-              height: 5,
+              width: 44,
+              height: 4,
               decoration: BoxDecoration(
-                color: AppColors.primaryInk,
+                color: AppColors.divider,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -155,16 +155,15 @@ class _ShareModalContentState extends State<_ShareModalContent> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'CHIA SẺ CÔNG VIỆC // C3 (RBAC)',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+                'Chia sẻ công việc & Phân quyền',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primaryInk,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: AppColors.primaryInk),
+                icon: const Icon(Icons.close_rounded, color: AppColors.primaryInk),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],

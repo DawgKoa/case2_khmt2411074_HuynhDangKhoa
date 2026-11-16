@@ -4,7 +4,6 @@ import '../../services/auth_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/validators.dart';
-import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
@@ -118,23 +117,13 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'Task Manager // OS',
+          'Đăng nhập',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
             color: AppColors.primaryInk,
           ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: BrutalistBadge(
-              text: 'Login Gateway',
-              backgroundColor: AppColors.pastelIvory,
-            ),
-          ),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
@@ -151,24 +140,11 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Tag & Badge
-                Row(
-                  children: const [
-                    BrutalistBadge(
-                      text: 'Module A // Authentication',
-                      backgroundColor: AppColors.primaryAccent,
-                      textColor: AppColors.primaryInk,
-                      icon: Icons.lock_outline_rounded,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-
                 // Main Title
                 Text(
-                  'ĐĂNG NHẬP',
+                  'Chào mừng bạn trở lại',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
                     color: AppColors.primaryInk,
@@ -274,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       // Nút Đăng nhập
                       BrutalistButton(
-                        text: 'ĐĂNG NHẬP HỆ THỐNG',
+                        text: 'Đăng nhập',
                         icon: Icons.login_rounded,
                         isLoading: _isLoading,
                         width: double.infinity,

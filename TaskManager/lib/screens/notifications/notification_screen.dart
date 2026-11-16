@@ -205,45 +205,44 @@ class _NotificationScreenState extends State<NotificationScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'THÔNG BÁO // ALERTS',
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+          'Thông báo',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
             color: AppColors.primaryInk,
           ),
         ),
         actions: [
           if (_unreadCount > 0)
             Padding(
-              padding: const EdgeInsets.only(right: 8.0),
+              padding: const EdgeInsets.only(right: 12.0),
               child: TextButton.icon(
                 onPressed: _markAllAsRead,
-                icon: const Icon(Icons.done_all, size: 18, color: AppColors.primaryInk),
+                icon: const Icon(Icons.done_all_rounded, size: 18, color: AppColors.primaryInk),
                 label: Text(
-                  'ĐỌC HẾT',
-                  style: GoogleFonts.spaceGrotesk(
+                  'Đã đọc tất cả',
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.primaryInk,
                   ),
                 ),
                 style: TextButton.styleFrom(
                   backgroundColor: AppColors.primaryAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    side: const BorderSide(color: AppColors.primaryInk, width: 1.5),
+                    borderRadius: BorderRadius.circular(16),
+                    side: const BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
                   ),
                 ),
               ),
             ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),

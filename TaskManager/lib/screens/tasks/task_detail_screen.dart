@@ -244,10 +244,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'PHÂN CÔNG NHÂN SỰ // C2',
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
+              'Phân công nhân sự',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
                 color: AppColors.primaryInk,
               ),
             ),
@@ -392,11 +392,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'CHI TIẾT CÔNG VIỆC // B3',
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+          'Chi tiết công việc',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
             color: AppColors.primaryInk,
           ),
         ),
@@ -419,10 +418,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),

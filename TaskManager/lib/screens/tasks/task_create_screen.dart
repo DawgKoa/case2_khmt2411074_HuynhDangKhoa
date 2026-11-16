@@ -5,7 +5,6 @@ import '../../models/user.dart';
 import '../../services/task_service.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/validators.dart';
-import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
@@ -200,19 +199,18 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'TẠO CÔNG VIỆC MỚI // B1 & C2',
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+          'Tạo công việc mới',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
             color: AppColors.primaryInk,
           ),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),
@@ -224,24 +222,6 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header badge
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BrutalistBadge(
-                      text: 'TASK OPS // CREATE',
-                      backgroundColor: AppColors.primaryAccent,
-                      textColor: AppColors.primaryInk,
-                      icon: Icons.add_task,
-                    ),
-                    BrutalistBadge(
-                      text: 'MODULE B & C',
-                      backgroundColor: AppColors.cardWhite,
-                      textColor: AppColors.primaryInk,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
 
                 // Error Banner nếu có
                 if (_errorMessage != null) ...[

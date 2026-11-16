@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../models/task.dart';
 import '../../services/task_service.dart';
 import '../../utils/app_colors.dart';
-import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
@@ -157,19 +156,18 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'CHỈNH SỬA CÔNG VIỆC // B4',
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+          'Chỉnh sửa công việc',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
             color: AppColors.primaryInk,
           ),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),
@@ -180,23 +178,6 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BrutalistBadge(
-                    text: 'EDIT MODE // TASK OPS',
-                    backgroundColor: AppColors.primaryAccent,
-                    textColor: AppColors.primaryInk,
-                    icon: Icons.edit,
-                  ),
-                  BrutalistBadge(
-                    text: '#${widget.task.id.length > 6 ? widget.task.id.substring(widget.task.id.length - 6).toUpperCase() : widget.task.id}',
-                    backgroundColor: AppColors.secondarySurface,
-                    textColor: AppColors.primaryInk,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
 
               if (_errorMessage != null) ...[
                 BrutalistCard(

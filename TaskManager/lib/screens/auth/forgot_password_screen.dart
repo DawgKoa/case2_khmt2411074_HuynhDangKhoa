@@ -207,24 +207,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'Task Manager // OS',
+          'Quên mật khẩu',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
             color: AppColors.primaryInk,
           ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: BrutalistBadge(
-              text: 'Recovery // OTP',
-              backgroundColor: AppColors.primaryAccent,
-              textColor: AppColors.primaryInk,
-            ),
-          ),
-        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
@@ -243,7 +232,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               Row(
                 children: [
                   BrutalistBadge(
-                    text: _isOtpSent ? 'Bước 02 // Xác thực & Đổi mật khẩu' : 'Bước 01 // Nhận mã OTP',
+                    text: _isOtpSent ? 'Bước 2: Đổi mật khẩu mới' : 'Bước 1: Nhận mã xác thực OTP',
                     backgroundColor: _isOtpSent ? AppColors.pastelGreen : AppColors.pastelYellow,
                     textColor: _isOtpSent ? const Color(0xFF15803D) : AppColors.primaryInk,
                     icon: _isOtpSent ? Icons.verified_outlined : Icons.lock_reset_rounded,
@@ -252,9 +241,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 14),
               Text(
-                'QUÊN MẬT KHẨU',
+                'Đặt lại mật khẩu',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 28,
+                  fontSize: 26,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
                   color: AppColors.primaryInk,

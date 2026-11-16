@@ -11,7 +11,7 @@ class BrutalistUserPicker {
   /// Hiển thị modal chọn người dùng (C1)
   static Future<List<User>?> show({
     required BuildContext context,
-    String title = 'TÌM KIẾM THÀNH VIÊN // C1',
+    String title = 'Tìm kiếm thành viên',
     bool isMultiSelect = true,
     List<User> initialSelected = const [],
   }) {

@@ -260,16 +260,15 @@ class _ManageMembersContentState extends State<_ManageMembersContent> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'QUẢN LÝ THÀNH VIÊN // C4',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+                'Quản lý thành viên',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primaryInk,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: AppColors.primaryInk),
+                icon: const Icon(Icons.close_rounded, color: AppColors.primaryInk),
                 onPressed: () => Navigator.of(context).pop(_task),
               ),
             ],

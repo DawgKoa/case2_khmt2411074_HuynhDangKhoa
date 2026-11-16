@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../models/task_stats.dart';
 import '../../services/stats_service.dart';
 import '../../utils/app_colors.dart';
-import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_avatar.dart';
@@ -604,11 +603,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'THỐNG KÊ // ANALYTICS',
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+          'Thống kê & Báo cáo',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
             color: AppColors.primaryInk,
           ),
         ),
@@ -625,10 +623,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),
@@ -642,22 +640,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header Badge & Subtitle
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BrutalistBadge(
-                    text: 'MODULE E // KPI REPORT',
-                    backgroundColor: AppColors.primaryAccent,
-                    textColor: AppColors.primaryInk,
-                    icon: Icons.pie_chart_outline,
-                  ),
-                  BrutalistBadge(
-                    text: 'REAL-TIME DATA',
-                    backgroundColor: AppColors.cardWhite,
-                    textColor: AppColors.primaryInk,
-                  ),
-                ],
+              Text(
+                'Tổng quan hiệu suất công việc',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primaryInk,
+                ),
               ),
               const SizedBox(height: 14),
 

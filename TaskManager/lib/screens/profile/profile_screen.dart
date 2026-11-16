@@ -309,26 +309,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'HỒ SƠ CÁ NHÂN',
-          style: GoogleFonts.spaceGrotesk(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+          'Hồ sơ cá nhân',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
             color: AppColors.primaryInk,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.primaryInk),
+            icon: const Icon(Icons.logout_rounded, color: AppColors.primaryInk),
             tooltip: 'Đăng xuất',
             onPressed: _showLogoutConfirmDialog,
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_colors.dart';
-import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import 'login_screen.dart';
@@ -19,43 +18,22 @@ class WelcomeScreen extends StatelessWidget {
           builder: (context, constraints) {
             return SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 32.0,
+                  minHeight: constraints.maxHeight - 40.0,
                 ),
                 child: IntrinsicHeight(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Top Status Bar Stamp (Soft Neo-Brutalism Pill Badges)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          BrutalistBadge(
-                            text: 'System // v1.0',
-                            backgroundColor: AppColors.primaryAccent,
-                            textColor: AppColors.primaryInk,
-                            borderRadius: 20.0,
-                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
-                          ),
-                          BrutalistBadge(
-                            text: 'Offline / Online Ready',
-                            backgroundColor: AppColors.pastelBlue,
-                            textColor: AppColors.primaryInk,
-                            borderRadius: 20.0,
-                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
                       const Spacer(),
 
-                      // Giant Hero Icon (Soft Rounded Container with Subtle Shadow)
+                      // Hero Icon trung tâm
                       Center(
                         child: Container(
-                          width: 80,
-                          height: 80,
+                          width: 84,
+                          height: 84,
                           decoration: BoxDecoration(
                             color: AppColors.primaryAccent,
                             borderRadius: BorderRadius.circular(22.0),
@@ -79,15 +57,15 @@ class WelcomeScreen extends StatelessWidget {
                           child: const Center(
                             child: Icon(
                               Icons.task_alt_rounded,
-                              size: 44,
+                              size: 46,
                               color: AppColors.primaryInk,
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 20),
 
-                      // Title: TASK MANAGER
+                      // Tên ứng dụng
                       Text(
                         'TASK MANAGER',
                         textAlign: TextAlign.center,
@@ -99,57 +77,56 @@ class WelcomeScreen extends StatelessWidget {
                           color: AppColors.primaryInk,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
 
-                      // Subtitle: Workforce Coordination OS (Title Case, Sans-serif)
+                      // Mô tả phụ tiếng Việt thân thiện
                       Text(
-                        'Workforce Coordination OS',
+                        'Ứng dụng quản lý và giao việc nhóm',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          letterSpacing: 0.3,
                           color: AppColors.secondaryText,
                         ),
                       ),
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 28),
 
-                      // Feature Highlights Card (Soft Neo-Brutalism Card)
+                      // Thẻ tóm tắt tính năng chính
                       BrutalistCard(
                         backgroundColor: AppColors.cardWhite,
                         borderRadius: 20.0,
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 16.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 18.0),
                         child: Column(
                           children: [
                             _buildFeatureRow(
                               icon: Icons.group_work_outlined,
                               title: 'Giao việc & Phân quyền',
-                              subtitle: 'Chỉ định phụ trách chính, cấp quyền Viewer / Editor',
+                              subtitle: 'Chỉ định người phụ trách chính, cấp quyền xem hoặc chỉnh sửa',
                             ),
-                            const Divider(color: AppColors.divider, height: 18, thickness: 1.0),
+                            const Divider(color: AppColors.divider, height: 20, thickness: 1.0),
                             _buildFeatureRow(
                               icon: Icons.notifications_active_outlined,
                               title: 'Thông báo & Email',
-                              subtitle: 'Nhận email và thông báo tức thời khi có thay đổi',
+                              subtitle: 'Nhận thông báo và email tự động khi có thay đổi công việc',
                             ),
-                            const Divider(color: AppColors.divider, height: 18, thickness: 1.0),
+                            const Divider(color: AppColors.divider, height: 20, thickness: 1.0),
                             _buildFeatureRow(
                               icon: Icons.analytics_outlined,
                               title: 'Theo dõi tiến độ',
-                              subtitle: 'Thống kê hạn chót, mức ưu tiên và trạng thái',
+                              subtitle: 'Thống kê hạn hoàn thành, mức độ ưu tiên và trạng thái',
                             ),
                           ],
                         ),
                       ),
 
                       const Spacer(),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 24),
 
-                      // Action Buttons: Pill-shaped Buttons
+                      // Nút Đăng nhập & Đăng ký
                       BrutalistButton(
-                        text: 'ĐĂNG NHẬP HỆ THỐNG',
+                        text: 'Đăng nhập',
                         icon: Icons.login_rounded,
-                        height: 50,
+                        height: 52,
                         borderRadius: 28.0,
                         backgroundColor: AppColors.primaryAccent,
                         textColor: AppColors.primaryInk,
@@ -160,12 +137,12 @@ class WelcomeScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
 
                       BrutalistButton(
-                        text: 'TẠO TÀI KHOẢN MỚI',
+                        text: 'Đăng ký tài khoản',
                         icon: Icons.person_add_alt_1_rounded,
-                        height: 50,
+                        height: 52,
                         borderRadius: 28.0,
                         backgroundColor: AppColors.cardWhite,
                         textColor: AppColors.primaryInk,
@@ -176,16 +153,15 @@ class WelcomeScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
-                      // Student Footer Info (Title Case, Sans-serif)
+                      // Thông tin sinh viên thực hiện
                       Text(
-                        'KHMT2411074 • Huỳnh Đăng Khoa',
+                        'Huỳnh Đăng Khoa • KHMT2411074',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11.5,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          letterSpacing: 0.3,
                           color: AppColors.secondaryText,
                         ),
                       ),
@@ -208,16 +184,16 @@ class WelcomeScreen extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 36,
-          height: 36,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
             color: AppColors.pastelYellow,
-            borderRadius: BorderRadius.circular(11.0),
+            borderRadius: BorderRadius.circular(12.0),
             border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
           ),
-          child: Icon(icon, size: 19, color: AppColors.primaryInk),
+          child: Icon(icon, size: 20, color: AppColors.primaryInk),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +201,7 @@ class WelcomeScreen extends StatelessWidget {
               Text(
                 title,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primaryInk,
                 ),

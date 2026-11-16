@@ -92,7 +92,11 @@ class BrutalistTaskCard extends StatelessWidget {
                         border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                       ),
                       child: Text(
-                        'Chia sẻ // ${sharedMember.role}',
+                        sharedMember.role == 'admin'
+                            ? 'Quản trị viên'
+                            : sharedMember.role == 'editor'
+                                ? 'Người chỉnh sửa'
+                                : 'Người xem',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,

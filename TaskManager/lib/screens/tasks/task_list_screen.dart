@@ -5,7 +5,6 @@ import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/task_service.dart';
 import '../../utils/app_colors.dart';
-import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_task_card.dart';
@@ -188,25 +187,25 @@ class _TaskListScreenState extends State<TaskListScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'SẮP XẾP CÔNG VIỆC (B6)',
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
+              'Sắp xếp công việc',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
                 color: AppColors.primaryInk,
               ),
             ),
             const SizedBox(height: 14),
-            _buildSortOption('createdAt', 'desc', 'MỚI NHẤT (NGÀY TẠO GIẢM DẦN)'),
+            _buildSortOption('createdAt', 'desc', 'Mới nhất (Ngày tạo giảm dần)'),
             const SizedBox(height: 8),
-            _buildSortOption('createdAt', 'asc', 'CŨ NHẤT (NGÀY TẠO TĂNG DẦN)'),
+            _buildSortOption('createdAt', 'asc', 'Cũ nhất (Ngày tạo tăng dần)'),
             const SizedBox(height: 8),
-            _buildSortOption('dueDate', 'asc', 'HẠN CHÓT GẦN NHẤT'),
+            _buildSortOption('dueDate', 'asc', 'Hạn chót gần nhất'),
             const SizedBox(height: 8),
-            _buildSortOption('dueDate', 'desc', 'HẠN CHÓT XA NHẤT'),
+            _buildSortOption('dueDate', 'desc', 'Hạn chót xa nhất'),
             const SizedBox(height: 8),
-            _buildSortOption('priority', 'desc', 'MỨC ƯU TIÊN CAO ĐẾN THẤP'),
+            _buildSortOption('priority', 'desc', 'Ưu tiên cao đến thấp'),
             const SizedBox(height: 8),
-            _buildSortOption('title', 'asc', 'THEO TIÊU ĐỀ (A ➔ Z)'),
+            _buildSortOption('title', 'asc', 'Theo bảng chữ cái (A ➔ Z)'),
             const SizedBox(height: 16),
           ],
         ),
@@ -366,11 +365,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Task Manager // OS',
+          'Task Manager',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: AppColors.primaryInk,
           ),
         ),
@@ -450,24 +448,37 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // System header tag
+                    // Tiêu đề đầu danh sách
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        BrutalistBadge(
-                          text: 'MODULE B // TASK OPS',
-                          backgroundColor: AppColors.primaryAccent,
-                          textColor: AppColors.primaryInk,
-                          icon: Icons.assignment_outlined,
+                        Text(
+                          'Tổng quan công việc',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryInk,
+                          ),
                         ),
-                        BrutalistBadge(
-                          text: '${_tasks.length} CÔNG VIỆC',
-                          backgroundColor: AppColors.cardWhite,
-                          textColor: AppColors.primaryInk,
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.cardWhite,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
+                          ),
+                          child: Text(
+                            '${_tasks.length} công việc',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.primaryInk,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     // User greeting card (clickable to profile)
                     BrutalistCard(
@@ -519,13 +530,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildFilterChip('all', 'TẤT CẢ (ALL)', _selectedScopeFilter, _onScopeFilterSelected),
+                          _buildFilterChip('all', 'Tất cả', _selectedScopeFilter, _onScopeFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('created_by_me', 'TÔI TẠO', _selectedScopeFilter, _onScopeFilterSelected),
+                          _buildFilterChip('created_by_me', 'Tôi tạo', _selectedScopeFilter, _onScopeFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('assigned_to_me', 'GIAO CHO TÔI', _selectedScopeFilter, _onScopeFilterSelected),
+                          _buildFilterChip('assigned_to_me', 'Được giao', _selectedScopeFilter, _onScopeFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('shared_with_me', 'ĐƯỢC CHIA SẺ', _selectedScopeFilter, _onScopeFilterSelected),
+                          _buildFilterChip('shared_with_me', 'Được chia sẻ', _selectedScopeFilter, _onScopeFilterSelected),
                         ],
                       ),
                     ),
@@ -589,9 +600,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
                     // Status Filter chips (Row 1)
                     Text(
-                      'TRẠNG THÁI TIẾN ĐỘ',
+                      'Trạng thái',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: AppColors.secondaryText,
                       ),
@@ -601,15 +612,15 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildFilterChip('all', 'TẤT CẢ', _selectedStatusFilter, _onStatusFilterSelected),
+                          _buildFilterChip('all', 'Tất cả', _selectedStatusFilter, _onStatusFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('todo', 'CHỜ XỬ LÝ', _selectedStatusFilter, _onStatusFilterSelected),
+                          _buildFilterChip('todo', 'Chờ xử lý', _selectedStatusFilter, _onStatusFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('in_progress', 'ĐANG LÀM', _selectedStatusFilter, _onStatusFilterSelected),
+                          _buildFilterChip('in_progress', 'Đang làm', _selectedStatusFilter, _onStatusFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('completed', 'HOÀN THÀNH', _selectedStatusFilter, _onStatusFilterSelected),
+                          _buildFilterChip('completed', 'Hoàn thành', _selectedStatusFilter, _onStatusFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('cancelled', 'ĐÃ HỦY', _selectedStatusFilter, _onStatusFilterSelected),
+                          _buildFilterChip('cancelled', 'Đã hủy', _selectedStatusFilter, _onStatusFilterSelected),
                         ],
                       ),
                     ),
@@ -617,9 +628,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
                     // Priority Filter chips (Row 2)
                     Text(
-                      'MỨC ĐỘ ƯU TIÊN',
+                      'Mức độ ưu tiên',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: AppColors.secondaryText,
                       ),
@@ -629,13 +640,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildFilterChip('all', 'TẤT CẢ', _selectedPriorityFilter, _onPriorityFilterSelected),
+                          _buildFilterChip('all', 'Tất cả', _selectedPriorityFilter, _onPriorityFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('high', 'ƯU TIÊN CAO', _selectedPriorityFilter, _onPriorityFilterSelected),
+                          _buildFilterChip('high', 'Ưu tiên cao', _selectedPriorityFilter, _onPriorityFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('medium', 'TRUNG BÌNH', _selectedPriorityFilter, _onPriorityFilterSelected),
+                          _buildFilterChip('medium', 'Trung bình', _selectedPriorityFilter, _onPriorityFilterSelected),
                           const SizedBox(width: 8),
-                          _buildFilterChip('low', 'THẤP', _selectedPriorityFilter, _onPriorityFilterSelected),
+                          _buildFilterChip('low', 'Thấp', _selectedPriorityFilter, _onPriorityFilterSelected),
                         ],
                       ),
                     ),
@@ -646,9 +657,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'DANH SÁCH NHIỆM VỤ',
+                          'Danh sách công việc',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14.5,
+                            fontSize: 15,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.2,
                             color: AppColors.primaryInk,
