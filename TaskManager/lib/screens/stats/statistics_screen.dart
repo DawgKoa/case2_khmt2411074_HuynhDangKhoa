@@ -1115,11 +1115,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'KHỐI LƯỢNG CÔNG VIỆC THÀNH VIÊN (E3)',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
+                          'Khối lượng công việc thành viên',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
                             color: AppColors.primaryInk,
                           ),
                         ),

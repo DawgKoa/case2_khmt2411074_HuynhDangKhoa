@@ -134,9 +134,9 @@ class _QuickStatusModalContentState extends State<_QuickStatusModalContent> {
           const SizedBox(height: 16),
 
           Text(
-            'CHUYỂN TRẠNG THÁI NHANH (B4)',
+            'Cập nhật trạng thái nhanh',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 17,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               color: AppColors.primaryInk,
             ),

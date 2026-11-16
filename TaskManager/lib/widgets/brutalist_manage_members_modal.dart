@@ -173,21 +173,25 @@ class _ManageMembersContentState extends State<_ManageMembersContent> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'THAY ĐỔI VAI TRÒ (C4)',
-              style: GoogleFonts.spaceGrotesk(fontSize: 16, fontWeight: FontWeight.w900),
+              'Thay đổi vai trò thành viên',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: AppColors.primaryInk,
+              ),
             ),
             const SizedBox(height: 14),
-            _buildRoleOptionTile('viewer', 'VIEWER (CHỈ XEM)', currentRole == 'viewer', () {
+            _buildRoleOptionTile('viewer', 'Người xem (Chỉ xem nội dung)', currentRole == 'viewer', () {
               Navigator.of(ctx).pop();
               _updateRole(memberId, 'viewer');
             }),
             const SizedBox(height: 8),
-            _buildRoleOptionTile('editor', 'EDITOR (CHỈNH SỬA)', currentRole == 'editor', () {
+            _buildRoleOptionTile('editor', 'Người chỉnh sửa (Có quyền sửa)', currentRole == 'editor', () {
               Navigator.of(ctx).pop();
               _updateRole(memberId, 'editor');
             }),
             const SizedBox(height: 8),
-            _buildRoleOptionTile('admin', 'ADMIN (QUẢN TRỊ VIÊN)', currentRole == 'admin', () {
+            _buildRoleOptionTile('admin', 'Quản trị viên (Toàn quyền quản lý)', currentRole == 'admin', () {
               Navigator.of(ctx).pop();
               _updateRole(memberId, 'admin');
             }),

@@ -604,61 +604,61 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                             _buildActivityHistoryCard(),
                             const SizedBox(height: 20),
 
-                            // Action Buttons (B4 & C3 RBAC)
+                            // Action Buttons
                             if (_canEdit) ...[
-                            BrutalistButton(
-                              text: 'CHUYỂN TRẠNG THÁI NHANH',
-                              icon: Icons.sync,
-                              backgroundColor: AppColors.primaryAccent,
-                              textColor: AppColors.primaryInk,
-                              onPressed: _openQuickStatus,
-                            ),
-                                                        if (_isAdmin) ...[
-                              const SizedBox(height: 12),
                               BrutalistButton(
-                                text: 'QUẢN LÝ THÀNH VIÊN (C4)',
-                                icon: Icons.manage_accounts,
-                                backgroundColor: AppColors.secondarySurface,
-                                textColor: AppColors.primaryInk,
-                                onPressed: _openManageMembers,
-                              ),
-                            ],
-                            if (_isAdmin) ...[
-                              const SizedBox(height: 12),
-                              BrutalistButton(
-                                text: 'CHIA SẺ CÔNG VIỆC (C3 - RBAC)',
-                                icon: Icons.share,
-                                backgroundColor: AppColors.cardWhite,
-                                textColor: AppColors.primaryInk,
-                                onPressed: _openShareModal,
-                              ),
-                            ],
-                            if (_isAdmin) ...[
-                              const SizedBox(height: 12),
-                              BrutalistButton(
-                                text: 'PHÂN CÔNG NHÂN SỰ (C2)',
-                                icon: Icons.person_add_alt_1,
+                                text: 'Chuyển trạng thái nhanh',
+                                icon: Icons.sync_rounded,
                                 backgroundColor: AppColors.primaryAccent,
                                 textColor: AppColors.primaryInk,
-                                onPressed: _reassignStaff,
+                                onPressed: _openQuickStatus,
                               ),
-                            ],
-                            const SizedBox(height: 12),
-                            BrutalistButton(
-                              text: 'CHỈNH SỬA CÔNG VIỆC',
-                              icon: Icons.edit_note,
-                              backgroundColor: AppColors.cardWhite,
-                              textColor: AppColors.primaryInk,
-                              onPressed: _openEditTask,
-                            ),
+                              if (_isAdmin) ...[
+                                const SizedBox(height: 12),
+                                BrutalistButton(
+                                  text: 'Quản lý thành viên',
+                                  icon: Icons.manage_accounts_rounded,
+                                  backgroundColor: AppColors.secondarySurface,
+                                  textColor: AppColors.primaryInk,
+                                  onPressed: _openManageMembers,
+                                ),
+                              ],
+                              if (_isAdmin) ...[
+                                const SizedBox(height: 12),
+                                BrutalistButton(
+                                  text: 'Chia sẻ & Phân quyền',
+                                  icon: Icons.share_rounded,
+                                  backgroundColor: AppColors.cardWhite,
+                                  textColor: AppColors.primaryInk,
+                                  onPressed: _openShareModal,
+                                ),
+                              ],
+                              if (_isAdmin) ...[
+                                const SizedBox(height: 12),
+                                BrutalistButton(
+                                  text: 'Phân công người phụ trách',
+                                  icon: Icons.person_add_alt_1_rounded,
+                                  backgroundColor: AppColors.primaryAccent,
+                                  textColor: AppColors.primaryInk,
+                                  onPressed: _reassignStaff,
+                                ),
+                              ],
+                              const SizedBox(height: 12),
+                              BrutalistButton(
+                                text: 'Chỉnh sửa công việc',
+                                icon: Icons.edit_note_rounded,
+                                backgroundColor: AppColors.cardWhite,
+                                textColor: AppColors.primaryInk,
+                                onPressed: _openEditTask,
+                              ),
                             ],
                             if (_canDelete) ...[
                               const SizedBox(height: 12),
                               BrutalistButton(
-                                text: 'XÓA CÔNG VIỆC (B5)',
-                                icon: Icons.delete_forever,
-                                backgroundColor: AppColors.danger,
-                                textColor: Colors.white,
+                                text: 'Xóa công việc',
+                                icon: Icons.delete_outline_rounded,
+                                backgroundColor: AppColors.pastelRed,
+                                textColor: const Color(0xFFDC2626),
                                 onPressed: _showDeleteConfirmDialog,
                               ),
                             ],
@@ -722,32 +722,31 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.access_time_filled, size: 18, color: AppColors.primaryInk),
+              const Icon(Icons.access_time_filled_rounded, size: 20, color: AppColors.primaryInk),
               const SizedBox(width: 8),
               Text(
-                'TIẾN ĐỘ THỜI GIAN',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+                'Tiến độ thời gian',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.primaryInk,
                 ),
               ),
               const Spacer(),
               if (isOverdue)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
                   decoration: BoxDecoration(
-                    color: AppColors.danger,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                    color: AppColors.pastelRed,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                   ),
                   child: Text(
-                    'ĐÃ QUÁ HẠN',
-                    style: GoogleFonts.jetBrainsMono(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                    'Đã quá hạn',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFDC2626),
                     ),
                   ),
                 ),
@@ -755,8 +754,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
           const SizedBox(height: 14),
           Container(
-            height: 1.5,
-            color: AppColors.divider.withValues(alpha: 0.5),
+            height: 1.0,
+            color: AppColors.divider,
           ),
           const SizedBox(height: 14),
 
@@ -768,10 +767,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'NGÀY BẮT ĐẦU',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                      'Ngày bắt đầu',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.secondaryText,
                       ),
                     ),
@@ -779,8 +778,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     Text(
                       task.startDate != null
                           ? DateFormat('dd/MM/yyyy').format(task.startDate!)
-                          : 'CHƯA ĐẶT',
-                      style: GoogleFonts.spaceGrotesk(
+                          : 'Chưa đặt',
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: AppColors.primaryInk,
@@ -789,17 +788,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   ],
                 ),
               ),
-              Container(width: 1.5, height: 40, color: AppColors.divider.withValues(alpha: 0.5)),
+              Container(width: 1.0, height: 40, color: AppColors.divider),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'HẠN HOÀN THÀNH',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
+                      'Hạn hoàn thành',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
                         color: isOverdue ? AppColors.danger : AppColors.secondaryText,
                       ),
                     ),
@@ -807,8 +806,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     Text(
                       task.dueDate != null
                           ? DateFormat('dd/MM/yyyy').format(task.dueDate!)
-                          : 'KHÔNG CÓ HẠN',
-                      style: GoogleFonts.spaceGrotesk(
+                          : 'Không có hạn',
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                         color: isOverdue ? AppColors.danger : AppColors.primaryInk,
@@ -833,14 +832,13 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.people_alt_outlined, size: 18, color: AppColors.primaryInk),
+              const Icon(Icons.people_alt_rounded, size: 20, color: AppColors.primaryInk),
               const SizedBox(width: 8),
               Text(
-                'NHÂN SỰ PHỤ TRÁCH',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+                'Nhân sự phụ trách',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.primaryInk,
                 ),
               ),
@@ -848,17 +846,17 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
           const SizedBox(height: 14),
           Container(
-            height: 1.5,
-            color: AppColors.divider.withValues(alpha: 0.5),
+            height: 1.0,
+            color: AppColors.divider,
           ),
           const SizedBox(height: 14),
 
           // Người tạo
           Text(
-            'NGƯỜI TẠO CÔNG VIỆC',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
+            'Người tạo công việc',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
               color: AppColors.secondaryText,
             ),
           ),
@@ -869,10 +867,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
           // Người phụ trách chính
           Text(
-            'NGƯỜI PHỤ TRÁCH CHÍNH',
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
+            'Người phụ trách chính',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
               color: AppColors.secondaryText,
             ),
           ),
@@ -883,10 +881,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           if (task.assignees.isNotEmpty) ...[
             const SizedBox(height: 16),
             Text(
-              'DANH SÁCH THÀNH VIÊN GIAO VIỆC (${task.assignees.length})',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
+              'Thành viên được giao (${task.assignees.length})',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
                 color: AppColors.secondaryText,
               ),
             ),
@@ -1084,31 +1082,30 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.history, size: 20, color: AppColors.primaryInk),
+                  const Icon(Icons.history_rounded, size: 20, color: AppColors.primaryInk),
                   const SizedBox(width: 8),
                   Text(
-                    'LỊCH SỬ HOẠT ĐỘNG',
-                    style: GoogleFonts.spaceGrotesk(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
+                    'Lịch sử hoạt động',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
                       color: AppColors.primaryInk,
                     ),
                   ),
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
                 decoration: BoxDecoration(
                   color: AppColors.primaryAccent,
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                 ),
                 child: Text(
-                  '${_activities.length} HOẠT ĐỘNG',
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w900,
+                  '${_activities.length} hoạt động',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.primaryInk,
                   ),
                 ),
