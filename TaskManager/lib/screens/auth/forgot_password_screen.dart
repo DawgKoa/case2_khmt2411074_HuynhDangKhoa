@@ -302,9 +302,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'MÃ OTP CỦA BẠN (TEST/DEMO):',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 11,
+                              'Mã OTP xác thực (Thử nghiệm):',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.secondaryText,
                               ),
@@ -312,8 +312,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             const SizedBox(height: 4),
                             Text(
                               _devOtp!,
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 24,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 26,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: 4.0,
                                 color: AppColors.primaryInk,
@@ -355,8 +355,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         const SizedBox(height: 24),
                         BrutalistButton(
-                          text: 'GỬI MÃ XÁC THỰC OTP',
-                          icon: Icons.send_outlined,
+                          text: 'Gửi mã xác thực OTP',
+                          icon: Icons.send_rounded,
                           isLoading: _isLoading,
                           width: double.infinity,
                           height: 52,
@@ -439,8 +439,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
                         // Nút Đổi mật khẩu
                         BrutalistButton(
-                          text: 'XÁC NHẬN ĐẶT LẠI MẬT KHẨU',
-                          icon: Icons.check_circle_outline,
+                          text: 'Xác nhận đặt lại mật khẩu',
+                          icon: Icons.check_circle_outline_rounded,
                           isLoading: _isLoading,
                           width: double.infinity,
                           height: 52,
@@ -453,11 +453,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         // Nút gửi lại mã OTP
                         TextButton.icon(
                           onPressed: _isLoading ? null : _handleSendOtp,
-                          icon: const Icon(Icons.refresh, size: 16, color: AppColors.secondaryText),
+                          icon: const Icon(Icons.refresh_rounded, size: 18, color: AppColors.secondaryText),
                           label: Text(
-                            'GỬI LẠI MÃ OTP MỚI',
-                            style: GoogleFonts.spaceGrotesk(
-                              fontSize: 12,
+                            'Gửi lại mã OTP mới',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: AppColors.secondaryText,
                             ),
@@ -480,9 +480,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'NHỚ MẬT KHẨU? ',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 12,
+                      'Bạn đã nhớ mật khẩu? ',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: AppColors.secondaryText,
                       ),
@@ -495,9 +495,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         );
                       },
                       child: Text(
-                        'QUAY LẠI ĐĂNG NHẬP',
-                        style: GoogleFonts.spaceGrotesk(
-                          fontSize: 13,
+                        'Quay lại đăng nhập',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w800,
                           color: AppColors.primaryInk,
                           decoration: TextDecoration.underline,
