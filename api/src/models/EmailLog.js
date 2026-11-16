@@ -48,4 +48,4 @@ const emailLogSchema = new mongoose.Schema(
 
 emailLogSchema.index({ recipientEmail: 1, status: 1 });
 
-module.exports = mongoose.model('EmailLog', emailLogSchema);
+module.exports = mongoose.model('EmailLog', emailLogSchema, 'email_logs');

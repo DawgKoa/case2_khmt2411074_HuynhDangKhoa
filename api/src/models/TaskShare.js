@@ -33,4 +33,4 @@ const taskShareSchema = new mongoose.Schema(
 // Đảm bảo mỗi cặp taskId + userId là duy nhất
 taskShareSchema.index({ taskId: 1, userId: 1 }, { unique: true });
 
-module.exports = mongoose.model('TaskShare', taskShareSchema);
+module.exports = mongoose.model('TaskShare', taskShareSchema, 'task_shares');

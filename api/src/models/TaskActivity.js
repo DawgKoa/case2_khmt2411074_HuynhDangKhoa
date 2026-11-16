@@ -29,4 +29,4 @@ const taskActivitySchema = new mongoose.Schema(
 
 taskActivitySchema.index({ taskId: 1, createdAt: -1 });
 
-module.exports = mongoose.model('TaskActivity', taskActivitySchema);
+module.exports = mongoose.model('TaskActivity', taskActivitySchema, 'task_activities');
