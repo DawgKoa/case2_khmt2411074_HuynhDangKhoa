@@ -269,7 +269,7 @@ const forgotPassword = async (req, res) => {
     await user.save();
 
     // 3. Gửi email chứa mã OTP
-    const mailRes = await sendOtpEmail({
+    await sendOtpEmail({
       to: user.email,
       otp,
       fullName: user.fullName,
@@ -277,11 +277,9 @@ const forgotPassword = async (req, res) => {
 
     return res.status(200).json({
       status: 'success',
-      message: 'Mã xác thực OTP đã được gửi đến email của bạn.',
+      message: 'Mã xác thực OTP đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam).',
       data: {
         email: user.email,
-        // Cung cấp OTP trực tiếp nếu là môi trường dev hoặc gửi mail fallback để dễ test
-        devOtp: mailRes.fallbackOtp || (process.env.NODE_ENV !== 'production' ? otp : undefined),
       },
     });
   } catch (error) {

@@ -35,7 +35,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   bool _obscureConfirmPw = true;
 
   String? _errorMessage;
-  String? _devOtp;
 
   @override
   void initState() {
@@ -66,13 +65,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
 
     try {
-      final res = await _authService.forgotPassword(
+      await _authService.forgotPassword(
         email: _emailController.text,
       );
 
       setState(() {
         _isOtpSent = true;
-        _devOtp = res['devOtp']?.toString();
+        _otpController.clear();
       });
 
       if (!mounted) return;
@@ -281,55 +280,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             fontSize: 13,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Gợi ý mã OTP nếu devOtp có (tiện cho test và chấm bài)
-              if (_isOtpSent && _devOtp != null) ...[
-                BrutalistCard(
-                  backgroundColor: AppColors.primaryAccent.withValues(alpha: 0.25),
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.key, color: AppColors.primaryInk, size: 22),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Mã OTP xác thực (Thử nghiệm):',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.secondaryText,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _devOtp!,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 4.0,
-                                color: AppColors.primaryInk,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.copy, size: 20, color: AppColors.primaryInk),
-                        tooltip: 'Dán vào ô',
-                        onPressed: () {
-                          setState(() {
-                            _otpController.text = _devOtp!;
-                          });
-                        },
                       ),
                     ],
                   ),
