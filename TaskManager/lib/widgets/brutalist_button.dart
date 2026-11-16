@@ -90,15 +90,15 @@ class _BrutalistButtonState extends State<BrutalistButton> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (widget.icon != null) ...[
-                    Icon(widget.icon, color: widget.textColor, size: 19),
+                    Icon(widget.icon, color: widget.textColor, size: 20),
                     const SizedBox(width: 8),
                   ],
                   Text(
                     widget.isUppercase ? widget.text.toUpperCase() : widget.text,
                     style: GoogleFonts.plusJakartaSans(
                       color: widget.textColor,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14.5,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15.5,
                       letterSpacing: 0.2,
                     ),
                   ),

@@ -19,8 +19,8 @@ class BrutalistBadge extends StatelessWidget {
     this.backgroundColor = AppColors.primaryAccent,
     this.textColor = AppColors.primaryInk,
     this.icon,
-    this.fontSize = 11.5,
-    this.padding = const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+    this.fontSize = 12.5,
+    this.padding = const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
     this.borderRadius = 20.0,
     this.isUppercase = false,
   });
@@ -107,14 +107,14 @@ class BrutalistBadge extends StatelessWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: fontSize + 2.5, color: textColor),
-            const SizedBox(width: 4.5),
+            const SizedBox(width: 5.0),
           ],
           Text(
             isUppercase ? text.toUpperCase() : text,
             style: GoogleFonts.plusJakartaSans(
               fontSize: fontSize,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.1,
               color: textColor,
             ),
           ),

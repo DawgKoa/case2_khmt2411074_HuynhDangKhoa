@@ -47,8 +47,8 @@ class _BrutalistTextFieldState extends State<BrutalistTextField> {
         Text(
           widget.label,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontSize: 14.5,
+            fontWeight: FontWeight.w700,
             letterSpacing: 0.1,
             color: AppColors.primaryInk,
           ),
@@ -102,14 +102,14 @@ class _BrutalistTextFieldState extends State<BrutalistTextField> {
               return err;
             },
             style: GoogleFonts.inter(
-              fontSize: 15,
+              fontSize: 15.5,
               fontWeight: FontWeight.w500,
               color: AppColors.primaryInk,
             ),
             decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 14.5,
                 color: AppColors.secondaryText.withValues(alpha: 0.6),
               ),
               prefixIcon: widget.prefixIcon,
@@ -127,8 +127,8 @@ class _BrutalistTextFieldState extends State<BrutalistTextField> {
             child: Text(
               _errorText!,
               style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
                 color: AppColors.danger,
               ),
             ),

@@ -189,7 +189,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             Text(
               'Sắp xếp công việc',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 17,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 color: AppColors.primaryInk,
               ),
@@ -228,20 +228,20 @@ class _TaskListScreenState extends State<TaskListScreen> {
       },
       child: BrutalistCard(
         backgroundColor: isSelected ? AppColors.primaryAccent : AppColors.cardWhite,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               label,
-              style: GoogleFonts.spaceGrotesk(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14.5,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 color: AppColors.primaryInk,
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check, size: 18, color: AppColors.primaryInk),
+              const Icon(Icons.check_rounded, size: 20, color: AppColors.primaryInk),
           ],
         ),
       ),
@@ -367,14 +367,15 @@ class _TaskListScreenState extends State<TaskListScreen> {
         title: Text(
           'Task Manager',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
+            fontSize: 21,
             fontWeight: FontWeight.w800,
+            letterSpacing: -0.4,
             color: AppColors.primaryInk,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.bar_chart_outlined, color: AppColors.primaryInk),
+            icon: const Icon(Icons.bar_chart_outlined, size: 24, color: AppColors.primaryInk),
             tooltip: 'Thống kê & Báo cáo',
             onPressed: _openStatistics,
           ),
@@ -382,7 +383,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
             clipBehavior: Clip.none,
             children: [
               IconButton(
-                icon: const Icon(Icons.notifications_outlined, color: AppColors.primaryInk),
+                icon: const Icon(Icons.notifications_outlined, size: 24, color: AppColors.primaryInk),
                 tooltip: 'Thông báo',
                 onPressed: _openNotifications,
               ),
@@ -402,7 +403,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       _unreadNotificationCount > 99 ? '99+' : '$_unreadNotificationCount',
                       style: GoogleFonts.plusJakartaSans(
                         color: Colors.white,
-                        fontSize: 9,
+                        fontSize: 9.5,
                         fontWeight: FontWeight.w700,
                       ),
                       textAlign: TextAlign.center,
@@ -412,12 +413,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
             ],
           ),
           IconButton(
-            icon: const Icon(Icons.person_outline, color: AppColors.primaryInk),
+            icon: const Icon(Icons.person_outline, size: 24, color: AppColors.primaryInk),
             tooltip: 'Hồ sơ cá nhân',
             onPressed: _openProfile,
           ),
           IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.primaryInk),
+            icon: const Icon(Icons.logout, size: 24, color: AppColors.primaryInk),
             tooltip: 'Đăng xuất',
             onPressed: _showLogoutConfirmDialog,
           ),
@@ -455,23 +456,23 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         Text(
                           'Tổng quan công việc',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
                             color: AppColors.primaryInk,
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                           decoration: BoxDecoration(
                             color: AppColors.cardWhite,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(18),
                             border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                           ),
                           child: Text(
                             '${_tasks.length} công việc',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
                               color: AppColors.primaryInk,
                             ),
                           ),
@@ -490,7 +491,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           BrutalistAvatar(
                             avatarUrl: _currentUser?.avatarUrl,
                             name: _currentUser?.fullName ?? 'U',
-                            size: 44,
+                            size: 48,
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -500,18 +501,18 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                 Text(
                                   _currentUser?.fullName.toUpperCase() ?? 'NGƯỜI DÙNG',
                                   style: GoogleFonts.spaceGrotesk(
-                                    fontSize: 16,
+                                    fontSize: 17,
                                     fontWeight: FontWeight.w900,
                                     color: AppColors.primaryInk,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                const SizedBox(height: 3),
                                 Text(
                                   _currentUser?.email ?? '---',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.inter(
-                                    fontSize: 12,
+                                    fontSize: 13.5,
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.secondaryText,
                                   ),
@@ -519,7 +520,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                               ],
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primaryInk),
+                          const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.primaryInk),
                         ],
                       ),
                     ),
@@ -570,18 +571,18 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           }
                         },
                         style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.primaryInk,
                         ),
                         decoration: InputDecoration(
                           hintText: 'Tìm kiếm công việc...',
                           hintStyle: GoogleFonts.inter(
-                            fontSize: 14,
+                            fontSize: 15,
                             fontWeight: FontWeight.w400,
                             color: AppColors.secondaryText,
                           ),
-                          prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primaryInk),
+                          prefixIcon: const Icon(Icons.search_rounded, size: 22, color: AppColors.primaryInk),
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(Icons.clear, color: AppColors.primaryInk),
@@ -592,7 +593,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                 )
                               : null,
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                         ),
                       ),
                     ),
@@ -602,9 +603,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     Text(
                       'Trạng thái',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondaryText,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryInk,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -630,9 +631,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     Text(
                       'Mức độ ưu tiên',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondaryText,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primaryInk,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -659,7 +660,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         Text(
                           'Danh sách công việc',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 15,
+                            fontSize: 18,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.2,
                             color: AppColors.primaryInk,
@@ -668,7 +669,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         GestureDetector(
                           onTap: _showSortBottomSheet,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                             decoration: BoxDecoration(
                               color: AppColors.cardWhite,
                               borderRadius: BorderRadius.circular(16),
@@ -683,12 +684,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.swap_vert_rounded, size: 15, color: AppColors.primaryInk),
+                                const Icon(Icons.swap_vert_rounded, size: 16, color: AppColors.primaryInk),
                                 const SizedBox(width: 4),
                                 Text(
                                   _sortLabel,
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 10.5,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.primaryInk,
                                   ),
@@ -765,47 +766,48 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     child: Column(
                       children: [
                         Container(
-                          width: 64,
-                          height: 64,
+                          width: 70,
+                          height: 70,
                           decoration: BoxDecoration(
                             color: AppColors.scaffoldBackground,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColors.primaryInk, width: 2),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                           ),
                           child: const Icon(
                             Icons.assignment_turned_in_outlined,
-                            size: 34,
+                            size: 36,
                             color: AppColors.primaryInk,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
                         Text(
                           'CHƯA CÓ CÔNG VIỆC NÀO',
                           style: GoogleFonts.spaceGrotesk(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.w900,
                             color: AppColors.primaryInk,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Text(
                           _searchController.text.isNotEmpty || _selectedStatusFilter != 'all' || _selectedPriorityFilter != 'all'
                               ? 'Không tìm thấy công việc nào phù hợp với bộ lọc hoặc từ khóa tìm kiếm.'
                               : 'Bạn chưa tạo hoặc chưa được phân công công việc nào. Hãy khởi tạo công việc đầu tiên ngay!',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
-                            fontSize: 13,
+                            fontSize: 14.5,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.secondaryText,
-                            height: 1.4,
+                            color: const Color(0xFF4A4740),
+                            height: 1.45,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 22),
                         BrutalistButton(
-                          text: '+ TẠO CÔNG VIỆC MỚI',
+                          text: 'Tạo công việc mới',
                           icon: Icons.add,
                           backgroundColor: AppColors.primaryAccent,
                           textColor: AppColors.primaryInk,
+                          height: 52,
                           onPressed: _openCreateTask,
                         ),
                       ],
@@ -847,11 +849,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
       floatingActionButton: GestureDetector(
         onTap: _openCreateTask,
         child: Container(
-          width: 56,
-          height: 56,
+          width: 58,
+          height: 58,
           decoration: BoxDecoration(
             color: AppColors.primaryAccent,
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(29),
             border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
             boxShadow: const [
               BoxShadow(
@@ -866,7 +868,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
               ),
             ],
           ),
-          child: const Icon(Icons.add_rounded, size: 30, color: AppColors.primaryInk),
+          child: const Icon(Icons.add_rounded, size: 32, color: AppColors.primaryInk),
         ),
       ),
     );
@@ -884,7 +886,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
       onTap: () => onSelected(value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8.5),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primaryAccent : AppColors.cardWhite,
           borderRadius: BorderRadius.circular(20),
@@ -902,8 +904,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
         child: Text(
           label,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 11.5,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+            fontSize: 13.5,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
             color: AppColors.primaryInk,
           ),
         ),
