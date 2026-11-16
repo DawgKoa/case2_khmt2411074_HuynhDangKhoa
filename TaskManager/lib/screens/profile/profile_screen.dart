@@ -6,7 +6,6 @@ import '../../services/auth_service.dart';
 import '../../services/api_client.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/validators.dart';
-import '../../widgets/brutalist_badge.dart';
 import '../../widgets/brutalist_button.dart';
 import '../../widgets/brutalist_card.dart';
 import '../../widgets/brutalist_text_field.dart';
@@ -344,29 +343,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Header Badge & Title
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        BrutalistBadge(
-                          text: 'MODULE A // PROFILE & SECURITY',
-                          backgroundColor: AppColors.primaryAccent,
-                          textColor: AppColors.primaryInk,
-                          icon: Icons.shield_outlined,
-                        ),
-                        BrutalistBadge(
-                          text: 'A4 READY',
-                          backgroundColor: AppColors.secondarySurface,
-                          textColor: AppColors.primaryInk,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
                     Text(
-                      'TÀI KHOẢN & BẢO MẬT',
-                      style: GoogleFonts.spaceGrotesk(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
+                      'Tài khoản & Bảo mật',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
                         color: AppColors.primaryInk,
                       ),
@@ -483,8 +464,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const Icon(Icons.edit_outlined, color: AppColors.primaryInk, size: 20),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'CHỈNH SỬA THÔNG TIN',
-                                  style: GoogleFonts.spaceGrotesk(
+                                  'Chỉnh sửa thông tin',
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.primaryInk,
@@ -516,12 +497,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                             // Chọn nhanh Preset Avatar
                             Text(
-                              'CHỌN AVATAR NHANH (HOẶC NHẬP LINK WEB)',
-                              style: GoogleFonts.jetBrainsMono(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.secondaryText,
-                                letterSpacing: 0.8,
+                              'Chọn nhanh ảnh đại diện',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primaryInk,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -558,9 +538,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             entry.value.label,
-                                            style: GoogleFonts.jetBrainsMono(
-                                              fontSize: 10,
-                                              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 11,
+                                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                                               color: isSelected ? AppColors.danger : AppColors.secondaryText,
                                             ),
                                           ),
@@ -584,7 +564,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                             // Nút lưu thay đổi hồ sơ
                             BrutalistButton(
-                              text: 'LƯU THAY ĐỔI HỒ SƠ',
+                              text: 'Lưu thay đổi hồ sơ',
                               icon: Icons.save_outlined,
                               isLoading: _isSaving,
                               width: double.infinity,
@@ -599,7 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Section Đổi Mật Khẩu (A4)
+                    // Section Đổi Mật Khẩu
                     Form(
                       key: _passwordFormKey,
                       child: BrutalistCard(
@@ -612,8 +592,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const Icon(Icons.password_outlined, color: AppColors.primaryInk, size: 20),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'ĐỔI MẬT KHẨU',
-                                  style: GoogleFonts.spaceGrotesk(
+                                  'Đổi mật khẩu tài khoản',
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
                                     color: AppColors.primaryInk,
@@ -625,7 +605,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               'Nhập mật khẩu cũ và đặt mật khẩu mới tối thiểu 6 ký tự.',
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w500,
                                 color: AppColors.secondaryText,
                               ),
@@ -717,7 +697,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                             // Nút Đổi mật khẩu
                             BrutalistButton(
-                              text: 'CẬP NHẬT MẬT KHẨU',
+                              text: 'Cập nhật mật khẩu',
                               icon: Icons.key_outlined,
                               isLoading: _isChangingPassword,
                               width: double.infinity,
@@ -732,13 +712,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Section Nút Đăng Xuất (A4)
+                    // Section Nút Đăng Xuất
                     BrutalistButton(
-                      text: 'ĐĂNG XUẤT KHỎI HỆ THỐNG',
-                      icon: Icons.logout,
-                      height: 50,
-                      backgroundColor: AppColors.danger,
-                      textColor: Colors.white,
+                      text: 'Đăng xuất khỏi hệ thống',
+                      icon: Icons.logout_rounded,
+                      height: 52,
+                      backgroundColor: AppColors.pastelRed,
+                      textColor: const Color(0xFFDC2626),
                       onPressed: _showLogoutConfirmDialog,
                     ),
                     const SizedBox(height: 12),
