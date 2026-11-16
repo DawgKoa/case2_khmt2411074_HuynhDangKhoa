@@ -86,7 +86,7 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
   Future<void> _pickPrimaryAssignee() async {
     final results = await BrutalistUserPicker.show(
       context: context,
-      title: 'NGƯỜI PHỤ TRÁCH CHÍNH // C2',
+      title: 'Người phụ trách chính',
       isMultiSelect: false,
       initialSelected: _primaryAssignee != null ? [_primaryAssignee!] : [],
     );
@@ -104,7 +104,7 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
   Future<void> _pickCollaborators() async {
     final results = await BrutalistUserPicker.show(
       context: context,
-      title: 'THÀNH VIÊN THAM GIA // C2',
+      title: 'Thành viên tham gia',
       isMultiSelect: true,
       initialSelected: _collaborators,
     );
@@ -275,13 +275,12 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // PHÂN CÔNG NHÂN SỰ (C2)
+                      // Phân công nhân sự
                       Text(
-                        'PHÂN CÔNG NHÂN SỰ (C2)',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 12,
+                        'Phân công nhân sự',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
                           color: AppColors.primaryInk,
                         ),
                       ),
@@ -291,15 +290,15 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                       GestureDetector(
                         onTap: _pickPrimaryAssignee,
                         child: Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppColors.cardWhite,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                             boxShadow: const [
                               BoxShadow(
-                                color: AppColors.primaryInk,
-                                offset: Offset(2, 2),
+                                color: Color(0x202C2C2C),
+                                offset: Offset(2, 2.5),
                                 blurRadius: 0,
                               ),
                             ],
@@ -307,21 +306,21 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                           child: Row(
                             children: [
                               Container(
-                                width: 34,
-                                height: 34,
+                                width: 38,
+                                height: 38,
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryAccent,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                                  border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                                 ),
                                 alignment: Alignment.center,
                                 child: Text(
                                   _primaryAssignee != null && _primaryAssignee!.fullName.isNotEmpty
                                       ? _primaryAssignee!.fullName[0].toUpperCase()
                                       : '★',
-                                  style: GoogleFonts.spaceGrotesk(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w900,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
                                     color: AppColors.primaryInk,
                                   ),
                                 ),
@@ -332,17 +331,18 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'NGƯỜI PHỤ TRÁCH CHÍNH',
-                                      style: GoogleFonts.jetBrainsMono(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w800,
+                                      'Người phụ trách chính',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
                                         color: AppColors.secondaryText,
                                       ),
                                     ),
+                                    const SizedBox(height: 2),
                                     Text(
                                       _primaryAssignee?.fullName ?? 'Mặc định (Bạn)',
-                                      style: GoogleFonts.spaceGrotesk(
-                                        fontSize: 14,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14.5,
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.primaryInk,
                                       ),
@@ -350,7 +350,7 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primaryInk),
+                              const Icon(Icons.arrow_forward_ios_rounded, size: 15, color: AppColors.primaryInk),
                             ],
                           ),
                         ),
@@ -361,41 +361,42 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                       GestureDetector(
                         onTap: _pickCollaborators,
                         child: Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppColors.cardWhite,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                             boxShadow: const [
                               BoxShadow(
-                                color: AppColors.primaryInk,
-                                offset: Offset(2, 2),
+                                color: Color(0x202C2C2C),
+                                offset: Offset(2, 2.5),
                                 blurRadius: 0,
                               ),
                             ],
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.group_add, color: AppColors.primaryInk, size: 22),
-                              const SizedBox(width: 10),
+                              const Icon(Icons.group_add_rounded, color: AppColors.primaryInk, size: 24),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'THÀNH VIÊN CÙNG THAM GIA',
-                                      style: GoogleFonts.jetBrainsMono(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w800,
+                                      'Thành viên cùng tham gia',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
                                         color: AppColors.secondaryText,
                                       ),
                                     ),
+                                    const SizedBox(height: 2),
                                     Text(
                                       _collaborators.isEmpty
                                           ? 'Nhấn để chọn thành viên...'
                                           : 'Đã chọn ${_collaborators.length} thành viên',
-                                      style: GoogleFonts.spaceGrotesk(
-                                        fontSize: 13,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w700,
                                         color: _collaborators.isEmpty
                                             ? AppColors.secondaryText
@@ -405,7 +406,7 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.chevron_right, size: 20, color: AppColors.primaryInk),
+                              const Icon(Icons.chevron_right_rounded, size: 22, color: AppColors.primaryInk),
                             ],
                           ),
                         ),
@@ -414,54 +415,54 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
 
                       // Ngày bắt đầu & Hạn hoàn thành
                       Text(
-                        'THỜI GIAN THỰC HIỆN',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
+                        'Thời gian thực hiện',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.primaryInk,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
                             child: GestureDetector(
                               onTap: () => _pickDate(isStart: true),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                 decoration: BoxDecoration(
                                   color: AppColors.cardWhite,
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                                   boxShadow: const [
                                     BoxShadow(
-                                      color: AppColors.primaryInk,
-                                      offset: Offset(2, 2),
+                                      color: Color(0x202C2C2C),
+                                      offset: Offset(2, 2.5),
                                       blurRadius: 0,
                                     ),
                                   ],
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.calendar_today_outlined, size: 16, color: AppColors.primaryInk),
-                                    const SizedBox(width: 8),
+                                    const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.primaryInk),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'BẮT ĐẦU',
-                                            style: GoogleFonts.jetBrainsMono(
-                                              fontSize: 9,
+                                            'Bắt đầu',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 11,
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.secondaryText,
                                             ),
                                           ),
+                                          const SizedBox(height: 2),
                                           Text(
                                             _startDate != null ? dateFormat.format(_startDate!) : 'Chọn ngày',
-                                            style: GoogleFonts.spaceGrotesk(
-                                              fontSize: 13,
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13.5,
                                               fontWeight: FontWeight.w700,
                                               color: _startDate != null ? AppColors.primaryInk : AppColors.secondaryText,
                                             ),
@@ -481,39 +482,40 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
                             child: GestureDetector(
                               onTap: () => _pickDate(isStart: false),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                                 decoration: BoxDecoration(
                                   color: AppColors.cardWhite,
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                                   boxShadow: const [
                                     BoxShadow(
-                                      color: AppColors.primaryInk,
-                                      offset: Offset(2, 2),
+                                      color: Color(0x202C2C2C),
+                                      offset: Offset(2, 2.5),
                                       blurRadius: 0,
                                     ),
                                   ],
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.event_available_outlined, size: 16, color: AppColors.danger),
-                                    const SizedBox(width: 8),
+                                    const Icon(Icons.event_available_outlined, size: 18, color: AppColors.danger),
+                                    const SizedBox(width: 10),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'HẠN CHÓT',
-                                            style: GoogleFonts.jetBrainsMono(
-                                              fontSize: 9,
+                                            'Hạn chót',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 11,
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.danger,
                                             ),
                                           ),
+                                          const SizedBox(height: 2),
                                           Text(
                                             _dueDate != null ? dateFormat.format(_dueDate!) : 'Chọn hạn',
-                                            style: GoogleFonts.spaceGrotesk(
-                                              fontSize: 13,
+                                            style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 13.5,
                                               fontWeight: FontWeight.w700,
                                               color: _dueDate != null ? AppColors.primaryInk : AppColors.secondaryText,
                                             ),
@@ -534,50 +536,48 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
 
                       // Mức độ ưu tiên
                       Text(
-                        'MỨC ĐỘ ƯU TIÊN',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
+                        'Mức độ ưu tiên',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.primaryInk,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
-                          _buildPriorityOption('low', 'THẤP', AppColors.secondarySurface),
+                          _buildPriorityOption('low', 'Thấp', AppColors.secondarySurface),
                           const SizedBox(width: 8),
-                          _buildPriorityOption('medium', 'TRUNG BÌNH', AppColors.primaryAccent),
+                          _buildPriorityOption('medium', 'Trung bình', AppColors.primaryAccent),
                           const SizedBox(width: 8),
-                          _buildPriorityOption('high', 'CAO / KHẨN', AppColors.danger),
+                          _buildPriorityOption('high', 'Ưu tiên cao', AppColors.pastelRed),
                         ],
                       ),
                       const SizedBox(height: 20),
 
                       // Trạng thái ban đầu
                       Text(
-                        'TRẠNG THÁI BAN ĐẦU',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
+                        'Trạng thái ban đầu',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.primaryInk,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
-                          _buildStatusOption('todo', 'CHƯA THỰC HIỆN'),
+                          _buildStatusOption('todo', 'Chờ xử lý'),
                           const SizedBox(width: 8),
-                          _buildStatusOption('in_progress', 'ĐANG THỰC HIỆN'),
+                          _buildStatusOption('in_progress', 'Đang làm'),
                         ],
                       ),
                       const SizedBox(height: 28),
 
                       // Nút Tạo công việc
                       BrutalistButton(
-                        text: 'TẠO CÔNG VIỆC MỚI',
-                        icon: Icons.check,
+                        text: 'Tạo công việc mới',
+                        icon: Icons.check_rounded,
                         isLoading: _isLoading,
                         width: double.infinity,
                         height: 52,
@@ -611,16 +611,16 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? color : AppColors.cardWhite,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppColors.primaryInk,
-              width: isSelected ? 2.5 : 1.5,
+              width: AppColors.borderWidth,
             ),
             boxShadow: isSelected
                 ? const [
                     BoxShadow(
-                      color: AppColors.primaryInk,
-                      offset: Offset(2, 2),
+                      color: Color(0x202C2C2C),
+                      offset: Offset(1.5, 1.5),
                       blurRadius: 0,
                     ),
                   ]
@@ -629,10 +629,10 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-              color: isSelected && isHigh ? Colors.white : AppColors.primaryInk,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+              color: isSelected && isHigh ? const Color(0xFFDC2626) : AppColors.primaryInk,
             ),
           ),
         ),
@@ -654,16 +654,16 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.primaryAccent : AppColors.cardWhite,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppColors.primaryInk,
-              width: isSelected ? 2.5 : 1.5,
+              width: AppColors.borderWidth,
             ),
             boxShadow: isSelected
                 ? const [
                     BoxShadow(
-                      color: AppColors.primaryInk,
-                      offset: Offset(2, 2),
+                      color: Color(0x202C2C2C),
+                      offset: Offset(1.5, 1.5),
                       blurRadius: 0,
                     ),
                   ]
@@ -672,9 +672,9 @@ class _TaskCreateScreenState extends State<TaskCreateScreen> {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13.5,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
               color: AppColors.primaryInk,
             ),
           ),

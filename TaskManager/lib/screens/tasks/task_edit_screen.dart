@@ -240,38 +240,38 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  _buildStatusChip('todo', 'CHỜ XỬ LÝ', AppColors.secondarySurface),
+                  _buildStatusChip('todo', 'Chờ xử lý', AppColors.secondarySurface),
                   const SizedBox(width: 8),
-                  _buildStatusChip('in_progress', 'ĐANG LÀM', AppColors.primaryAccent),
+                  _buildStatusChip('in_progress', 'Đang làm', AppColors.primaryAccent),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  _buildStatusChip('completed', 'HOÀN THÀNH', const Color(0xFF9AE6B4)),
+                  _buildStatusChip('completed', 'Hoàn thành', AppColors.pastelGreen),
                   const SizedBox(width: 8),
-                  _buildStatusChip('cancelled', 'ĐÃ HỦY', AppColors.danger, textWhite: true),
+                  _buildStatusChip('cancelled', 'Đã hủy', AppColors.pastelRed, textWhite: false),
                 ],
               ),
               const SizedBox(height: 20),
 
               // Mức độ ưu tiên
               Text(
-                'MỨC ĐỘ ƯU TIÊN',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 12,
+                'Mức độ ưu tiên',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: AppColors.primaryInk,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Row(
                 children: [
-                  _buildPriorityChip('low', 'THẤP', AppColors.secondarySurface),
+                  _buildPriorityChip('low', 'Thấp', AppColors.secondarySurface),
                   const SizedBox(width: 8),
-                  _buildPriorityChip('medium', 'TRUNG BÌNH', AppColors.primaryAccent),
+                  _buildPriorityChip('medium', 'Trung bình', AppColors.primaryAccent),
                   const SizedBox(width: 8),
-                  _buildPriorityChip('high', 'CAO', AppColors.danger, textWhite: true),
+                  _buildPriorityChip('high', 'Ưu tiên cao', AppColors.pastelRed, textWhite: false),
                 ],
               ),
               const SizedBox(height: 20),
@@ -284,29 +284,30 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'NGÀY BẮT ĐẦU',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 12,
+                          'Ngày bắt đầu',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: AppColors.primaryInk,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         GestureDetector(
                           onTap: _pickStartDate,
                           child: BrutalistCard(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             backgroundColor: AppColors.cardWhite,
+                            borderRadius: 16.0,
                             child: Row(
                               children: [
-                                const Icon(Icons.calendar_today, size: 16, color: AppColors.primaryInk),
+                                const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.primaryInk),
                                 const SizedBox(width: 8),
                                 Text(
                                   _startDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_startDate!)
-                                      : 'CHỌN NGÀY',
-                                  style: GoogleFonts.jetBrainsMono(
-                                    fontSize: 12,
+                                      : 'Chọn ngày',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13.5,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.primaryInk,
                                   ),
@@ -324,29 +325,30 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'HẠN HOÀN THÀNH',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: 12,
+                          'Hạn hoàn thành',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: AppColors.primaryInk,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 8),
                         GestureDetector(
                           onTap: _pickDueDate,
                           child: BrutalistCard(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             backgroundColor: AppColors.cardWhite,
+                            borderRadius: 16.0,
                             child: Row(
                               children: [
-                                const Icon(Icons.event_available, size: 16, color: AppColors.primaryInk),
+                                const Icon(Icons.event_available_outlined, size: 18, color: AppColors.danger),
                                 const SizedBox(width: 8),
                                 Text(
                                   _dueDate != null
                                       ? DateFormat('dd/MM/yyyy').format(_dueDate!)
-                                      : 'CHỌN HẠN',
-                                  style: GoogleFonts.jetBrainsMono(
-                                    fontSize: 12,
+                                      : 'Chọn hạn',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13.5,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.primaryInk,
                                   ),
@@ -364,19 +366,21 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
 
               // Submit & Cancel buttons
               BrutalistButton(
-                text: 'LƯU THAY ĐỔI',
-                icon: Icons.check,
+                text: 'Lưu thay đổi',
+                icon: Icons.check_rounded,
                 backgroundColor: AppColors.primaryAccent,
                 textColor: AppColors.primaryInk,
+                height: 52,
                 isLoading: _isLoading,
                 onPressed: _submitUpdate,
               ),
               const SizedBox(height: 12),
               BrutalistButton(
-                text: 'HỦY BỎ',
-                icon: Icons.close,
+                text: 'Hủy bỏ',
+                icon: Icons.close_rounded,
                 backgroundColor: AppColors.secondarySurface,
                 textColor: AppColors.primaryInk,
+                height: 52,
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
@@ -392,19 +396,19 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       child: GestureDetector(
         onTap: () => setState(() => _status = value),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? color : AppColors.cardWhite,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppColors.primaryInk,
-              width: isSelected ? 2.5 : 1.5,
+              width: AppColors.borderWidth,
             ),
             boxShadow: isSelected
                 ? const [
                     BoxShadow(
-                      color: AppColors.primaryInk,
-                      offset: Offset(2, 2),
+                      color: Color(0x202C2C2C),
+                      offset: Offset(1.5, 1.5),
                       blurRadius: 0,
                     ),
                   ]
@@ -413,10 +417,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-              color: isSelected && textWhite ? Colors.white : AppColors.primaryInk,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+              color: isSelected && value == 'cancelled' ? const Color(0xFFDC2626) : AppColors.primaryInk,
             ),
           ),
         ),
@@ -430,19 +434,19 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       child: GestureDetector(
         onTap: () => setState(() => _priority = value),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isSelected ? color : AppColors.cardWhite,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppColors.primaryInk,
-              width: isSelected ? 2.5 : 1.5,
+              width: AppColors.borderWidth,
             ),
             boxShadow: isSelected
                 ? const [
                     BoxShadow(
-                      color: AppColors.primaryInk,
-                      offset: Offset(2, 2),
+                      color: Color(0x202C2C2C),
+                      offset: Offset(1.5, 1.5),
                       blurRadius: 0,
                     ),
                   ]
@@ -451,10 +455,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
           alignment: Alignment.center,
           child: Text(
             label,
-            style: GoogleFonts.jetBrainsMono(
-              fontSize: 11,
-              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-              color: isSelected && textWhite ? Colors.white : AppColors.primaryInk,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+              color: isSelected && value == 'high' ? const Color(0xFFDC2626) : AppColors.primaryInk,
             ),
           ),
         ),
