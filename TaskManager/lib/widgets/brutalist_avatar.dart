@@ -76,7 +76,7 @@ class BrutalistAvatar extends StatelessWidget {
     final effectiveBorder = border ??
         Border.all(
           color: AppColors.primaryInk,
-          width: size > 32 ? 2.0 : 1.5,
+          width: AppColors.borderWidth,
         );
 
     final effectiveRadius = shape == BoxShape.circle
@@ -91,9 +91,9 @@ class BrutalistAvatar extends StatelessWidget {
       child: Text(
         initials,
         style: textStyle ??
-            GoogleFonts.spaceGrotesk(
+            GoogleFonts.plusJakartaSans(
               fontSize: fontSize,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: AppColors.primaryInk,
             ),
       ),

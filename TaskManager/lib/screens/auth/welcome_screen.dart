@@ -15,151 +15,186 @@ class WelcomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Top Status Bar Stamp
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  BrutalistBadge(
-                    text: 'SYSTEM // V1.0',
-                    backgroundColor: AppColors.primaryAccent,
-                    textColor: AppColors.primaryInk,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 32.0,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Top Status Bar Stamp (Soft Neo-Brutalism Pill Badges)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          BrutalistBadge(
+                            text: 'System // v1.0',
+                            backgroundColor: AppColors.primaryAccent,
+                            textColor: AppColors.primaryInk,
+                            borderRadius: 20.0,
+                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
+                          ),
+                          BrutalistBadge(
+                            text: 'Offline / Online Ready',
+                            backgroundColor: AppColors.pastelBlue,
+                            textColor: AppColors.primaryInk,
+                            borderRadius: 20.0,
+                            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 5.0),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      const Spacer(),
+
+                      // Giant Hero Icon (Soft Rounded Container with Subtle Shadow)
+                      Center(
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryAccent,
+                            borderRadius: BorderRadius.circular(22.0),
+                            border: Border.all(
+                              color: AppColors.primaryInk,
+                              width: AppColors.borderWidth,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x302C2C2C),
+                                offset: Offset(2.5, 3.0),
+                                blurRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Color(0x10000000),
+                                offset: Offset(0, 6.0),
+                                blurRadius: 14.0,
+                              ),
+                            ],
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.task_alt_rounded,
+                              size: 44,
+                              color: AppColors.primaryInk,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // Title: TASK MANAGER
+                      Text(
+                        'TASK MANAGER',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                          height: 1.1,
+                          color: AppColors.primaryInk,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Subtitle: Workforce Coordination OS (Title Case, Sans-serif)
+                      Text(
+                        'Workforce Coordination OS',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
+                          color: AppColors.secondaryText,
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+
+                      // Feature Highlights Card (Soft Neo-Brutalism Card)
+                      BrutalistCard(
+                        backgroundColor: AppColors.cardWhite,
+                        borderRadius: 20.0,
+                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 16.0),
+                        child: Column(
+                          children: [
+                            _buildFeatureRow(
+                              icon: Icons.group_work_outlined,
+                              title: 'Giao việc & Phân quyền',
+                              subtitle: 'Chỉ định phụ trách chính, cấp quyền Viewer / Editor',
+                            ),
+                            const Divider(color: AppColors.divider, height: 18, thickness: 1.0),
+                            _buildFeatureRow(
+                              icon: Icons.notifications_active_outlined,
+                              title: 'Thông báo & Email',
+                              subtitle: 'Nhận email và thông báo tức thời khi có thay đổi',
+                            ),
+                            const Divider(color: AppColors.divider, height: 18, thickness: 1.0),
+                            _buildFeatureRow(
+                              icon: Icons.analytics_outlined,
+                              title: 'Theo dõi tiến độ',
+                              subtitle: 'Thống kê hạn chót, mức ưu tiên và trạng thái',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const Spacer(),
+                      const SizedBox(height: 18),
+
+                      // Action Buttons: Pill-shaped Buttons
+                      BrutalistButton(
+                        text: 'ĐĂNG NHẬP HỆ THỐNG',
+                        icon: Icons.login_rounded,
+                        height: 50,
+                        borderRadius: 28.0,
+                        backgroundColor: AppColors.primaryAccent,
+                        textColor: AppColors.primaryInk,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 10),
+
+                      BrutalistButton(
+                        text: 'TẠO TÀI KHOẢN MỚI',
+                        icon: Icons.person_add_alt_1_rounded,
+                        height: 50,
+                        borderRadius: 28.0,
+                        backgroundColor: AppColors.cardWhite,
+                        textColor: AppColors.primaryInk,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Student Footer Info (Title Case, Sans-serif)
+                      Text(
+                        'KHMT2411074 • Huỳnh Đăng Khoa',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.3,
+                          color: AppColors.secondaryText,
+                        ),
+                      ),
+                    ],
                   ),
-                  BrutalistBadge(
-                    text: 'OFFLINE / ONLINE READY',
-                    backgroundColor: AppColors.secondarySurface,
-                    textColor: AppColors.primaryInk,
-                  ),
-                ],
-              ),
-              const Spacer(),
-
-              // Giant Hero Typography Stamp
-              Center(
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryAccent,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.primaryInk,
-                      width: AppColors.borderWidth,
-                    ),
-                    boxShadow: AppColors.heavyHardShadow,
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.task_alt,
-                      size: 48,
-                      color: AppColors.primaryInk,
-                    ),
-                  ),
                 ),
               ),
-              const SizedBox(height: 24),
-
-              Text(
-                'TASK MANAGER',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -1.5,
-                  height: 1.0,
-                  color: AppColors.primaryInk,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'WORKFORCE COORDINATION OS',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 2.0,
-                  color: AppColors.secondaryText,
-                ),
-              ),
-              const SizedBox(height: 28),
-
-              // Feature Highlights Card
-              BrutalistCard(
-                backgroundColor: AppColors.cardWhite,
-                padding: const EdgeInsets.all(18.0),
-                child: Column(
-                  children: [
-                    _buildFeatureRow(
-                      icon: Icons.group_work_outlined,
-                      title: 'GIAO VIỆC & PHÂN QUYỀN',
-                      subtitle: 'Chỉ định phụ trách chính, cấp quyền Viewer / Editor',
-                    ),
-                    const Divider(color: AppColors.divider, height: 20, thickness: 1),
-                    _buildFeatureRow(
-                      icon: Icons.notifications_active_outlined,
-                      title: 'THÔNG BÁO & EMAIL',
-                      subtitle: 'Nhận email và thông báo tức thời khi có thay đổi',
-                    ),
-                    const Divider(color: AppColors.divider, height: 20, thickness: 1),
-                    _buildFeatureRow(
-                      icon: Icons.analytics_outlined,
-                      title: 'THEO DÕI TIẾN ĐỘ',
-                      subtitle: 'Thống kê hạn chót, mức ưu tiên và trạng thái',
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // Action Buttons: ĐĂNG NHẬP & ĐĂNG KÝ
-              BrutalistButton(
-                text: 'ĐĂNG NHẬP HỆ THỐNG',
-                icon: Icons.login,
-                height: 52,
-                backgroundColor: AppColors.primaryAccent,
-                textColor: AppColors.primaryInk,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-
-              BrutalistButton(
-                text: 'TẠO TÀI KHOẢN MỚI',
-                icon: Icons.person_add_alt,
-                height: 52,
-                backgroundColor: AppColors.cardWhite,
-                textColor: AppColors.primaryInk,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Student Footer Info
-              Text(
-                'KHMT2411074 • HUỲNH ĐĂNG KHOA',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.0,
-                  color: AppColors.secondaryText,
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -176,11 +211,11 @@ class WelcomeScreen extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppColors.scaffoldBackground,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: AppColors.primaryInk, width: 1.5),
+            color: AppColors.pastelYellow,
+            borderRadius: BorderRadius.circular(11.0),
+            border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
           ),
-          child: Icon(icon, size: 20, color: AppColors.primaryInk),
+          child: Icon(icon, size: 19, color: AppColors.primaryInk),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -189,17 +224,18 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: GoogleFonts.spaceGrotesk(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 13,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primaryInk,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 subtitle,
                 style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w400,
                   color: AppColors.secondaryText,
                 ),
               ),

@@ -1,55 +1,88 @@
 import 'package:flutter/material.dart';
 
-/// Bảng màu chuẩn Nivora Brutalist (Mobile Neo-Brutalism & Warm Retro-Industrial)
+/// Bảng màu phong cách Soft Neo-Brutalism (Mềm mại, hiện đại, ấm áp & tinh tế)
 class AppColors {
   AppColors._();
 
-  /// Nền chính: Kem giấy ấm (Scaffold Background)
-  static const Color scaffoldBackground = Color(0xFFEFEDE0);
+  /// Nền chính: Kem giấy ấm nhẹ nhàng (Scaffold Background)
+  static const Color scaffoldBackground = Color(0xFFF7F5EE);
 
-  /// Viền, chữ chính, bóng cứng & thẻ tối (Primary Ink / Dark Card)
-  static const Color primaryInk = Color(0xFF050504);
+  /// Viền, chữ chính & thẻ tối: Xám than đậm tinh tế (#2C2C2C) thay cho đen tuyền
+  static const Color primaryInk = Color(0xFF2C2C2C);
 
-  /// Màu nhấn chính: Vàng nghệ (Active Button, Progress, Highlight)
-  static const Color primaryAccent = Color(0xFFF6B400);
+  /// Màu nhấn chính: Vàng pastel ấm / Amber dịu (Warm Pastel Yellow / Soft Amber)
+  static const Color primaryAccent = Color(0xFFFEE07C);
 
-  /// Màu khẩn cấp / Ưu tiên cao / Báo lỗi (Danger / Urgent / Overdue)
-  static const Color danger = Color(0xFFF61F01);
+  /// Màu nhấn phụ: Vàng bơ nhạt dịu mắt
+  static const Color pastelYellow = Color(0xFFFEF3C7);
 
-  /// Bề mặt thẻ phụ: Xám đá ấm (Secondary Surface)
-  static const Color secondarySurface = Color(0xFFB5B4AC);
+  /// Màu xanh pastel nhạt: Dùng cho trạng thái Online, Sẵn sàng, Thẻ thông tin
+  static const Color pastelBlue = Color(0xFFE0F2FE);
 
-  /// Chữ phụ / Icon không hoạt động (Deep Brownish Grey)
-  static const Color secondaryText = Color(0xFF5E584C);
+  /// Màu xanh ngọc / lá pastel: Trạng thái hoàn thành, thành công
+  static const Color pastelGreen = Color(0xFFDCFCE7);
 
-  /// Đường kẻ phân cách (Light Moss Grey)
-  static const Color divider = Color(0xFF7E817B);
+  /// Màu trắng ngà ấm nhẹ (Ivory Soft)
+  static const Color pastelIvory = Color(0xFFFDFBF7);
+
+  /// Màu đỏ pastel dịu: Khẩn cấp / Ưu tiên cao / Quá hạn
+  static const Color danger = Color(0xFFF87171);
+
+  /// Màu đỏ pastel nhạt cho nền badge cảnh báo
+  static const Color pastelRed = Color(0xFFFEE2E2);
+
+  /// Bề mặt thẻ phụ / badge trung tính (Đổi từ xám cứng sang trắng ngà ấm)
+  static const Color secondarySurface = Color(0xFFF4F1EA);
+
+  /// Chữ phụ / Subtitle (Xám than trung tính, dễ đọc)
+  static const Color secondaryText = Color(0xFF6B6963);
+
+  /// Đường kẻ phân cách mảnh tinh tế
+  static const Color divider = Color(0xFFE5E2D9);
 
   /// Bề mặt thẻ sáng / Ruột ô nhập liệu
   static const Color cardWhite = Color(0xFFFFFFFF);
 
   /// Màu hoàn thành / Thành công
-  static const Color success = Color(0xFF1E824C);
+  static const Color success = Color(0xFF10B981);
 
-  /// Độ dày viền mực chuẩn
-  static const double borderWidth = 2.0;
+  /// Độ dày viền mảnh tinh tế theo phong cách Soft Neo-Brutalism (1.2px)
+  static const double borderWidth = 1.2;
 
-  /// Đổ bóng cứng chuẩn không làm mờ (Hard Drop Shadow)
+  /// Độ bo góc chuẩn cho card lớn (18px - 20px)
+  static const double cardRadius = 18.0;
+
+  /// Độ bo góc cho nút bấm và badge (Kiểu viên thuốc Pill-shape)
+  static const double pillRadius = 28.0;
+
+  /// Đổ bóng mỏng nhẹ tinh tế Soft Neo-Brutalism (Offset 2.0, 2.5px với viền xám than và bóng mờ nhẹ)
   static const List<BoxShadow> hardShadow = [
     BoxShadow(
-      color: primaryInk,
-      offset: Offset(3.0, 3.0),
+      color: Color(0x2E2C2C2C),
+      offset: Offset(2.0, 2.5),
       blurRadius: 0,
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Color(0x0D000000),
+      offset: Offset(0, 4.0),
+      blurRadius: 10.0,
       spreadRadius: 0,
     ),
   ];
 
-  /// Đổ bóng cứng đậm hơn cho Hero Card hoặc Dialog
+  /// Đổ bóng mỏng nhẹ cho Card lớn / Modal Dialog
   static const List<BoxShadow> heavyHardShadow = [
     BoxShadow(
-      color: primaryInk,
-      offset: Offset(5.0, 5.0),
+      color: Color(0x382C2C2C),
+      offset: Offset(3.0, 3.5),
       blurRadius: 0,
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Color(0x14000000),
+      offset: Offset(0, 6.0),
+      blurRadius: 14.0,
       spreadRadius: 0,
     ),
   ];

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Cấu hình Theme chuẩn phong cách Nivora Brutalist
+/// Cấu hình Theme phong cách Soft Neo-Brutalism (Mềm mại, hiện đại, thân thiện)
 class AppTheme {
   AppTheme._();
 
@@ -21,68 +21,68 @@ class AppTheme {
       dividerColor: AppColors.divider,
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
-        thickness: 1.5,
-        space: 24,
+        thickness: 1.0,
+        space: 20,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.scaffoldBackground,
         foregroundColor: AppColors.primaryInk,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.spaceGrotesk(
+        titleTextStyle: GoogleFonts.plusJakartaSans(
           fontSize: 20,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           color: AppColors.primaryInk,
-          letterSpacing: -0.5,
+          letterSpacing: -0.3,
         ),
       ),
       textTheme: TextTheme(
-        // Tiêu đề lớn (Space Grotesk)
-        headlineLarge: GoogleFonts.spaceGrotesk(
+        // Tiêu đề lớn hiện đại bo tròn nhẹ
+        headlineLarge: GoogleFonts.plusJakartaSans(
           fontSize: 32,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w800,
           color: AppColors.primaryInk,
-          letterSpacing: -1.0,
+          letterSpacing: -0.8,
         ),
-        headlineMedium: GoogleFonts.spaceGrotesk(
+        headlineMedium: GoogleFonts.plusJakartaSans(
           fontSize: 24,
           fontWeight: FontWeight.w800,
           color: AppColors.primaryInk,
-          letterSpacing: -0.5,
+          letterSpacing: -0.4,
         ),
-        headlineSmall: GoogleFonts.spaceGrotesk(
+        headlineSmall: GoogleFonts.plusJakartaSans(
           fontSize: 20,
           fontWeight: FontWeight.w700,
           color: AppColors.primaryInk,
         ),
-        // Tiêu đề con & Thẻ (Space Grotesk)
-        titleLarge: GoogleFonts.spaceGrotesk(
+        // Tiêu đề con & Thẻ
+        titleLarge: GoogleFonts.plusJakartaSans(
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.primaryInk,
         ),
-        titleMedium: GoogleFonts.spaceGrotesk(
+        titleMedium: GoogleFonts.plusJakartaSans(
           fontSize: 16,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w600,
           color: AppColors.primaryInk,
         ),
-        // Nhãn, Deadline, Trạng thái (JetBrains Mono UPPERCASE)
-        labelLarge: GoogleFonts.jetBrainsMono(
+        // Nhãn, Deadline, Trạng thái (Chuyển sang Sans-serif bo tròn nhẹ theo Soft Neo-Brutalism)
+        labelLarge: GoogleFonts.plusJakartaSans(
           fontSize: 13,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.0,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
           color: AppColors.primaryInk,
         ),
-        labelMedium: GoogleFonts.jetBrainsMono(
+        labelMedium: GoogleFonts.plusJakartaSans(
           fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.0,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
           color: AppColors.primaryInk,
         ),
-        labelSmall: GoogleFonts.jetBrainsMono(
-          fontSize: 9,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.8,
+        labelSmall: GoogleFonts.plusJakartaSans(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
           color: AppColors.secondaryText,
         ),
         // Nội dung chính (Inter)
@@ -98,7 +98,7 @@ class AppTheme {
         ),
         bodySmall: GoogleFonts.inter(
           fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           color: AppColors.secondaryText,
         ),
       ),

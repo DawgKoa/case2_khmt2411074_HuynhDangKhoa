@@ -207,29 +207,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'TASK MANAGER // OS',
-          style: GoogleFonts.spaceGrotesk(
+          'Task Manager // OS',
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.2,
             color: AppColors.primaryInk,
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: EdgeInsets.only(right: 16.0),
             child: BrutalistBadge(
-              text: 'RECOVERY // OTP',
+              text: 'Recovery // OTP',
               backgroundColor: AppColors.primaryAccent,
               textColor: AppColors.primaryInk,
             ),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),
@@ -243,20 +243,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               Row(
                 children: [
                   BrutalistBadge(
-                    text: _isOtpSent ? 'BƯỚC 02 // XÁC THỰC & ĐỔI MẬT KHẨU' : 'BƯỚC 01 // NHẬN MÃ OTP',
-                    backgroundColor: _isOtpSent ? AppColors.success : AppColors.secondarySurface,
-                    textColor: _isOtpSent ? Colors.white : AppColors.primaryInk,
-                    icon: _isOtpSent ? Icons.verified_outlined : Icons.lock_reset,
+                    text: _isOtpSent ? 'Bước 02 // Xác thực & Đổi mật khẩu' : 'Bước 01 // Nhận mã OTP',
+                    backgroundColor: _isOtpSent ? AppColors.pastelGreen : AppColors.pastelYellow,
+                    textColor: _isOtpSent ? const Color(0xFF15803D) : AppColors.primaryInk,
+                    icon: _isOtpSent ? Icons.verified_outlined : Icons.lock_reset_rounded,
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               Text(
                 'QUÊN MẬT KHẨU',
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -1.0,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
                   color: AppColors.primaryInk,
                 ),
               ),
@@ -267,7 +267,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     : 'Nhập email đã đăng ký. Hệ thống sẽ gửi mã xác thực OTP 6 số để bạn thiết lập lại mật khẩu.',
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: AppColors.secondaryText,
                 ),
               ),
@@ -276,19 +276,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               // Error Banner nếu có
               if (_errorMessage != null) ...[
                 BrutalistCard(
-                  backgroundColor: AppColors.danger,
+                  backgroundColor: AppColors.pastelRed,
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.error_outline, color: Colors.white, size: 22),
+                      const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 22),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: GoogleFonts.spaceGrotesk(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFFDC2626),
+                            fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
                         ),

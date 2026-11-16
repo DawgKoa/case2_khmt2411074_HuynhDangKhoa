@@ -147,17 +147,17 @@ class _UserPickerModalState extends State<_UserPickerModal> {
       margin: EdgeInsets.only(bottom: bottomInset),
       decoration: BoxDecoration(
         color: AppColors.scaffoldBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: const Border(
-          top: BorderSide(color: AppColors.primaryInk, width: 3),
-          left: BorderSide(color: AppColors.primaryInk, width: 2),
-          right: BorderSide(color: AppColors.primaryInk, width: 2),
+          top: BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
+          left: BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
+          right: BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
         ),
         boxShadow: const [
           BoxShadow(
-            color: AppColors.primaryInk,
+            color: Color(0x302C2C2C),
             offset: Offset(0, -3),
-            blurRadius: 0,
+            blurRadius: 10,
           ),
         ],
       ),
@@ -168,10 +168,10 @@ class _UserPickerModalState extends State<_UserPickerModal> {
           // Drag handle
           Center(
             child: Container(
-              width: 48,
-              height: 5,
+              width: 44,
+              height: 4,
               decoration: BoxDecoration(
-                color: AppColors.primaryInk,
+                color: AppColors.divider,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -184,32 +184,36 @@ class _UserPickerModalState extends State<_UserPickerModal> {
             children: [
               Text(
                 widget.title,
-                style: GoogleFonts.spaceGrotesk(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.primaryInk,
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close, color: AppColors.primaryInk),
+                icon: const Icon(Icons.close_rounded, color: AppColors.primaryInk),
                 onPressed: () => Navigator.of(context).pop(),
               ),
             ],
           ),
           const SizedBox(height: 12),
 
-          // Search Field (Brutalist style)
+          // Search Field (Soft Neo-Brutalism style)
           Container(
             decoration: BoxDecoration(
               color: AppColors.cardWhite,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppColors.primaryInk, width: 2),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
               boxShadow: const [
                 BoxShadow(
-                  color: AppColors.primaryInk,
-                  offset: Offset(3, 3),
+                  color: Color(0x202C2C2C),
+                  offset: Offset(2, 2.5),
                   blurRadius: 0,
+                ),
+                BoxShadow(
+                  color: Color(0x06000000),
+                  offset: Offset(0, 3),
+                  blurRadius: 6,
                 ),
               ],
             ),
@@ -348,12 +352,12 @@ class _UserPickerModalState extends State<_UserPickerModal> {
                                           color: isSelected
                                               ? AppColors.primaryInk
                                               : AppColors.cardWhite,
-                                          borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(color: AppColors.primaryInk, width: 1.5),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(color: AppColors.primaryInk, width: AppColors.borderWidth),
                                         ),
                                         alignment: Alignment.center,
                                         child: isSelected
-                                            ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                            ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
                                             : null,
                                       ),
                                     ],
@@ -369,7 +373,8 @@ class _UserPickerModalState extends State<_UserPickerModal> {
             const SizedBox(height: 14),
             BrutalistButton(
               text: 'XÁC NHẬN CHỌN (${_selectedUsers.length})',
-              icon: Icons.check,
+              icon: Icons.check_rounded,
+              borderRadius: 28.0,
               backgroundColor: AppColors.primaryAccent,
               textColor: AppColors.primaryInk,
               onPressed: () => Navigator.of(context).pop(_selectedUsers),

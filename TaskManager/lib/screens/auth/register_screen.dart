@@ -116,28 +116,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'TASK MANAGER // OS',
-          style: GoogleFonts.spaceGrotesk(
+          'Task Manager // OS',
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.2,
             color: AppColors.primaryInk,
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: EdgeInsets.only(right: 16.0),
             child: BrutalistBadge(
-              text: 'V1.0',
-              backgroundColor: AppColors.secondarySurface,
+              text: 'v1.0',
+              backgroundColor: AppColors.pastelIvory,
             ),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),
@@ -151,24 +151,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 // Tag & Badge
                 Row(
-                  children: [
+                  children: const [
                     BrutalistBadge(
-                      text: 'MODULE A // AUTHENTICATION',
+                      text: 'Module A // Authentication',
                       backgroundColor: AppColors.primaryAccent,
                       textColor: AppColors.primaryInk,
                       icon: Icons.shield_outlined,
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // Main Title
                 Text(
                   'TẠO TÀI KHOẢN',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -1.0,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
                     color: AppColors.primaryInk,
                   ),
                 ),
@@ -186,19 +186,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Error Banner nếu có
                 if (_errorMessage != null) ...[
                   BrutalistCard(
-                    backgroundColor: AppColors.danger,
+                    backgroundColor: AppColors.pastelRed,
                     padding: const EdgeInsets.all(12),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 22),
+                        const Icon(Icons.warning_amber_rounded, color: Color(0xFFDC2626), size: 22),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: GoogleFonts.spaceGrotesk(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                            style: GoogleFonts.plusJakartaSans(
+                              color: const Color(0xFFDC2626),
+                              fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
                           ),
@@ -274,10 +274,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Nút Đăng ký
                       BrutalistButton(
                         text: 'ĐĂNG KÝ TÀI KHOẢN',
-                        icon: Icons.arrow_forward,
+                        icon: Icons.arrow_forward_rounded,
                         isLoading: _isLoading,
                         width: double.infinity,
                         height: 52,
+                        borderRadius: 28.0,
                         backgroundColor: AppColors.primaryAccent,
                         textColor: AppColors.primaryInk,
                         onPressed: _handleRegister,
@@ -289,17 +290,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // Link chuyển sang Đăng nhập
                 BrutalistCard(
-                  backgroundColor: AppColors.secondarySurface.withValues(alpha: 0.2),
+                  backgroundColor: AppColors.cardWhite,
+                  borderRadius: 16.0,
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   shadowOffset: const Offset(2, 2),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'ĐÃ CÓ TÀI KHOẢN? ',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        'Đã có tài khoản? ',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.secondaryText,
                         ),
                       ),
@@ -311,10 +313,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           );
                         },
                         child: Text(
-                          'ĐĂNG NHẬP NGAY',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
+                          'Đăng nhập ngay',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
                             color: AppColors.primaryInk,
                             decoration: TextDecoration.underline,
                           ),

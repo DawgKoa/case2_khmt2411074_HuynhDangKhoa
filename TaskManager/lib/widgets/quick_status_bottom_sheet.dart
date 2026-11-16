@@ -101,17 +101,17 @@ class _QuickStatusModalContentState extends State<_QuickStatusModalContent> {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.scaffoldBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: const Border(
-          top: BorderSide(color: AppColors.primaryInk, width: 3),
-          left: BorderSide(color: AppColors.primaryInk, width: 2),
-          right: BorderSide(color: AppColors.primaryInk, width: 2),
+          top: BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
+          left: BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
+          right: BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
         ),
         boxShadow: const [
           BoxShadow(
-            color: AppColors.primaryInk,
+            color: Color(0x302C2C2C),
             offset: Offset(0, -3),
-            blurRadius: 0,
+            blurRadius: 10,
           ),
         ],
       ),
@@ -123,10 +123,10 @@ class _QuickStatusModalContentState extends State<_QuickStatusModalContent> {
           // Drag handle bar
           Center(
             child: Container(
-              width: 48,
-              height: 5,
+              width: 44,
+              height: 4,
               decoration: BoxDecoration(
-                color: AppColors.primaryInk,
+                color: AppColors.divider,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -135,9 +135,9 @@ class _QuickStatusModalContentState extends State<_QuickStatusModalContent> {
 
           Text(
             'CHUYỂN TRẠNG THÁI NHANH (B4)',
-            style: GoogleFonts.spaceGrotesk(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
               color: AppColors.primaryInk,
             ),
           ),

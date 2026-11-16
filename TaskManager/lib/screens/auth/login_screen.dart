@@ -72,8 +72,8 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: AppColors.primaryAccent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: const BorderSide(color: AppColors.primaryInk, width: 2),
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: AppColors.primaryInk, width: AppColors.borderWidth),
           ),
           content: Row(
             children: [
@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Expanded(
                 child: Text(
                   'Chào mừng ${user.fullName} trở lại!',
-                  style: GoogleFonts.spaceGrotesk(
+                  style: GoogleFonts.plusJakartaSans(
                     color: AppColors.primaryInk,
                     fontWeight: FontWeight.w700,
                   ),
@@ -118,28 +118,28 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'TASK MANAGER // OS',
-          style: GoogleFonts.spaceGrotesk(
+          'Task Manager // OS',
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.0,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.2,
             color: AppColors.primaryInk,
           ),
         ),
-        actions: [
+        actions: const [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: EdgeInsets.only(right: 16.0),
             child: BrutalistBadge(
-              text: 'LOGIN GATEWAY',
-              backgroundColor: AppColors.secondarySurface,
+              text: 'Login Gateway',
+              backgroundColor: AppColors.pastelIvory,
             ),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2),
+          preferredSize: const Size.fromHeight(1),
           child: Container(
-            color: AppColors.primaryInk,
-            height: 2,
+            color: AppColors.divider,
+            height: 1,
           ),
         ),
       ),
@@ -153,24 +153,24 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 // Tag & Badge
                 Row(
-                  children: [
+                  children: const [
                     BrutalistBadge(
-                      text: 'MODULE A // AUTHENTICATION',
+                      text: 'Module A // Authentication',
                       backgroundColor: AppColors.primaryAccent,
                       textColor: AppColors.primaryInk,
-                      icon: Icons.lock_outline,
+                      icon: Icons.lock_outline_rounded,
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // Main Title
                 Text(
                   'ĐĂNG NHẬP',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -1.0,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
                     color: AppColors.primaryInk,
                   ),
                 ),
@@ -188,19 +188,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Error Banner
                 if (_errorMessage != null) ...[
                   BrutalistCard(
-                    backgroundColor: AppColors.danger,
+                    backgroundColor: AppColors.pastelRed,
                     padding: const EdgeInsets.all(12),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.white, size: 22),
+                        const Icon(Icons.error_outline_rounded, color: Color(0xFFDC2626), size: 22),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: GoogleFonts.spaceGrotesk(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                            style: GoogleFonts.plusJakartaSans(
+                              color: const Color(0xFFDC2626),
+                              fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
                           ),
@@ -260,10 +260,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                           },
                           child: Text(
-                            'QUÊN MẬT KHẨU?',
-                            style: GoogleFonts.spaceGrotesk(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
+                            'Quên mật khẩu?',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
                               color: AppColors.primaryInk,
                               decoration: TextDecoration.underline,
                             ),
@@ -275,10 +275,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Nút Đăng nhập
                       BrutalistButton(
                         text: 'ĐĂNG NHẬP HỆ THỐNG',
-                        icon: Icons.login,
+                        icon: Icons.login_rounded,
                         isLoading: _isLoading,
                         width: double.infinity,
                         height: 52,
+                        borderRadius: 28.0,
                         backgroundColor: AppColors.primaryAccent,
                         textColor: AppColors.primaryInk,
                         onPressed: _handleLogin,
@@ -290,17 +291,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Link chuyển sang Đăng ký
                 BrutalistCard(
-                  backgroundColor: AppColors.secondarySurface.withValues(alpha: 0.2),
+                  backgroundColor: AppColors.cardWhite,
+                  borderRadius: 16.0,
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   shadowOffset: const Offset(2, 2),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'CHƯA CÓ TÀI KHOẢN? ',
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        'Chưa có tài khoản? ',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                           color: AppColors.secondaryText,
                         ),
                       ),
@@ -312,10 +314,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                         child: Text(
-                          'ĐĂNG KÝ NGAY',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
+                          'Đăng ký ngay',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w700,
                             color: AppColors.primaryInk,
                             decoration: TextDecoration.underline,
                           ),

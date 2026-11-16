@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_colors.dart';
 
-/// Nút bấm chuẩn Nivora Brutalist với hiệu ứng nhấn chìm vật lý (Tactile physical tap)
+/// Nút bấm phong cách Soft Neo-Brutalism (Viên thuốc Pill-shape, viền than 1.2px, bóng êm ái)
 class BrutalistButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -13,6 +13,7 @@ class BrutalistButton extends StatefulWidget {
   final double height;
   final double? width;
   final double borderRadius;
+  final bool isUppercase;
 
   const BrutalistButton({
     super.key,
@@ -22,9 +23,10 @@ class BrutalistButton extends StatefulWidget {
     this.textColor = AppColors.primaryInk,
     this.icon,
     this.isLoading = false,
-    this.height = 48.0,
+    this.height = 50.0,
     this.width,
-    this.borderRadius = 8.0,
+    this.borderRadius = AppColors.pillRadius,
+    this.isUppercase = false,
   });
 
   @override
@@ -37,7 +39,7 @@ class _BrutalistButtonState extends State<BrutalistButton> {
   @override
   Widget build(BuildContext context) {
     final bool isEnabled = widget.onPressed != null && !widget.isLoading;
-    final double offset = _isPressed ? 0.0 : 3.0;
+    final double offset = _isPressed ? 0.0 : 2.5;
 
     return GestureDetector(
       onTapDown: isEnabled ? (_) => setState(() => _isPressed = true) : null,
@@ -45,10 +47,10 @@ class _BrutalistButtonState extends State<BrutalistButton> {
       onTapCancel: isEnabled ? () => setState(() => _isPressed = false) : null,
       onTap: isEnabled ? widget.onPressed : null,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 60),
+        duration: const Duration(milliseconds: 70),
         width: widget.width,
         height: widget.height,
-        transform: Matrix4.translationValues(_isPressed ? 3.0 : 0.0, _isPressed ? 3.0 : 0.0, 0.0),
+        transform: Matrix4.translationValues(_isPressed ? 2.0 : 0.0, _isPressed ? 2.0 : 0.0, 0.0),
         decoration: BoxDecoration(
           color: isEnabled ? widget.backgroundColor : AppColors.secondarySurface,
           borderRadius: BorderRadius.circular(widget.borderRadius),
@@ -58,21 +60,28 @@ class _BrutalistButtonState extends State<BrutalistButton> {
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primaryInk,
+              color: const Color(0x332C2C2C),
               offset: Offset(offset, offset),
               blurRadius: 0,
               spreadRadius: 0,
             ),
+            if (!_isPressed)
+              const BoxShadow(
+                color: Color(0x0D000000),
+                offset: Offset(0, 4.0),
+                blurRadius: 8.0,
+                spreadRadius: 0,
+              ),
           ],
         ),
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: widget.isLoading
             ? SizedBox(
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
+                  strokeWidth: 2.2,
                   valueColor: AlwaysStoppedAnimation<Color>(widget.textColor),
                 ),
               )
@@ -81,16 +90,16 @@ class _BrutalistButtonState extends State<BrutalistButton> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (widget.icon != null) ...[
-                    Icon(widget.icon, color: widget.textColor, size: 20),
+                    Icon(widget.icon, color: widget.textColor, size: 19),
                     const SizedBox(width: 8),
                   ],
                   Text(
-                    widget.text.toUpperCase(),
-                    style: GoogleFonts.spaceGrotesk(
+                    widget.isUppercase ? widget.text.toUpperCase() : widget.text,
+                    style: GoogleFonts.plusJakartaSans(
                       color: widget.textColor,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                      letterSpacing: 0.8,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14.5,
+                      letterSpacing: 0.2,
                     ),
                   ),
                 ],

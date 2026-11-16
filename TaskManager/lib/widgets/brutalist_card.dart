@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 
-/// Thẻ Card chuẩn Nivora Brutalist (Viền đen 2px, bóng cứng Offset(3,3), không blur)
+/// Thẻ Card chuẩn Soft Neo-Brutalism (Viền than mảnh 1.2px, bo góc 18px, bóng đổ êm ái)
 class BrutalistCard extends StatelessWidget {
   final Widget child;
   final Color backgroundColor;
@@ -10,6 +10,7 @@ class BrutalistCard extends StatelessWidget {
   final double borderWidth;
   final double borderRadius;
   final Offset shadowOffset;
+  final List<BoxShadow>? customShadow;
   final VoidCallback? onTap;
 
   const BrutalistCard({
@@ -19,8 +20,9 @@ class BrutalistCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(16.0),
     this.margin,
     this.borderWidth = AppColors.borderWidth,
-    this.borderRadius = 8.0,
-    this.shadowOffset = const Offset(3.0, 3.0),
+    this.borderRadius = AppColors.cardRadius,
+    this.shadowOffset = const Offset(2.0, 2.5),
+    this.customShadow,
     this.onTap,
   });
 
@@ -35,14 +37,21 @@ class BrutalistCard extends StatelessWidget {
           color: AppColors.primaryInk,
           width: borderWidth,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryInk,
-            offset: shadowOffset,
-            blurRadius: 0,
-            spreadRadius: 0,
-          ),
-        ],
+        boxShadow: customShadow ??
+            [
+              BoxShadow(
+                color: const Color(0x282C2C2C),
+                offset: shadowOffset,
+                blurRadius: 0,
+                spreadRadius: 0,
+              ),
+              const BoxShadow(
+                color: Color(0x0A000000),
+                offset: Offset(0, 4.0),
+                blurRadius: 8.0,
+                spreadRadius: 0,
+              ),
+            ],
       ),
       child: Padding(
         padding: padding,
